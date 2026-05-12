@@ -3,7 +3,11 @@ import { GoogleGenAI, Type } from "@google/genai";
 let aiClient: typeof GoogleGenAI.prototype | null = null;
 function getAiClient() {
   if (!aiClient) {
-    const key = process.env.GEMINI_API_KEY || (import.meta.env ? import.meta.env.VITE_GEMINI_API_KEY : undefined);
+    let key = '';
+    try { key = (import.meta as any).env.VITE_GEMINI_API_KEY || ''; } catch(e) {}
+    if (!key) {
+      try { key = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY || '' : ''; } catch(e) {}
+    }
     if (!key) {
       console.error("GEMINI_API_KEY is missing!");
     }
