@@ -1,6 +1,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiClient: typeof GoogleGenAI.prototype | null = null;
+function getAiClient() {
+  if (!aiClient) {
+    const key = process.env.GEMINI_API_KEY || (import.meta.env ? import.meta.env.VITE_GEMINI_API_KEY : undefined);
+    if (!key) {
+      console.error("GEMINI_API_KEY is missing!");
+    }
+    aiClient = new GoogleGenAI({ apiKey: key || 'missing_key' });
+  }
+  return aiClient;
+}
 
 export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1 | 2) {
   const systemInstruction = `
@@ -27,7 +37,7 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Prompt: ${prompt}\n\nEssay: ${essay}`,
       config: {
@@ -89,7 +99,7 @@ export async function scoreIELTSSpeaking(transcripts: string[]) {
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Transcripts from the interview:\n${transcripts.join('\n\n--- NEXT PART ---\n\n')}`,
       config: {
@@ -227,7 +237,7 @@ export async function generateDynamicTestSet(
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const responseText = await Promise.race([
-          ai.models.generateContent({
+          getAiClient().models.generateContent({
             model: "gemini-3-flash-preview",
             contents: inputContent,
             config: {
