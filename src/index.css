@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-dark: #0A0A0F;
+  --color-bg-light: #F8F9FA;
+  --color-accent: #7C3AED;
+  --color-glass: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-purple-border: rgba(124, 58, 237, 0.3);
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-2xl: 24px;
+}
+
+@layer base {
+  :root {
+    --bg-page: #F8F9FA;
+    --text-main: #0A0A0F;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(124, 58, 237, 0.1);
+  }
+
+  .dark {
+    --bg-page: #0A0A0F;
+    --text-main: #FFFFFF;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+  }
+
+  body {
+    @apply antialiased transition-colors duration-300;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply backdrop-blur-md rounded-[24px] shadow-2xl transition-all border;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+  
+  .glass-card-purple {
+    @apply backdrop-blur-md border border-[#7C3AED]/30 rounded-[24px] shadow-2xl;
+    background-color: var(--glass-bg);
+  }
+  
+  .glass-nav {
+    @apply backdrop-blur-2xl rounded-[28px] border outline-none;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15), inset 0 2px 10px rgba(255, 255, 255, 0.6);
+  }
+
+  .dark .glass-nav {
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-primary {
+    @apply bg-[#7C3AED] hover:brightness-110 text-white font-bold py-4 px-6 rounded-xl transition-all active:scale-95 text-lg shadow-[0_0_20px_rgba(124,58,237,0.3)];
+  }
+
+  .text-purple {
+    @apply text-[#A78BFA];
+  }
+
+  .bg-purple {
+    @apply bg-[#7C3AED];
+  }
+}

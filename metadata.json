@@ -1,0 +1,6 @@
+{
+  "name": "IEM Test Prep Dashboard",
+  "description": "A comprehensive test preparation application with profile management, test registrations (IEM format), results tracking, and practice sessions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
