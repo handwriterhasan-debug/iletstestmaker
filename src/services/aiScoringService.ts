@@ -84,28 +84,50 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
   }
 }
 
-export async function scoreIELTSSpeaking(transcripts: string[]) {
+export async function scoreIELTSSpeaking(userResponses: (string | { base64: string, mimeType: string })[]) {
   const systemInstruction = `
   You are a brutally honest and fully certified IELTS examiner. You work exactly like the real British Council and IDP scoring system. Your job is to give the student the most accurate and realistic band score possible, not to encourage them, not to be polite, and not to assume effort where there is none. A fake high score harms the student more than an honest low score because it creates false confidence before their real exam.
 
-  For the Speaking section, this is your most critical instruction. You must first check the transcribed text of what the student actually said. If the recording is silent, the score is 0. If the transcription is empty or only contains filler words like um, uh, okay, or hello with no real content, the score must be 0 to 1.0. If the student spoke for under 20 seconds with minimal content, the maximum score is 2.0. You must never give a speaking score of 5 or above unless the transcription clearly shows the student spoke fluently, with organized ideas, a range of vocabulary, and correct grammar for a significant portion of their response. Silence is not fluency. Short mumbling is not fluency. Treat an empty or near-empty speaking response exactly the way a real IELTS examiner would treat it, which is an immediate near-zero score.
+  For the Speaking section, you must carefully listen to the provided audio recordings (or read the transcripts if audio failed). Evaluate strictly on all four official IELTS speaking criteria: Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, and Pronunciation.
+  If the recording is silent, or only has short fillers like "um", "uh", with no real content, the score must be 0 to 1.0. If the student spoke for under 20 seconds total across all parts with minimal content, the maximum score is 2.0. Silence is not fluency. Treat an empty or near-empty speaking response exactly the way a real IELTS examiner would treat it, which is an immediate near-zero score.
   
   Always be fair, and always remember that being fair means being accurate.
 
-  Evaluate the following Speaking transcripts.
+  Evaluate the following Speaking audio responses.
   
   Return a JSON object ALWAYS matching this structure exactly:
   {
     "band": number,
     "feedback": "A short honest two-sentence feedback note explaining exactly why the student received that score",
+    "breakdown": {
+      "fluency": number,
+      "pronunciation": number,
+      "vocab": number,
+      "grammar": number
+    },
     "suggestions": ["suggestion 1", "suggestion 2", "suggestion 3"]
   }
   `;
 
   try {
+    const parts: any[] = [ "Evaluate the following Speaking interview responses:" ];
+    
+    for (const response of userResponses) {
+      if (typeof response === 'string') {
+        parts.push(response);
+      } else if (response && response.base64) {
+        parts.push({
+          inlineData: {
+            data: response.base64,
+            mimeType: response.mimeType
+          }
+        });
+      }
+    }
+
     const response = await getAiClient().models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Transcripts from the interview:\n${transcripts.join('\n\n--- NEXT PART ---\n\n')}`,
+      contents: parts,
       config: {
         systemInstruction,
         responseMimeType: "application/json",
@@ -114,12 +136,22 @@ export async function scoreIELTSSpeaking(transcripts: string[]) {
           properties: {
             band: { type: Type.NUMBER },
             feedback: { type: Type.STRING },
+            breakdown: {
+              type: Type.OBJECT,
+              properties: {
+                fluency: { type: Type.NUMBER },
+                pronunciation: { type: Type.NUMBER },
+                vocab: { type: Type.NUMBER },
+                grammar: { type: Type.NUMBER }
+              },
+              required: ["fluency", "pronunciation", "vocab", "grammar"]
+            },
             suggestions: {
               type: Type.ARRAY,
               items: { type: Type.STRING }
             }
           },
-          required: ["band", "feedback", "suggestions"]
+          required: ["band", "feedback", "breakdown", "suggestions"]
         }
       }
     });
@@ -127,15 +159,43 @@ export async function scoreIELTSSpeaking(transcripts: string[]) {
     return JSON.parse(response.text || '{}');
   } catch (error) {
     console.error("AI Speaking Scoring Error:", error);
-    return { band: 0, feedback: "Error processing speak score.", suggestions: [] };
+    return { 
+      band: 0, 
+      feedback: "Error processing speak score.", 
+      breakdown: { fluency: 0, pronunciation: 0, vocab: 0, grammar: 0 },
+      suggestions: [] 
+    };
   }
 }
 
 export async function generateDynamicTestSet(
-  knowledgeRefs: string[], 
+  options: string[] | { knowledgeRefs?: string[]; customFilfoId?: string; customFilfoTitle?: string }, 
   difficulty: string = "Average",
   onProgress?: (message: string, progress: number) => void
 ) {
+  let finalRefs: string[] = [];
+  if (Array.isArray(options)) {
+    finalRefs = options;
+  } else {
+    if (options.customFilfoId || options.customFilfoTitle) {
+      try {
+        const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
+        const match = filfoData.find((d: any) => 
+          (options.customFilfoId && d.id === options.customFilfoId) ||
+          (options.customFilfoTitle && d.title === options.customFilfoTitle)
+        );
+        if (match) {
+          finalRefs = [match.content];
+        }
+      } catch (e) {
+        // Ignore JSON parse errors
+      }
+    }
+    if (finalRefs.length === 0 && options.knowledgeRefs) {
+      finalRefs = options.knowledgeRefs;
+    }
+  }
+
   const baseRules = `
   You are an advanced IELTS test generation engine connected to a custom knowledge vault called FILFO. Your entire behavior is governed by the following rules without exception.
   
@@ -146,7 +206,7 @@ export async function generateDynamicTestSet(
   If there is reference knowledge provided, YOU MUST base the test around that knowledge.
   If not, generate a completely random topic for the test.
 
-  Regarding difficulty level, Easy questions use everyday vocabulary, straightforward sentence structure, and answers that can be found directly in the text or audio. Average questions require some inference and use paraphrased language so the answer is not word for word identical to the source. Hard questions require deeper inference, academic vocabulary, and understanding of the writer or speaker's attitude and purpose. Expert questions are designed to challenge band 8 and 9 candidates with highly nuanced distractors, complex passage structure, and abstract writing and speaking prompts that require balanced argumentation and sophisticated language.
+  Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
 
   CRITICAL STABILITY AND PERFORMANCE RULES — These rules must be followed at all times without exception to prevent errors, crashes, and slow loading.
   You must never return incomplete JSON under any circumstances. Every single response you generate must be a complete, valid, fully closed JSON object. Never leave a JSON array open. Never leave a bracket unclosed. Never stop generating mid-response. If your response is getting long, simplify the content of each question but always complete the full JSON structure before stopping. An incomplete JSON response is a critical failure.
@@ -155,51 +215,56 @@ export async function generateDynamicTestSet(
   Never return conversational text mixed inside the JSON. The entire response must be pure clean JSON with no explanation text before it, no markdown code blocks around it, no apology messages inside it, and no commentary after it. Pure JSON only, nothing else.`;
 
   const listeningPrompt = baseRules + `
-  STRICT QUESTION COUNT AND FORMAT RULES — These rules override everything else and must never be broken under any circumstances.
-  The Listening section must have exactly 10 Multiple Choice Questions.
-  Every Multiple Choice Question without any exception must have exactly 4 options labeled A, B, C, and D.
-  Each MCQ option must be a complete selectable answer.
-  When outputting MCQs you must always format them in clean structured JSON. The options field contains an array of exactly 4 objects, where each object has an "id" field (which must be exactly "A", "B", "C", or "D") and a "text" field containing the option text. The correctAnswer field must contain the exact letter of the correct answer as a single character which is either A, B, C, or D.
+  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
+  This rule has the highest priority and overrides every other instruction.
+  The Listening section must contain exactly 10 Multiple Choice Questions. No more no less. All 10 must be generated before returning any response.
+  Every Multiple Choice Question in every section in every test must have exactly 4 options labeled A, B, C, and D. Never 3 options. Never 5 options. Never 6 options. Never 8 options. Exactly 4 every single time.
+  Before returning your response you must count your questions. If Listening has fewer than 10 questions you must generate more before returning.
 
-  TOKEN LIMITS: Listening audio script maximum 150 words. Each MCQ option maximum 12 words. These limits are non-negotiable.
+  TOKEN LIMITS: Listening audio script minimum 400 words, maximum 600 words. Each MCQ option maximum 15 words. These limits are non-negotiable.
 
-  For the Listening section you must use the selected FILFO knowledge entry to write a realistic audio script. ALways start the JSON right away, no conversational intro.
+  For the Listening section you must use the selected knowledge entry to write a realistic audio script. Ensure it is sufficiently long. ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "title": "String",
-    "script": "String (the spoken transcript, max 150 words)",
+    "script": "String (the spoken transcript, minimum 400 words)",
     "questions": [
-      { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Option 1 max 12 words"}, {"id":"B", "text":"Option 2"}, {"id":"C", "text":"Option 3"}, {"id":"D", "text":"Option 4"}], "correctAnswer": "A" }
+       // MUST BE EXACTLY 10 QUESTIONS HERE
+      { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1 max 12w"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
     ]
   }`;
 
   const readingPrompt = baseRules + `
-  STRICT QUESTION COUNT AND FORMAT RULES — These rules override everything else and must never be broken under any circumstances.
-  The Reading section must have exactly 10 questions which can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but the total must always equal exactly 10.
-  Every Multiple Choice Question without any exception must have exactly 4 options.
-  When outputting MCQs you must always format them in clean structured JSON. The options field contains an array of exactly 4 objects. The correctAnswer field must contain the exact letter of the correct answer.
+  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
+  This rule has the highest priority and overrides every other instruction.
+  The Reading section must contain exactly 10 questions. These can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but the total count must always be exactly 10. Never return fewer than 10.
+  Every Multiple Choice Question without any exception must have exactly 4 options. Exactly 4 every single time.
+  Before returning your response you must count your questions. If Reading has fewer than 10 questions you must generate more before returning.
 
-  TOKEN LIMITS: Reading passage maximum 400 words. Each MCQ option maximum 12 words. These limits are non-negotiable.
+  TOKEN LIMITS: Reading passage minimum 800 words, maximum 1000 words. Each MCQ option maximum 15 words. These limits are non-negotiable.
 
-  For the Reading section you must use a FILFO knowledge entry to generate a full academic passage. ALways start the JSON right away, no conversational intro.
+  For the Reading section you must use a knowledge entry to generate a full academic passage. Make sure it's long and comprehensive. ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "title": "String",
-    "passage": "String (the reading passage, max 400 words)",
+    "passage": "String (the reading passage, minimum 800 words)",
     "questions": [
-      { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Option 1 max 12 words"}, {"id":"B", "text":"Option 2"}, {"id":"C", "text":"Option 3"}, {"id":"D", "text":"Option 4"}], "correctAnswer": "A" },
+      // MUST BE EXACTLY 10 QUESTIONS HERE
+      { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1 max 12w"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
       { "id": "r2", "type": "text", "label": "String (fill in blank)", "correctAnswer": "Word" }
     ]
-  }`;
+  }
+  Make sure you generate exactly 10 questions inside the questions array!`;
 
   const writingPrompt = baseRules + `
-  STRICT QUESTION COUNT AND FORMAT RULES — These rules override everything else and must never be broken under any circumstances.
-  The Writing section must have exactly 2 tasks, Task 1 and Task 2, with no additional questions.
+  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
+  This rule has the highest priority and overrides every other instruction.
+  The Writing section must contain exactly 2 tasks. Task 1 minimum 150 words prompt and Task 2 minimum 250 words prompt. These 2 tasks are mandatory in every single test.
 
   TOKEN LIMITS: Writing prompt maximum 50 words each. These limits are non-negotiable.
-  ALways start the JSON right away, no conversational intro.
+  ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
@@ -217,11 +282,12 @@ export async function generateDynamicTestSet(
   }`;
 
   const speakingPrompt = baseRules + `
-  STRICT QUESTION COUNT AND FORMAT RULES — These rules override everything else and must never be broken under any circumstances.
-  The Speaking section must have exactly 3 parts with Part 1 containing 3 warm-up questions, Part 2 containing 1 cue card, and Part 3 containing 3 discussion questions.
+  ABSOLUTE RULE — MINIMUM PROMPT COUNT PER SECTION
+  This rule has the highest priority and overrides every other instruction.
+  The Speaking section must contain exactly 7 prompts total. Part 1 must have exactly 3 warm up questions. Part 2 must have exactly 1 cue card. Part 3 must have exactly 3 discussion questions. Total 7 always.
 
   TOKEN LIMITS: Speaking cue card maximum 40 words. These limits are non-negotiable.
-  ALways start the JSON right away, no conversational intro.
+  ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
@@ -230,8 +296,8 @@ export async function generateDynamicTestSet(
     "part3": ["Question 1", "Question 2", "Question 3"]
   }`;
 
-  const inputContent = knowledgeRefs.length > 0 
-    ? `Please generate an IELTS test based heavily on the following knowledge:\n\n${knowledgeRefs.join('\n\n')}`
+  const inputContent = finalRefs.length > 0 
+    ? `Please generate an IELTS test based heavily on the following knowledge:\n\n${finalRefs.join('\n\n')}`
     : `Please generate an IELTS test on a surprise, random topic.`;
 
   async function generateSectionWithRetry(
@@ -271,9 +337,9 @@ export async function generateDynamicTestSet(
     }
   }
 
-  // Use the library's first test as fallback
+  // Use a library test that actually has 10 questions as fallback
   const { realTestLibrary } = await import('../data/realTestLibrary');
-  const fallback = realTestLibrary[0];
+  const fallback = realTestLibrary[10] || realTestLibrary[0];
 
   onProgress && onProgress("Loading Listening Section 1 of 4", 25);
   const listening = await generateSectionWithRetry(listeningPrompt, fallback.listening);

@@ -524,10 +524,7 @@ export const realTestLibrary: RealTestSet[] = [
         { id: 'rtl1r7', question: "Which university studied blue + creativity?", type: 'mcq', options: [{id:'A',text:'Oxford'}, {id:'B',text:'Harvard'}, {id:'C',text:'Univ of British Columbia'}, {id:'D',text:'MIT'}], correctAnswer: 'C' },
         { id: 'rtl1r8', question: "What % of product judgements use colour?", type: 'mcq', options: [{id:'A',text:'50%'}, {id:'B',text:'70%'}, {id:'C',text:'85%'}, {id:'D',text:'90%'}], correctAnswer: 'D' },
         { id: 'rtl1r9', question: "Why restaurants use red?", type: 'mcq', options: [{id:'A',text:'Cheap to paint'}, {id:'B',text:'Stimulates appetite'}, {id:'C',text:'Calms customers'}, {id:'D',text:'Easy to see'}], correctAnswer: 'B' },
-        { id: 'rtl1r10', label: "Red boosts _______ to detail.", type: 'text', answer: "attention" },
-        { id: 'rtl1r11', label: "Blue conveys _______ + professionalism.", type: 'text', answer: "stability" },
-        { id: 'rtl1r12', label: "Yellow is most _______ colour.", type: 'text', answer: "visible" },
-        { id: 'rtl1r13', label: "Colour affects behaviour, emotions and _______.", type: 'text', answer: "decisions" }
+        { id: 'rtl1r10', label: "Red boosts _______ to detail.", type: 'text', correctAnswer: "attention" }
       ]
     },
     writing: {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { PenTool, Info, Eye, AlertTriangle } from 'lucide-react';
+import { PenTool, Info, Eye, AlertTriangle, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { scoreIELTSEssay } from '../../services/aiScoringService';
 
 interface Props {
   onComplete: (answers: any) => void;
@@ -14,8 +15,13 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
   const [task, setTask] = useState<1 | 2>(1);
   const [task1Text, setTask1Text] = useState('');
   const [task2Text, setTask2Text] = useState('');
+  
+  const [task1Analysis, setTask1Analysis] = useState<any>(null);
+  const [isScoring1, setIsScoring1] = useState(false);
+  const [task2Analysis, setTask2Analysis] = useState<any>(null);
+  const [isScoring2, setIsScoring2] = useState(false);
 
-  const countWords = (text: string) => (text || '').trim() ? (text || '').trim().split(/\\s+/).filter(Boolean).length : 0;
+  const countWords = (text: string) => (text || '').trim() ? (text || '').trim().split(/\s+/).filter(Boolean).length : 0;
 
   const t1Words = countWords(task1Text);
   const t2Words = countWords(task2Text);
@@ -55,6 +61,92 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
   const task2Data = testSet?.writing?.task2 || tasks?.task2 || {
     prompt: "\"In some countries, young people are encouraged to work or travel for a year between finishing high school and starting university studies. Discuss the advantages and disadvantages for young people who decide to do this.\"",
     minWords: 250
+  };
+
+  const scoreTask1 = async () => {
+    setIsScoring1(true);
+    setTask1Analysis(null);
+    try {
+      const prompt = isPractice ? task1Data.description : "The chart below shows the global sales of digital devices between 2015 and 2025. Summarise the information by selecting and reporting the main features.";
+      const analysis = await scoreIELTSEssay(prompt, task1Text, 1);
+      setTask1Analysis(analysis);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsScoring1(false);
+    }
+  };
+
+  const scoreTask2 = async () => {
+    setIsScoring2(true);
+    setTask2Analysis(null);
+    try {
+      const prompt = isPractice ? task2Data.prompt : "\"In some countries, young people are encouraged to work or travel for a year between finishing high school and starting university studies. Discuss the advantages and disadvantages for young people who decide to do this.\"";
+      const analysis = await scoreIELTSEssay(prompt, task2Text, 2);
+      setTask2Analysis(analysis);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsScoring2(false);
+    }
+  };
+
+  const renderAnalysis = (analysis: any) => {
+    if (!analysis) return null;
+    return (
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-black/5 dark:bg-white/5 border-t border-black/5 dark:border-white/5 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-[#A78BFA]" size={20} />
+            <h4 className="font-black align-middle items-center flex gap-2">AI Scoring Feedback</h4>
+          </div>
+          <span className="bg-[#7C3AED]/20 text-[#A78BFA] font-black px-4 py-1.5 rounded-full text-sm">
+            Band {analysis.band}
+          </span>
+        </div>
+        
+        <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-black/5 dark:border-white/5">
+          {analysis.feedback}
+        </p>
+
+        {analysis.breakdown && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+             <div className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 text-center transition-all hover:border-[#7C3AED]/50">
+                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider mb-1">Task Response</p>
+                <p className="font-bold text-lg">{analysis.breakdown.taskResponse}</p>
+             </div>
+             <div className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 text-center transition-all hover:border-[#7C3AED]/50">
+                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider mb-1">Coherence</p>
+                <p className="font-bold text-lg">{analysis.breakdown.coherence}</p>
+             </div>
+             <div className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 text-center transition-all hover:border-[#7C3AED]/50">
+                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider mb-1">Vocabulary</p>
+                <p className="font-bold text-lg">{analysis.breakdown.vocab}</p>
+             </div>
+             <div className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 text-center transition-all hover:border-[#7C3AED]/50">
+                <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider mb-1">Grammar</p>
+                <p className="font-bold text-lg">{analysis.breakdown.grammar}</p>
+             </div>
+          </div>
+        )}
+
+        {analysis.suggestions && analysis.suggestions.length > 0 && (
+          <div className="space-y-3 pt-2">
+            <h5 className="text-xs font-black uppercase tracking-widest text-[#A78BFA] flex items-center gap-2">
+               <Eye size={14} /> Suggested Improvements
+            </h5>
+            <ul className="space-y-2">
+              {analysis.suggestions.map((sug: string, i: number) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                  <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{sug}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </motion.div>
+    );
   };
 
   return (
@@ -150,6 +242,17 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
                  placeholder="Type your response here..."
                  className="flex-1 bg-transparent p-8 focus:outline-none resize-none text-gray-700 dark:text-gray-200 leading-relaxed min-h-[400px]"
                />
+               <div className="p-4 bg-black/5 dark:bg-white/5 border-t border-black/5 dark:border-white/5 flex justify-end">
+                 <button 
+                   onClick={scoreTask1} 
+                   disabled={isScoring1 || t1Words === 0}
+                   className="btn-primary py-2 px-6 text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isScoring1 ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                   {isScoring1 ? "Scoring..." : "Score Task 1"}
+                 </button>
+               </div>
+               {renderAnalysis(task1Analysis)}
             </div>
           </motion.div>
         ) : (
@@ -195,6 +298,17 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
                  placeholder="Start writing your essay..."
                  className="flex-1 bg-transparent p-10 focus:outline-none resize-none text-gray-700 dark:text-gray-200 text-lg leading-relaxed h-[500px]"
                />
+               <div className="p-4 bg-black/5 dark:bg-white/5 border-t border-black/5 dark:border-white/5 flex justify-end">
+                 <button 
+                   onClick={scoreTask2} 
+                   disabled={isScoring2 || t2Words === 0}
+                   className="btn-primary py-2 px-6 text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                 >
+                   {isScoring2 ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                   {isScoring2 ? "Scoring..." : "Score Task 2"}
+                 </button>
+               </div>
+               {renderAnalysis(task2Analysis)}
             </div>
           </motion.div>
         )}

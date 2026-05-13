@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic2, Square, Play, Timer, ArrowRight, Lightbulb, Volume2, Loader2, CheckCircle2 } from 'lucide-react';
+import { Mic2, Square, Play, Timer, ArrowRight, Lightbulb, Volume2, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { textToSpeech } from '../../services/elevenLabsService';
+import WaveformPlayer from './WaveformPlayer';
+import LiveAudioVisualizer from './LiveAudioVisualizer';
 
 interface Props {
   onComplete: (answers: any) => void;
@@ -16,6 +18,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
   const [prepTime, setPrepTime] = useState(60);
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordings, setRecordings] = useState<Record<string, { blob: string; duration: number }>>({});
+  const [micStream, setMicStream] = useState<MediaStream | null>(null);
   
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
@@ -64,6 +67,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
   const startRecording = async (id: string) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMicStream(stream);
       mediaRecorder.current = new MediaRecorder(stream);
       audioChunks.current = [];
       currentRecordingId.current = id;
@@ -101,14 +105,6 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
     if (mediaRecorder.current && isRecording) {
       mediaRecorder.current.stop();
       setIsRecording(false);
-    }
-  };
-
-  const playBack = (id: string) => {
-    const data = recordings[id];
-    if (data) {
-      const audio = new Audio(data.blob);
-      audio.play();
     }
   };
 
@@ -188,12 +184,13 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                       <p className="font-bold text-gray-700 dark:text-gray-200">{q}</p>
                     </div>
                     {recordings[`p1-${i}`] ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-green-400 font-bold uppercase">✅ Saved</span>
-                        <div className="flex gap-2">
-                          <button onClick={() => playBack(`p1-${i}`)} className="p-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 rounded-lg transition-colors"><Play size={14} /></button>
-                          <button onClick={() => toggleRecording(`p1-${i}`)} className="p-2 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] rounded-lg transition-colors">🔄</button>
-                        </div>
+                      <div className="w-1/2 flex items-center gap-3">
+                         <div className="flex-1">
+                           <WaveformPlayer blobUrl={recordings[`p1-${i}`].blob} />
+                         </div>
+                         <button onClick={() => toggleRecording(`p1-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
+                           <RotateCcw size={16} />
+                         </button>
                       </div>
                     ) : (
                       <button 
@@ -218,15 +215,8 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
                          <span className="text-xs font-black font-mono text-red-500 uppercase tracking-tighter">Recording: {formatSecs(recordingTime)}</span>
                       </div>
-                      <div className="flex gap-0.5 items-end h-6 w-24">
-                        {[1,2,3,4,5,6,7,8].map(j => (
-                          <motion.div 
-                            key={j} 
-                            animate={{ height: [4, 20, 8, 16, 4] }} 
-                            transition={{ repeat: Infinity, duration: 0.5, delay: j*0.05 }} 
-                            className="flex-1 bg-red-500 rounded-full" 
-                          />
-                        ))}
+                      <div className="flex gap-0.5 items-end h-12 w-24">
+                        <LiveAudioVisualizer stream={micStream} isRecording={isRecording} />
                       </div>
                       <button onClick={stopRecording} className="text-[10px] font-black uppercase text-red-500 hover:underline">⏹ Stop</button>
                     </div>
@@ -273,15 +263,8 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
              <div className="flex flex-col items-center justify-center p-10 space-y-6">
                 {isRecording && currentRecordingId.current === 'p2' ? (
                   <div className="flex flex-col items-center space-y-6">
-                    <div className="flex items-end gap-1.5 h-16">
-                      {[1,2,3,4,5,6,7,8].map(i => (
-                        <motion.div 
-                          key={i}
-                          animate={{ height: [20, 60, 30, 50, 20] }}
-                          transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.05 }}
-                          className="w-1.5 bg-[#7C3AED] rounded-full"
-                        />
-                      ))}
+                    <div className="flex items-end gap-1.5 h-16 w-48 justify-center">
+                      <LiveAudioVisualizer stream={micStream} isRecording={isRecording} />
                     </div>
                     <div className="text-4xl font-black font-mono">{formatSecs(recordingTime)}</div>
                     <button onClick={stopRecording} className="btn-primary w-20 h-20 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-500">
@@ -289,13 +272,17 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                     </button>
                   </div>
                 ) : recordings['p2'] ? (
-                  <div className="flex flex-col items-center space-y-4">
-                     <div className="bg-green-500/10 px-6 py-3 rounded-2xl border border-green-500/20 text-green-400 font-bold flex items-center gap-2">
-                        <CheckCircle2 size={18} /> Part 2 Response Recorded ({formatSecs(recordings['p2'].duration)})
+                  <div className="w-full max-w-lg flex flex-col space-y-4">
+                     <div className="bg-green-500/10 px-6 py-3 rounded-2xl border border-green-500/20 text-green-400 font-bold flex items-center justify-center gap-2">
+                        <CheckCircle2 size={18} /> Part 2 Response Recorded
                      </div>
-                     <div className="flex gap-4">
-                        <button onClick={() => playBack('p2')} className="btn-primary px-8 py-3 flex items-center gap-2"><Play size={18} /> Play Back</button>
-                        <button onClick={() => toggleRecording('p2')} className="glass-card px-8 py-3 flex items-center gap-2 text-xs font-black uppercase">🔄 Re-record</button>
+                     <div className="flex items-center gap-3 w-full">
+                       <div className="flex-1">
+                         <WaveformPlayer blobUrl={recordings['p2'].blob} />
+                       </div>
+                       <button onClick={() => toggleRecording('p2')} className="p-4 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-2xl transition-colors shrink-0" title="Re-record">
+                         <RotateCcw size={20} />
+                       </button>
                      </div>
                   </div>
                 ) : (
@@ -336,23 +323,41 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                         <p className="text-xl font-bold">{q}</p>
                       </div>
                       {recordings[`p3-${i}`] && (
-                        <div className="flex items-center gap-2">
-                           <button onClick={() => playBack(`p3-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 rounded-xl hover:bg-black/10 dark:bg-white/10 transition-colors"><Play size={16} /></button>
-                           <button onClick={() => toggleRecording(`p3-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 rounded-xl hover:bg-[#7C3AED] transition-colors">🔄</button>
+                        <div className="flex items-center gap-3 w-1/2">
+                           <div className="flex-1">
+                             <WaveformPlayer blobUrl={recordings[`p3-${i}`].blob} />
+                           </div>
+                           <button onClick={() => toggleRecording(`p3-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
+                             <RotateCcw size={16} />
+                           </button>
                         </div>
                       )}
                     </div>
-                    <button 
-                      onClick={() => toggleRecording(`p3-${i}`)}
-                      disabled={isRecording && currentRecordingId.current !== `p3-${i}`}
-                      className={`flex items-center gap-3 px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
-                        recordings[`p3-${i}`] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
-                        isRecording && currentRecordingId.current === `p3-${i}` ? 'bg-red-600 text-white animate-pulse' : 'bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-200 hover:bg-[#7C3AED] hover:text-white'
-                      }`}
-                    >
-                      {isRecording && currentRecordingId.current === `p3-${i}` ? <Square size={16} fill="currentColor" /> : <Mic2 size={16} />}
-                      {recordings[`p3-${i}`] ? 'Response Recorded' : isRecording && currentRecordingId.current === `p3-${i}` ? `Recording (${formatSecs(recordingTime)})...` : 'Record Answer'}
-                    </button>
+                    <div className="flex flex-col gap-4">
+                      <button 
+                        onClick={() => toggleRecording(`p3-${i}`)}
+                        disabled={isRecording && currentRecordingId.current !== `p3-${i}`}
+                        className={`flex justify-center items-center gap-3 px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
+                          recordings[`p3-${i}`] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
+                          isRecording && currentRecordingId.current === `p3-${i}` ? 'bg-red-600 text-white shadow-lg' : 'bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-200 hover:bg-[#7C3AED] hover:text-white'
+                        }`}
+                      >
+                        {isRecording && currentRecordingId.current === `p3-${i}` ? <Square size={16} fill="currentColor" /> : <Mic2 size={16} />}
+                        {recordings[`p3-${i}`] ? 'Response Recorded' : isRecording && currentRecordingId.current === `p3-${i}` ? `Stop Recording (${formatSecs(recordingTime)})` : 'Record Answer'}
+                      </button>
+                      
+                      {isRecording && currentRecordingId.current === `p3-${i}` && (
+                        <div className="flex items-center justify-between bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+                          <div className="flex items-center gap-2">
+                             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                             <span className="text-xs font-black text-red-500 uppercase">Live Input</span>
+                          </div>
+                          <div className="w-32 h-10">
+                            <LiveAudioVisualizer stream={micStream} isRecording={isRecording} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
              </div>

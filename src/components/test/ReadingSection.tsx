@@ -33,9 +33,12 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
   };
 
   let testQuestions: ReadingQuestion[] = [
-    { id: '11', label: 'Architecture was focus on beauty in the industrial revolution.', type: 'tfng' },
-    { id: '12', label: 'Green cities prioritize cars over pedestrians.', type: 'tfng' },
-    { id: '13', label: 'Modern prioritizes reflect our social changes.', type: 'tfng' },
+    { id: '11', label: 'The transition from dense tenements to modern skyscrapers was primarily driven by a desire for aesthetic refinement.', type: 'tfng' },
+    { id: '12', label: 'The emergence of "green cities" has successfully reversed the environmental damage caused by earlier industrial architecture.', type: 'tfng' },
+    { id: '13', label: 'Contemporary societal priorities place a noticeably higher emphasis on mitigating environmental consequences compared to the early industrial period.', type: 'tfng' },
+    { id: '14', label: 'According to the passage, early architectural approaches neglected which of the following?', type: 'choice', options: ['The fundamental functionality of utilitarian building design', 'The simultaneous incorporation of sustainable and aesthetic considerations', 'The establishment of highly dense, populated urban tenements', 'The evolving technological priorities of an industrialized society'] },
+    { id: '15', label: 'Which aspect is cited as central to the contemporary movement of "green cities"?', type: 'choice', options: ['The systematic replacement of all glass skyscrapers with natural facades', 'A deliberate reversion to the spacing principles of the Industrial Revolution', 'The deliberate integration of ecological considerations and nature-friendly structural elements', 'The exclusive prioritization of aesthetic beauty over architectural functionality'] },
+    { id: '16', label: 'Complete the sentence using ONE WORD exactly from the text: Recent architectural movements have begun emphasizing __________ alongside natural elements and pedestrian zones.', type: 'text', placeholder: 'precise keyword...' },
   ];
 
   if (testSet?.reading?.questions) {
@@ -70,8 +73,11 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
   } else {
     // Basic defaults for test mode scoring
     correctAnswers['11'] = 'FALSE';
-    correctAnswers['12'] = 'FALSE';
+    correctAnswers['12'] = 'NOT GIVEN';
     correctAnswers['13'] = 'TRUE';
+    correctAnswers['14'] = 'The simultaneous incorporation of sustainable and aesthetic considerations';
+    correctAnswers['15'] = 'The deliberate integration of ecological considerations and nature-friendly structural elements';
+    correctAnswers['16'] = 'sustainability';
   }
 
   const updateAnswer = (id: string, val: string) => {

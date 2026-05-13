@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Headphones, BookOpen, PenTool, Mic2, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Sparkles, Headphones, BookOpen, PenTool, Mic2, TrendingUp, BookText } from 'lucide-react';
 
-type Section = 'Listening' | 'Reading' | 'Writing' | 'Speaking';
+type Section = 'Listening' | 'Reading' | 'Writing' | 'Speaking' | 'Vocabulary';
 
 interface Tip {
   emoji: string;
   title: string;
-  description: string;
+  description: string | React.ReactNode;
   isNew?: boolean;
 }
 
@@ -38,12 +38,60 @@ const TIPS: Record<Section, Tip[]> = {
     { emoji: '🔢', title: '150 / 250 Min Words', description: 'Task 1 / Task 2 limits' },
   ],
   Speaking: [
-    { emoji: '🎯', title: 'Speak Naturally', description: 'Memorized = lower score' },
-    { emoji: '⏰', title: 'Talk Full 2 Minutes', description: "Don't stop early (Part 2)" },
-    { emoji: '💡', title: 'Extend Every Answer', description: 'Add reason + example' },
-    { emoji: '🎥', title: '2026 NEW: Video Call', description: 'Good lighting + quiet room', isNew: true },
-    { emoji: '🏃', title: '110-130 Words/Min', description: 'Target speed for Band 6+' },
-    { emoji: '😌', title: 'Pause Is Fine', description: '"Let me think..." is allowed' },
+    { emoji: '🎯', title: 'Speak Naturally', description: 'Memorized answers lead to a lower score' },
+    { emoji: '🧠', title: 'Part 3: Abstract Ideas', description: 'Discuss issues globally, avoid personal stories' },
+    { emoji: '⚖️', title: 'Logical Reasoning', description: 'Use cause-effect logic to support opinions' },
+    { emoji: '🎥', title: '2026 NEW: Video Call', description: 'Interpret examiner cues carefully via webcam', isNew: true },
+    { emoji: '🤔', title: 'Interpret Questions', description: 'Ask to clarify complex abstract questions instead of guessing' },
+    { emoji: '🌊', title: 'Intonation Patterns', description: 'Avoid flat delivery; vary your pitch to show interest and highlight key words' },
+    { emoji: '🗣️', title: 'Clear Pronunciation', description: 'Focus on clear word endings and correct stress over a "perfect" accent' },
+    { emoji: '😌', title: 'Pause Is Fine', description: 'Using "Let me think about that..." is a valid strategy to gather thoughts' },
+  ],
+  Vocabulary: [
+    { 
+      emoji: '🌍', 
+      title: 'Environment', 
+      description: (
+        <div className="space-y-1.5 mt-1">
+          <p><span className="font-bold text-[#A78BFA]">Word:</span> Sustainability</p>
+          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> promote sustainability, long-term sustainability</p>
+          <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Governments must promote sustainability to mitigate the effects of global warming."</p>
+        </div>
+      )
+    },
+    { 
+      emoji: '💻', 
+      title: 'Technology', 
+      description: (
+        <div className="space-y-1.5 mt-1">
+          <p><span className="font-bold text-[#A78BFA]">Word:</span> Obsolete</p>
+          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> become obsolete, render obsolete</p>
+          <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Rapid technological innovation can rapidly render traditional manufacturing processes obsolete."</p>
+        </div>
+      )
+    },
+    { 
+      emoji: '📚', 
+      title: 'Education', 
+      description: (
+        <div className="space-y-1.5 mt-1">
+          <p><span className="font-bold text-[#A78BFA]">Word:</span> Pedagogy</p>
+          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> modern pedagogy, pedagogical approach</p>
+          <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Modern pedagogy emphasizes critical thinking and problem-solving over rote memorization."</p>
+        </div>
+      )
+    },
+    { 
+      emoji: '💼', 
+      title: 'Work', 
+      description: (
+        <div className="space-y-1.5 mt-1">
+          <p><span className="font-bold text-[#A78BFA]">Word:</span> Remuneration</p>
+          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> adequate remuneration, financial remuneration</p>
+          <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Adequate remuneration is essential for retaining highly skilled professionals in a competitive market."</p>
+        </div>
+      )
+    },
   ]
 };
 
@@ -55,7 +103,8 @@ export default function TipsGuides() {
     Listening: '🤫',
     Reading: '👀',
     Writing: '✍️',
-    Speaking: '🗣️'
+    Speaking: '🗣️',
+    Vocabulary: '📖'
   };
 
   return (
@@ -84,13 +133,14 @@ export default function TipsGuides() {
         </header>
 
         {/* Technical Tab Switcher */}
-        <div className="grid grid-cols-4 gap-2 mb-10 bg-black/5 dark:bg-white/5 p-1.5 rounded-[24px] border border-black/5 dark:border-white/5">
-          {(['Listening', 'Reading', 'Writing', 'Speaking'] as Section[]).map((section) => {
+        <div className="grid grid-cols-5 gap-2 mb-10 bg-black/5 dark:bg-white/5 p-1.5 rounded-[24px] border border-black/5 dark:border-white/5">
+          {(['Listening', 'Reading', 'Writing', 'Speaking', 'Vocabulary'] as Section[]).map((section) => {
             const Icon = {
               Listening: Headphones,
               Reading: BookOpen,
               Writing: PenTool,
-              Speaking: Mic2
+              Speaking: Mic2,
+              Vocabulary: BookText
             }[section];
             
             return (

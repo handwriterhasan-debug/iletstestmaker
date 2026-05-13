@@ -133,10 +133,22 @@ export default function MockTest() {
       const w1 = await scoreIELTSEssay("Global sales of digital devices", answers.writing_task1 || "", 1);
       const w2 = await scoreIELTSEssay("Gap year advantages/disadvantages", answers.writing_task2 || "", 2);
       
-      const speakingTranscripts = Object.values(answers.speaking || {}).filter(Boolean).map(String);
+      const speakingData = answers.speaking || {};
+      const formattedAudio = [];
+      for (const key in speakingData) {
+        const val = speakingData[key];
+        if (val && val.blob) {
+          const [meta, base64Str] = val.blob.split(',');
+          const mimeType = meta.split(':')[1].split(';')[0];
+          formattedAudio.push({ base64: base64Str, mimeType });
+        } else if (typeof val === 'string') {
+          formattedAudio.push(val);
+        }
+      }
+
       let speakingScore: any = null;
-      if (speakingTranscripts.length > 0) {
-        speakingScore = await scoreIELTSSpeaking(speakingTranscripts);
+      if (formattedAudio.length > 0) {
+        speakingScore = await scoreIELTSSpeaking(formattedAudio);
       }
 
       // If mock test, use actual basic grading for mock answers or assume 1.0 if empty.

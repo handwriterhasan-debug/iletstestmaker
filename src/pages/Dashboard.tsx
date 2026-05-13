@@ -41,8 +41,6 @@ import RegistrationModal from '../components/RegistrationModal';
 import TestStartPopup from '../components/TestStartPopup';
 import OnboardingModal from '../components/OnboardingModal';
 
-import { useTheme } from '../lib/ThemeContext';
-
 interface Profile {
   full_name: string;
   avatar_url: string;
@@ -58,7 +56,6 @@ const MOTIVATIONAL_TIPS = [
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -67,6 +64,7 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showStartPopup, setShowStartPopup] = useState(false);
   const [latestResult, setLatestResult] = useState<any>(null);
+  const [pastResults, setPastResults] = useState<any[]>([]);
   const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
@@ -143,6 +141,7 @@ export default function Dashboard() {
         if (historyRes.status === 'fulfilled' && historyRes.value.data && historyRes.value.data.length > 0) {
           const data = historyRes.value.data;
           setLatestResult(data[data.length - 1]);
+          setPastResults(data);
           setChartData(data.map((d: any, i: number) => ({
             name: `T${i + 1}`,
             band: d.overall_band || 0
@@ -152,6 +151,7 @@ export default function Dashboard() {
           const localResults = await ieltsService.getTestResults();
           if (localResults.length > 0) {
             setLatestResult(localResults[localResults.length - 1]);
+            setPastResults(localResults);
             setChartData(localResults.map((d: any, i: number) => ({
               name: `T${i + 1}`,
               band: d.overall_band || 0
@@ -334,13 +334,6 @@ export default function Dashboard() {
             className="flex items-center gap-2 px-3 py-2 bg-[#7C3AED]/10 text-[#A78BFA] border border-[#7C3AED]/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-[#7C3AED]/20 transition-all shadow-sm"
           >
             <Award size={14} className="shrink-0" /> <span className="hidden xs:inline">My Results</span>
-          </button>
-          <button 
-            onClick={toggleTheme}
-            className="p-2.5 rounded-xl glass-card border border-[#7C3AED]/20 text-[#A78BFA] hover:bg-[#7C3AED]/10 transition-all active:scale-90 shadow-lg"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <div className="hidden xs:flex items-center gap-2 glass-card px-4 py-2 border-orange-500/20 text-orange-400">
              <Rocket size={14} fill="currentColor" className="animate-bounce" />
@@ -542,15 +535,41 @@ export default function Dashboard() {
            </div>
         </div>
 
-        {/* Latest Scores */}
+        {/* Past Test Results */}
         <div className="glass-card p-6">
-          <h3 className="font-bold mb-4">Latest Achievement</h3>
-          <div className="grid grid-cols-4 gap-3">
-            <ScoreBubble label="LIS" score={latestResult?.listening_score || 0} />
-            <ScoreBubble label="REA" score={latestResult?.reading_score || 0} />
-            <ScoreBubble label="WRI" score={latestResult?.writing_score || 0} />
-            <ScoreBubble label="SPE" score={latestResult?.speaking_score || 0} />
-          </div>
+          <h3 className="font-bold flex items-center gap-2 mb-4">
+            <ClipboardList size={18} className="text-[#A78BFA]" /> Past Test Results
+          </h3>
+          {pastResults.length > 0 ? (
+            <div className="space-y-4">
+              {pastResults.slice().reverse().slice(0, 3).map((res: any, idx: number) => (
+                <div key={idx} className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3 border-b border-black/10 dark:border-white/10 pb-3">
+                    <div className="flex items-center gap-2">
+                       <CalendarIcon size={14} className="text-gray-500" />
+                       <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                          {new Date(res.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                       </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-[#7C3AED]/10 px-2 py-1 rounded">
+                       <Award size={14} className="text-[#A78BFA]" />
+                       <span className="text-xs font-black text-[#A78BFA]">Band {res.overall_band?.toFixed(1) || '0.0'}</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    <ScoreBubble label="LIS" score={res.listening_score || 0} />
+                    <ScoreBubble label="REA" score={res.reading_score || 0} />
+                    <ScoreBubble label="WRI" score={res.writing_score || 0} />
+                    <ScoreBubble label="SPE" score={res.speaking_score || 0} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+               <p className="text-xs text-gray-500">No test results found yet.</p>
+            </div>
+          )}
         </div>
       </main>
 

@@ -38,9 +38,35 @@ export default function RealTestSession() {
     speaking: 'upcoming'
   });
 
+  const [sectionTimers, setSectionTimers] = useState<Record<Section, number>>({
+    listening: 1800,
+    reading: 3600,
+    writing: 3600,
+    speaking: 840
+  });
   const [timeLeft, setTimeLeft] = useState(1800); // Start with Listening 30m
   const [isBreak, setIsBreak] = useState(false);
   const [breakTimer, setBreakTimer] = useState(10);
+
+  const goToSection = async (direction: 'next' | 'prev') => {
+    if (registration) {
+      await ieltsService.saveAnswers(registration.id, activeSection, answers[activeSection]);
+    }
+
+    const sections: Section[] = ['listening', 'reading', 'writing', 'speaking'];
+    const currentIndex = sections.indexOf(activeSection);
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+    if (newIndex >= 0 && newIndex < sections.length) {
+      const nextSection = sections[newIndex];
+      
+      setSectionTimers(prev => ({ ...prev, [activeSection]: timeLeft }));
+      setSectionStatus(prev => ({ ...prev, [activeSection]: 'completed', [nextSection]: 'in-progress' }));
+      setActiveSection(nextSection);
+      setIsBreak(false);
+      setTimeLeft(sectionTimers[nextSection]);
+    }
+  };
   
   const [showConfirmSkip, setShowConfirmSkip] = useState(false);
   const [showConfirmQuit, setShowConfirmQuit] = useState(false);
@@ -148,10 +174,17 @@ export default function RealTestSession() {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else {
-      handleCompleteSection(false);
+      // Auto-move to next section if time's up, or finish test if it's the last section
+      const sections: Section[] = ['listening', 'reading', 'writing', 'speaking'];
+      const currentIndex = sections.indexOf(activeSection);
+      if (currentIndex < 3) {
+        goToSection('next');
+      } else {
+        finishTest();
+      }
     }
     return () => clearInterval(timerRef.current);
-  }, [timeLeft, isBreak, breakTimer]);
+  }, [timeLeft, isBreak, breakTimer, activeSection]);
 
   const handleCompleteSection = async (isSkip: boolean = false) => {
     const sections: Section[] = ['listening', 'reading', 'writing', 'speaking'];
@@ -267,9 +300,21 @@ export default function RealTestSession() {
       wScore = parseFloat(((w1.band + w2.band) / 2).toFixed(1));
 
       // Speaking
-      const speakingTranscripts = Object.values(answers.speaking || {}).filter(Boolean).map(String);
-      if (speakingTranscripts.length > 0) {
-        const s = await scoreIELTSSpeaking(speakingTranscripts);
+      const speakingData = answers.speaking || {};
+      const formattedAudio = [];
+      for (const key in speakingData) {
+        const val = speakingData[key];
+        if (val && val.blob) {
+          const [meta, base64Str] = val.blob.split(',');
+          const mimeType = meta.split(':')[1].split(';')[0];
+          formattedAudio.push({ base64: base64Str, mimeType });
+        } else if (typeof val === 'string') {
+          formattedAudio.push(val);
+        }
+      }
+
+      if (formattedAudio.length > 0) {
+        const s = await scoreIELTSSpeaking(formattedAudio);
         sScore = s.band;
       } else {
         sScore = 0; // Blank equals 0
@@ -474,13 +519,32 @@ export default function RealTestSession() {
               />
             )}
 
-            {/* Next Module Button */}
-            <button 
-              onClick={() => handleCompleteSection(false)}
-              className="w-full py-5 bg-[#7C3AED] rounded-2xl mt-12 flex items-center justify-center gap-2 font-black uppercase tracking-[0.2em] shadow-[0_20px_50px_rgba(124,58,237,0.2)]"
-            >
-              Finish {activeSection} <ChevronRight size={18} />
-            </button>
+            {/* Navigation Buttons */}
+            <div className="flex gap-4 mt-12 w-full">
+              <button 
+                disabled={activeSection === 'listening'}
+                onClick={() => goToSection('prev')}
+                className="flex-1 py-5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 disabled:opacity-30 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest transition-all text-xs text-gray-700 dark:text-gray-300"
+              >
+                Previous Section
+              </button>
+              
+              {activeSection !== 'speaking' ? (
+                <button 
+                  onClick={() => goToSection('next')}
+                  className="flex-1 py-5 bg-[#7C3AED] rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] shadow-[0_10px_30px_rgba(124,58,237,0.3)] transition-all text-white text-xs"
+                >
+                  Next Section <ChevronRight size={18} />
+                </button>
+              ) : (
+                <button 
+                  onClick={finishTest}
+                  className="flex-1 py-5 bg-green-500 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] shadow-[0_10px_30px_rgba(34,197,94,0.3)] transition-all text-white text-xs"
+                >
+                  Finish Test <CheckCircle2 size={18} />
+                </button>
+              )}
+            </div>
           </>
         )}
       </main>

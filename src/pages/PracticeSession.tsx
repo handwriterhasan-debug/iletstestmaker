@@ -222,7 +222,24 @@ export default function PracticeSession() {
           writingData.task || 1
         );
       } else if (section === 'speaking') {
-        aiResponse = await scoreIELTSSpeaking(["Sample transcript for Part 1", "Detailed cue card response for Part 2", "Abstract discussion for Part 3"]);
+        const speakingData = data || answers || {};
+        const formattedAudio = [];
+        for (const key in speakingData) {
+          const val = speakingData[key];
+          if (val && val.blob) {
+            const [meta, base64Str] = val.blob.split(',');
+            const mimeType = meta.split(':')[1].split(';')[0];
+            formattedAudio.push({ base64: base64Str, mimeType });
+          } else if (typeof val === 'string') {
+            formattedAudio.push(val);
+          }
+        }
+        
+        if (formattedAudio.length === 0) {
+           formattedAudio.push("Silent response or no audio provided.");
+        }
+        
+        aiResponse = await scoreIELTSSpeaking(formattedAudio);
       } else {
         aiResponse = { band: 0, feedback: "You are correctly identifying key facts. Practice paraphrasing more to improve your band score further." };
       }
@@ -517,14 +534,14 @@ export default function PracticeSession() {
                     </div>
                  </div>
 
-                 {section === 'writing' && aiAnalysis && (
+                 {['writing', 'speaking'].includes(section || '') && aiAnalysis && (
                    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <PenTool size={18} className="text-orange-400" />
-                          <span className="font-bold text-sm">Writing Analysis</span>
+                          {section === 'writing' ? <PenTool size={18} className="text-orange-400" /> : <Mic2 size={18} className="text-purple-400" />}
+                          <span className="font-bold text-sm capitalize">{section} Analysis</span>
                         </div>
-                        <span className="text-[10px] font-black bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded">Band {aiAnalysis.band}</span>
+                        <span className="text-[10px] font-black bg-[#7C3AED]/10 text-[#A78BFA] px-2 py-0.5 rounded">Band {aiAnalysis.band}</span>
                       </div>
                       
                       {aiAnalysis.breakdown && (
@@ -553,7 +570,7 @@ export default function PracticeSession() {
                    </div>
                  )}
 
-                 {section !== 'writing' && (
+                 {!['writing', 'speaking'].includes(section || '') && (
                    <>
                      <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
                         <div className="flex items-center gap-3">

@@ -6,19 +6,8 @@
     <title>My Google AI Studio App</title>
     <style>
       :root { --bg-page: #0A0A0F; }
-      :root:not(.dark) { --bg-page: #F8F9FA; }
       body { background-color: var(--bg-page); }
     </style>
-    <script>
-      // Apply theme before React loads to prevent FOUC
-      try {
-        if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-          document.documentElement.classList.remove('dark');
-        } else {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (_) {}
-    </script>
   </head>
   <body>
     <div id="root"></div>
