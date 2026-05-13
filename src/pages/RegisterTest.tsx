@@ -71,11 +71,25 @@ function CustomCalendar({ selectedDate, onSelect }: { selectedDate: Date | null,
           <div
             key={day.toString()}
             onClick={() => !isPast && onSelect(cloneDay)}
-            className={`p-2 flex justify-center items-center rounded-lg text-sm transition-colors ${
-              !isCurrentMonth ? "text-gray-500 dark:text-gray-400" : isPast ? "text-gray-700 cursor-not-allowed" : isSelected ? "bg-[#7C3AED] text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.5)]" : "text-gray-700 dark:text-gray-200 hover:bg-black/10 dark:bg-white/10 cursor-pointer"
+            className={`p-1 flex justify-center items-center rounded-lg text-sm transition-colors ${
+              !isCurrentMonth 
+                ? "text-gray-400 dark:text-gray-600 opacity-30" 
+                : isPast 
+                  ? "text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50" 
+                  : isSelected 
+                    ? "bg-[#7C3AED] text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.5)]" 
+                    : "text-gray-900 dark:text-white cursor-pointer hover:bg-green-500/20"
             }`}
           >
-            <span className="w-8 h-8 flex items-center justify-center rounded-full">{formattedDate}</span>
+            <span className={`w-8 h-8 flex items-center justify-center rounded-full ${
+              !isPast && !isSelected && isCurrentMonth 
+                ? "bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20 font-bold" 
+                : isPast && isCurrentMonth
+                  ? "line-through decoration-gray-400 dark:decoration-gray-500 bg-black/5 dark:bg-white/5"
+                  : ""
+            }`}>
+              {formattedDate}
+            </span>
           </div>
         );
         day = addDays(day, 1);
@@ -87,8 +101,27 @@ function CustomCalendar({ selectedDate, onSelect }: { selectedDate: Date | null,
       );
       days = [];
     }
-    return <div>{rows}</div>;
+    return (
+      <div className="space-y-4">
+        <div>{rows}</div>
+        <div className="flex items-center justify-center gap-6 pt-4 border-t border-black/10 dark:border-white/10">
+          <div className="flex items-center font-bold gap-2 text-xs">
+             <div className="w-4 h-4 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                 <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+             </div>
+             <span className="text-gray-700 dark:text-gray-300">Available</span>
+          </div>
+          <div className="flex items-center font-bold gap-2 text-xs">
+             <div className="w-4 h-4 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center overflow-hidden">
+                 <div className="w-full h-[1px] bg-gray-400 rotate-45 transform"></div>
+             </div>
+             <span className="text-gray-500 dark:text-gray-400">Unavailable</span>
+          </div>
+        </div>
+      </div>
+    );
   };
+
 
   return (
     <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4">
