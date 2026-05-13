@@ -294,8 +294,8 @@ export default function RealTestSession() {
       const essay1 = answers.writing?.task1 || "";
       const essay2 = answers.writing?.task2 || "";
       
-      const w1 = await scoreIELTSEssay(testSet.writing.task1.title || "Task 1", essay1, 1);
-      const w2 = await scoreIELTSEssay(testSet.writing.task2.prompt, essay2, 2);
+      const w1 = await scoreIELTSEssay(testSet.writing?.task1?.title || "Task 1", essay1, 1);
+      const w2 = await scoreIELTSEssay(testSet.writing?.task2?.prompt || "Task 2 prompt", essay2, 2);
       
       wScore = parseFloat(((w1.band + w2.band) / 2).toFixed(1));
 
@@ -717,12 +717,12 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
       </div>
 
       <div className="space-y-8 pt-4">
-        {testSet.listening.questions.map((q: any, i: number) => (
+        {testSet.listening?.questions?.map((q: any, i: number) => (
           <div key={q.id} className="space-y-4">
             <p className="text-sm font-bold flex gap-4"><span className="text-[#A78BFA]">Q{i+1}</span> {q.question || q.label}</p>
             {q.type === 'mcq' ? (
               <div className="grid grid-cols-1 gap-2">
-                {q.options.map((opt: any, optIndex: number) => {
+                {q.options?.map((opt: any, optIndex: number) => {
                   const optId = opt.id || opt;
                   const optText = opt.text || opt;
                   const letter = String.fromCharCode(65 + optIndex);
@@ -766,17 +766,17 @@ export function RealReading({ testSet, answers, setAnswers }: any) {
   return (
     <div className="space-y-8">
        <div className="glass-card p-6 bg-black/5 dark:bg-white/5 leading-relaxed text-sm text-gray-600 dark:text-gray-300 space-y-4 border-2 border-[#7C3AED]/20">
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white">{testSet.reading.title}</h2>
-          {testSet.reading.passage?.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>) || null}
+          <h2 className="text-3xl font-black text-gray-900 dark:text-white">{testSet.reading?.title}</h2>
+          {testSet.reading?.passage?.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>) || null}
        </div>
 
        <div className="space-y-12 pt-8">
-          {testSet.reading.questions.map((q: any, i: number) => (
+          {testSet.reading?.questions?.map((q: any, i: number) => (
             <div key={q.id} className="space-y-4">
               <p className="text-sm font-bold flex gap-4"><span className="text-[#A78BFA]">Q{i+1}</span> {q.question || q.label}</p>
               {q.type === 'mcq' ? (
                 <div className="grid grid-cols-1 gap-2">
-                  {q.options.map((opt: any, optIndex: number) => {
+                  {q.options?.map((opt: any, optIndex: number) => {
                     const optId = opt.id || opt;
                     const optText = opt.text || opt;
                     const letter = String.fromCharCode(65 + optIndex);
@@ -836,19 +836,19 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
       <div className="space-y-6">
         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#A78BFA]">TASK 1 (20 Minutes)</label>
         <div className="glass-card p-6 bg-black/5 dark:bg-white/5 space-y-4">
-           <h3 className="font-bold">{testSet.writing.task1.title}</h3>
-           {testSet.writing.task1.type === 'table' ? (
+           <h3 className="font-bold">{testSet.writing?.task1?.title}</h3>
+           {testSet.writing?.task1?.type === 'table' ? (
              <div className="overflow-x-auto">
                <table className="w-full text-[10px]">
                  <thead>
                     <tr className="border-b border-black/10 dark:border-white/10">
-                      {Array.isArray(testSet.writing.task1.data) 
+                      {Array.isArray(testSet.writing?.task1?.data) 
                         ? Object.keys(testSet.writing.task1.data[0] || {}).map(k => <th key={`th-arr-${k}`} className="p-2 text-left text-gray-600 dark:text-gray-300">{k}</th>)
-                        : Object.keys(testSet.writing.task1.data || {}).map(k => <th key={`th-obj-${k}`} className="p-2 text-left text-gray-600 dark:text-gray-300">{k}</th>)}
+                        : Object.keys(testSet.writing?.task1?.data || {}).map(k => <th key={`th-obj-${k}`} className="p-2 text-left text-gray-600 dark:text-gray-300">{k}</th>)}
                     </tr>
                  </thead>
                  <tbody>
-                    {Array.isArray(testSet.writing.task1.data) 
+                    {Array.isArray(testSet.writing?.task1?.data) 
                       ? testSet.writing.task1.data.map((row: any, i: number) => (
                           <tr key={`tr-arr-${i}`} className="border-b border-black/5 dark:border-white/5">
                             {Object.values(row || {}).map((v: any, j) => <td key={`td-arr-${i}-${j}`} className="p-2 font-bold">{v as string}</td>)}
@@ -856,7 +856,7 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
                         ))
                       : (
                           <tr key="tr-obj" className="border-b border-black/5 dark:border-white/5">
-                            {Object.values(testSet.writing.task1.data || {}).map((v: any, j) => <td key={`td-obj-${j}`} className="p-2 font-bold">{JSON.stringify(v)}</td>)}
+                            {Object.values(testSet.writing?.task1?.data || {}).map((v: any, j) => <td key={`td-obj-${j}`} className="p-2 font-bold">{JSON.stringify(v)}</td>)}
                           </tr>
                         )}
                  </tbody>
@@ -864,8 +864,8 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
              </div>
            ) : (
              <div className="p-8 bg-black/20 rounded-xl border border-dashed border-black/10 dark:border-white/10 text-center text-[10px] text-gray-600 dark:text-gray-300">
-                [ {testSet.writing.task1.type.toUpperCase()} DATA REPRESENTED HERE ]
-                <p className="mt-2 text-[8px] italic">{JSON.stringify(testSet.writing.task1.data)}</p>
+                [ {testSet.writing?.task1?.type?.toUpperCase()} DATA REPRESENTED HERE ]
+                <p className="mt-2 text-[8px] italic">{JSON.stringify(testSet.writing?.task1?.data)}</p>
              </div>
            )}
            <p className="text-xs text-gray-700 dark:text-gray-200">Summarise the main features and make comparisons. Write at least 150 words.</p>
@@ -886,7 +886,7 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
       <div className="space-y-6">
         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#A78BFA]">TASK 2 (40 Minutes)</label>
         <div className="glass-card p-6 bg-black/5 dark:bg-white/5 space-y-4">
-           <h3 className="font-bold leading-relaxed">{testSet.writing.task2.prompt}</h3>
+           <h3 className="font-bold leading-relaxed">{testSet.writing?.task2?.prompt}</h3>
            <p className="text-[8px] font-black text-orange-400 uppercase tracking-widest">⚠️ AI SCANNER ACTIVE: Avoid memorized templates.</p>
         </div>
         <div className="relative">
@@ -987,7 +987,7 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
           <motion.div key="p1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Section 1: Introduction & Interview</h3>
             <div className="space-y-4">
-              {testSet.speaking.part1.map((q: string, i: number) => (
+              {testSet.speaking?.part1?.map((q: string, i: number) => (
                 <div key={i} className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-sm font-medium">
                   {q}
                 </div>
@@ -1001,9 +1001,9 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
             <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Section 2: Individual Long Turn</h3>
             <div className="glass-card p-8 bg-[#1A1A2E] border-2 border-[#7C3AED]/20 space-y-4">
                <p className="text-[10px] font-black uppercase text-[#A78BFA] tracking-widest">Cue Card</p>
-               <h4 className="text-xl font-black">{testSet.speaking.part2.cue}</h4>
+               <h4 className="text-xl font-black">{testSet.speaking?.part2?.cue}</h4>
                <ul className="space-y-2">
-                 {testSet.speaking.part2.points.map((p: string, i: number) => (
+                 {testSet.speaking?.part2?.points?.map((p: string, i: number) => (
                    <li key={i} className="flex gap-3 text-xs text-gray-600 dark:text-gray-300">
                      <span className="text-[#A78BFA] font-bold">•</span> {p}
                    </li>
@@ -1018,7 +1018,7 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
           <motion.div key="p3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Section 3: Discussion</h3>
             <div className="space-y-4">
-              {testSet.speaking.part3.map((q: string, i: number) => (
+              {testSet.speaking?.part3?.map((q: string, i: number) => (
                 <div key={i} className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-sm font-medium">
                   {q}
                 </div>

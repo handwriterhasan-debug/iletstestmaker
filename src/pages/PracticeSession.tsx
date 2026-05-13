@@ -59,10 +59,10 @@ export default function PracticeSession() {
         });
         
         if (dynamicTest) {
-          setSelectedListening({ text: dynamicTest.listening.script, questions: dynamicTest.listening.questions.map((q: any) => ({ label: q.label || q.question, type: q.type, answer: q.correctAnswer, correct: q.correctAnswer, options: q.options })) });
-          setSelectedReading({ text: dynamicTest.reading.passage, title: dynamicTest.reading.title, questions: dynamicTest.reading.questions.map((q: any) => ({ label: q.label || q.question, type: q.type, answer: q.correctAnswer, options: q.options })) });
-          setSelectedWriting(dynamicTest.writing);
-          setSelectedSpeaking(dynamicTest.speaking);
+          setSelectedListening({ text: dynamicTest.listening?.script || '', questions: dynamicTest.listening?.questions?.map((q: any) => ({ label: q.label || q.question, type: q.type, answer: q.correctAnswer, correct: q.correctAnswer, options: q.options })) || [] });
+          setSelectedReading({ text: dynamicTest.reading?.passage || '', title: dynamicTest.reading?.title || '', questions: dynamicTest.reading?.questions?.map((q: any) => ({ label: q.label || q.question, type: q.type, answer: q.correctAnswer, options: q.options })) || [] });
+          setSelectedWriting(dynamicTest.writing || {});
+          setSelectedSpeaking(dynamicTest.speaking || {});
           setLoadingContent(false);
           return;
         }
