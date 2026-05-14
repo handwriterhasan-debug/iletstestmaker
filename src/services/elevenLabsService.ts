@@ -1,5 +1,5 @@
-const ELEVEN_LABS_API_KEY = 'sk_7f3b6db4f8ebb7fe98c47bd269dbea54650e1b7dd56e72f8';
-const DEFAULT_VOICE_ID = '21mO0643Tfqjt77M3894'; // Rachel - Natural and clear
+const ELEVEN_LABS_API_KEY = 'sk_ff2573454da91fd143632d712f36c3209e1f4f64d1e84962';
+const DEFAULT_VOICE_ID = 'auq43ws1oslv0tO4BDa7';
 
 export async function textToSpeech(text: string, voiceId: string = DEFAULT_VOICE_ID): Promise<string | null> {
   try {

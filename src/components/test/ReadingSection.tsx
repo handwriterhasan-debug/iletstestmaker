@@ -70,6 +70,10 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
     propPassage.questions?.forEach((q: any, i: number) => {
       correctAnswers[`q${i+1}`] = q.answer;
     });
+  } else if (testSet?.reading?.questions) {
+    testSet.reading.questions.forEach((q: any) => {
+      correctAnswers[q.id] = q.correctAnswer;
+    });
   } else {
     // Basic defaults for test mode scoring
     correctAnswers['11'] = 'FALSE';

@@ -68,7 +68,7 @@ export default function MockTest() {
     setLoadingError(null);
     try {
       const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
-      const refs = filfoData.map((d: any) => d.content);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}`);
       
       let chosen;
       if (refs.length > 0) {

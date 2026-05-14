@@ -67,7 +67,7 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
     setIsScoring1(true);
     setTask1Analysis(null);
     try {
-      const prompt = isPractice ? task1Data.description : "The chart below shows the global sales of digital devices between 2015 and 2025. Summarise the information by selecting and reporting the main features.";
+      const prompt = task1Data.description || task1Data.title;
       const analysis = await scoreIELTSEssay(prompt, task1Text, 1);
       setTask1Analysis(analysis);
     } catch (e) {
@@ -81,7 +81,7 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
     setIsScoring2(true);
     setTask2Analysis(null);
     try {
-      const prompt = isPractice ? task2Data.prompt : "\"In some countries, young people are encouraged to work or travel for a year between finishing high school and starting university studies. Discuss the advantages and disadvantages for young people who decide to do this.\"";
+      const prompt = task2Data.prompt;
       const analysis = await scoreIELTSEssay(prompt, task2Text, 2);
       setTask2Analysis(analysis);
     } catch (e) {
@@ -185,13 +185,10 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
                 <span className="text-[10px] bg-black/10 dark:bg-white/10 px-3 py-1 rounded-full text-gray-700 dark:text-gray-200 font-bold uppercase tracking-widest">Compulsory</span>
               </div>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">
-                {isPractice 
-                  ? task1Data.description
-                  : "The chart below shows the global sales of digital devices between 2015 and 2025. Summarise the information by selecting and reporting the main features."
-                }
+                {task1Data.description || task1Data.title}
               </p>
               
-              {isPractice ? (
+              {isPractice || testSet ? (
                 <div className="relative group/card overflow-hidden rounded-3xl border-2 border-[#7C3AED]/30 bg-[#050510] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                   <div className="absolute top-0 right-0 p-3 bg-[#7C3AED] text-white rounded-bl-2xl font-black text-[10px] tracking-widest z-10">PLAYER CARD</div>
                   
@@ -271,10 +268,7 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
                  <h2 className="text-2xl font-black uppercase tracking-tight">Essay Prompt</h2>
                </div>
                <blockquote className="text-lg font-bold leading-relaxed text-gray-100 border-l-4 border-[#7C3AED] pl-6 py-2 whitespace-pre-line">
-                 {isPractice 
-                   ? task2Data.prompt
-                   : "\"In some countries, young people are encouraged to work or travel for a year between finishing high school and starting university studies. Discuss the advantages and disadvantages for young people who decide to do this.\""
-                 }
+                 {task2Data.prompt}
                </blockquote>
                <div className="mt-8 flex items-center gap-3 text-xs font-bold text-orange-400 bg-orange-400/5 p-4 rounded-xl border border-orange-400/20">
                  <AlertTriangle size={16} />

@@ -1,8 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Lock, FileText, Database, Plus, Trash2, ArrowLeft } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import { useNavigate } from 'react-router-dom';
+
+function GoogleSearchWidget() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Only append if it doesn't already exist to prevent duplicates on re-renders
+    if (document.getElementById('gcse-script')) return;
+    
+    const script = document.createElement('script');
+    script.src = 'https://cse.google.com/cse.js?cx=f0683434849c447ff';
+    script.async = true;
+    script.id = 'gcse-script';
+    document.body.appendChild(script);
+
+    return () => {
+      // Optional cleanup if desired, though CSE adds global variables
+    };
+  }, []);
+
+  return <div className="gcse-search" ref={containerRef}></div>;
+}
 
 export default function FilfoAdmin() {
   const [passcode, setPasscode] = useState('');
@@ -12,6 +33,7 @@ export default function FilfoAdmin() {
   const [practiceKnowledge, setPracticeKnowledge] = useState<any[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [newDifficulty, setNewDifficulty] = useState('Average');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,7 +64,7 @@ export default function FilfoAdmin() {
   const handleSave = () => {
     if (!newTitle.trim() || !newContent.trim()) return;
     
-    const newItem = { id: Date.now().toString(), title: newTitle, content: newContent };
+    const newItem = { id: Date.now().toString(), title: newTitle, content: newContent, difficulty: newDifficulty };
     if (activeTab === 'ielts') {
       const updated = [...ieltsKnowledge, newItem];
       setIeltsKnowledge(updated);
@@ -54,6 +76,7 @@ export default function FilfoAdmin() {
     }
     setNewTitle('');
     setNewContent('');
+    setNewDifficulty('Average');
   };
 
   const handleDelete = (id: string, type: 'ielts' | 'practice') => {
@@ -144,13 +167,25 @@ export default function FilfoAdmin() {
             </p>
 
             <div className="space-y-4">
-              <input 
-                type="text" 
-                value={newTitle} 
-                onChange={(e) => setNewTitle(e.target.value)} 
-                placeholder="Topic / Title" 
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#7C3AED] transition-colors"
-              />
+              <div className="flex gap-4">
+                <input 
+                  type="text" 
+                  value={newTitle} 
+                  onChange={(e) => setNewTitle(e.target.value)} 
+                  placeholder="Topic / Title" 
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                />
+                <select
+                  value={newDifficulty}
+                  onChange={(e) => setNewDifficulty(e.target.value)}
+                  className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#7C3AED] transition-colors w-48 font-semibold text-gray-700 dark:text-gray-300"
+                >
+                  <option value="Easy">Easy</option>
+                  <option value="Average">Average</option>
+                  <option value="Hard">Hard</option>
+                  <option value="Expert">Expert</option>
+                </select>
+              </div>
               <textarea 
                 value={newContent} 
                 onChange={(e) => setNewContent(e.target.value)} 
@@ -168,6 +203,18 @@ export default function FilfoAdmin() {
           </div>
 
           <div className="space-y-6">
+            <div className="glass-card p-8 space-y-6">
+              <h3 className="font-bold uppercase tracking-widest flex items-center gap-2 text-sm text-[#A78BFA]">
+                <Database size={16} /> Web Search (Find new topics)
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-bold mb-4">
+                Use Google Search to find new academic articles. Copy the text and paste it into the reference area to keep your IELTS tests feeling fresh.
+              </p>
+              <div className="bg-white rounded-xl p-4 min-h-[60px] overflow-hidden text-black">
+                <GoogleSearchWidget />
+              </div>
+            </div>
+
             <h3 className="font-bold uppercase tracking-widest text-[#A78BFA] text-sm">Saved References ({currentKnowledge.length})</h3>
             <div className="space-y-4">
               {currentKnowledge.length === 0 ? (
@@ -188,8 +235,15 @@ export default function FilfoAdmin() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       className="glass-card p-6 flex items-start justify-between gap-4"
                     >
-                      <div className="space-y-2 overflow-hidden">
-                        <h4 className="font-bold text-gray-900 dark:text-white truncate">{item.title}</h4>
+                      <div className="space-y-2 overflow-hidden flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-gray-900 dark:text-white truncate">{item.title}</h4>
+                          {item.difficulty && (
+                            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#7C3AED]/10 text-[#7C3AED]">
+                              {item.difficulty}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{item.content}</p>
                       </div>
                       <button 

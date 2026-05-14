@@ -203,7 +203,7 @@ export async function generateDynamicTestSet(
           (options.customFilfoTitle && d.title === options.customFilfoTitle)
         );
         if (match) {
-          finalRefs = [match.content];
+          finalRefs = [`Title: ${match.title}\nAdmin Assigned Difficulty: ${match.difficulty || 'Average'}\nContent: ${match.content}`];
         }
       } catch (e) {
         // Ignore JSON parse errors
@@ -217,12 +217,15 @@ export async function generateDynamicTestSet(
   const baseRules = `
   You are an advanced IELTS test generation engine connected to a custom knowledge vault called FILFO. Your entire behavior is governed by the following rules without exception.
   
-  DIFFICULTY LEVEL: ${difficulty}
+  TARGET STUDENT DIFFICULTY LEVEL: ${difficulty}
 
-  You must read this value and apply it strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
+  You will be provided with "Reference Knowledge" entries. Each entry may contain an "Admin Assigned Difficulty". 
+  You MUST base the test around this knowledge AND try to match the test questions' difficulty to BOTH the TARGET STUDENT DIFFICULTY LEVEL and the Admin Assigned Difficulty of the knowledge.
+  If the Admin Assigned Difficulty is different from the TARGET STUDENT DIFFICULTY LEVEL, blend them reasonably or lean towards the Student Difficulty Level.
 
-  If there is reference knowledge provided, YOU MUST base the test around that knowledge.
-  If not, generate a completely random topic for the test.
+  You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
+
+  If no reference knowledge is provided, generate a completely random topic for the test.
 
   Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
 
@@ -256,45 +259,48 @@ export async function generateDynamicTestSet(
   const readingPrompt = baseRules + `
   ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
   This rule has the highest priority and overrides every other instruction.
-  The Reading section must contain exactly 10 questions. These can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but the total count must always be exactly 10. Never return fewer than 10.
+  The Reading section must contain exactly 10 questions. These MUST be a complex mix of Multiple Choice, True False Not Given, and Sentence Completion but the total count must always be exactly 10. Never return fewer than 10.
   Every Multiple Choice Question without any exception must have exactly 4 options. Exactly 4 every single time.
   Before returning your response you must count your questions. If Reading has fewer than 10 questions you must generate more before returning.
 
-  Make the reading passage extremely detailed, long, and academic. IT MUST BE AT LEAST 700 WORDS!
+  Make the reading passage extremely detailed, long, and academic. IT MUST BE AT LEAST 800 WORDS and feature highly advanced academic vocabulary, complex sentence structures, and subtle arguments to thoroughly test inference and comprehension.
 
-  For the Reading section you must use a knowledge entry to generate a full academic passage. Make sure it's long and comprehensive. ALWAYS start the JSON right away, no conversational intro.
+  For the Reading section you must use a knowledge entry to generate a full academic passage. Make sure it's long and comprehensive. Use multiple interconnected paragraphs that explore the topic from varying perspectives (historical, statistical, argumentative). ALWAYS start the JSON right away, no conversational intro.
 
+  The questions must be difficult and require deep textual inference, not just simple word matching.
+  
   Return a JSON object that matches this exact structure:
   {
-    "title": "String",
-    "passage": "String (the reading passage, minimum 700 words, use multiple paragraphs via \\n\\n)",
+    "title": "String (A formal, academic title)",
+    "passage": "String (the reading passage, minimum 800 words, use multiple paragraphs via \\n\\n)",
     "questions": [
-      // MUST BE EXACTLY 10 QUESTIONS HERE
+      // MUST BE EXACTLY 10 QUESTIONS HERE (Mix of mcq, tfng, and text)
       { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
-      { "id": "r2", "type": "text", "label": "String (fill in blank)", "correctAnswer": "Word" }
+      { "id": "r2", "type": "tfng", "question": "String (Statement to evaluate)", "options": [{"id": "True", "text": "True"}, {"id": "False", "text": "False"}, {"id": "Not Given", "text": "Not Given"}], "correctAnswer": "True" },
+      { "id": "r3", "type": "text", "label": "String (fill in blank entirely based on the text)", "correctAnswer": "Word" }
     ]
   }
-  Make sure you generate exactly 10 questions inside the questions array!`;
+  Make sure you generate exactly 10 questions inside the questions array, and format them perfectly!`;
 
   const writingPrompt = baseRules + `
   ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
   This rule has the highest priority and overrides every other instruction.
-  The Writing section must contain exactly 2 tasks. Task 1 MUST BE highly detailed and include a complex description of data or process. Task 2 MUST BE an extensive essay prompt containing a clear issue or statement with specific instructions.
+  The Writing section must contain exactly 2 tasks. Task 1 MUST BE highly detailed and include a complex description of multiple data sets (e.g., comparing two completely different charts or a complex process). Task 2 MUST BE an extensive, multi-dimensional essay prompt containing a clear issue, opposing viewpoints, or a complex scenario with specific instructions.
   
-  Make the prompts feel 100% like a genuine IELTS exam. Add detailed context. DO NOT MAKE THEM TOO SHORT!
+  Make the prompts feel 100% like a genuine, high-level IELTS exam. Add detailed context.
   ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "task1": {
-      "title": "String (e.g. The chart below shows...)",
-      "description": "String (detailed description of the visual data, at least 60-100 words so the candidate understands it thoroughly)",
-      "data": { "Category1": 10, "Category2": 20 },
+      "title": "String (e.g. The charts below show...) Ensure it sounds highly academic.",
+      "description": "String (A very detailed description of the complex visual data or process, at least 80-120 words so the candidate understands it thoroughly and must analyze trends or stages)",
+      "data": { "Category1": 10, "Category2": 20, "Category3": 45, "Category4": 80 },
       "type": "table",
       "minWords": 150
     },
     "task2": {
-      "prompt": "String (The full essay question, including the background statement and the instruction e.g. 'To what extent do you agree or disagree', at least 40-80 words)",
+      "prompt": "String (The full essay question, including a detailed background statement presenting a complex global/societal issue and the instruction e.g. 'Discuss both these views and give your own opinion', at least 60-100 words)",
       "minWords": 250
     }
   }`;
