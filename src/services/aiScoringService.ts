@@ -41,38 +41,47 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
   `;
 
   try {
-    const response = await getAiClient().models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Prompt: ${prompt}\n\nEssay: ${essay}`,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            band: { type: Type.NUMBER },
-            feedback: { type: Type.STRING },
-            breakdown: {
-              type: Type.OBJECT,
-              properties: {
-                taskResponse: { type: Type.NUMBER },
-                coherence: { type: Type.NUMBER },
-                vocab: { type: Type.NUMBER },
-                grammar: { type: Type.NUMBER }
-              },
-              required: ["taskResponse", "coherence", "vocab", "grammar"]
-            },
-            suggestions: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING }
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const responseText = await Promise.race([
+          getAiClient().models.generateContent({
+            model: "gemini-3.1-pro-preview",
+            contents: `Prompt: ${prompt}\n\nEssay: ${essay}`,
+            config: {
+              systemInstruction,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  band: { type: Type.NUMBER },
+                  feedback: { type: Type.STRING },
+                  breakdown: {
+                    type: Type.OBJECT,
+                    properties: {
+                      taskResponse: { type: Type.NUMBER },
+                      coherence: { type: Type.NUMBER },
+                      vocab: { type: Type.NUMBER },
+                      grammar: { type: Type.NUMBER }
+                    },
+                    required: ["taskResponse", "coherence", "vocab", "grammar"]
+                  },
+                  suggestions: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                  }
+                },
+                required: ["band", "feedback", "breakdown", "suggestions"]
+              }
             }
-          },
-          required: ["band", "feedback", "breakdown", "suggestions"]
-        }
-      }
-    });
+          }).then(res => res.text),
+          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 45000))
+        ]);
 
-    return JSON.parse(response.text || '{}');
+        return JSON.parse(responseText || '{}');
+      } catch (e: any) {
+        if (attempt === 2) throw e;
+      }
+    }
   } catch (error) {
     console.error("AI Scoring Error:", error);
     return { 
@@ -125,38 +134,47 @@ export async function scoreIELTSSpeaking(userResponses: (string | { base64: stri
       }
     }
 
-    const response = await getAiClient().models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: parts,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            band: { type: Type.NUMBER },
-            feedback: { type: Type.STRING },
-            breakdown: {
-              type: Type.OBJECT,
-              properties: {
-                fluency: { type: Type.NUMBER },
-                pronunciation: { type: Type.NUMBER },
-                vocab: { type: Type.NUMBER },
-                grammar: { type: Type.NUMBER }
-              },
-              required: ["fluency", "pronunciation", "vocab", "grammar"]
-            },
-            suggestions: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING }
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const responseText = await Promise.race([
+          getAiClient().models.generateContent({
+            model: "gemini-3.1-pro-preview",
+            contents: parts,
+            config: {
+              systemInstruction,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  band: { type: Type.NUMBER },
+                  feedback: { type: Type.STRING },
+                  breakdown: {
+                    type: Type.OBJECT,
+                    properties: {
+                      fluency: { type: Type.NUMBER },
+                      pronunciation: { type: Type.NUMBER },
+                      vocab: { type: Type.NUMBER },
+                      grammar: { type: Type.NUMBER }
+                    },
+                    required: ["fluency", "pronunciation", "vocab", "grammar"]
+                  },
+                  suggestions: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                  }
+                },
+                required: ["band", "feedback", "breakdown", "suggestions"]
+              }
             }
-          },
-          required: ["band", "feedback", "breakdown", "suggestions"]
-        }
-      }
-    });
+          }).then(res => res.text),
+          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 45000))
+        ]);
 
-    return JSON.parse(response.text || '{}');
+        return JSON.parse(responseText || '{}');
+      } catch (e: any) {
+        if (attempt === 2) throw e;
+      }
+    }
   } catch (error) {
     console.error("AI Speaking Scoring Error:", error);
     return { 
@@ -221,17 +239,17 @@ export async function generateDynamicTestSet(
   Every Multiple Choice Question in every section in every test must have exactly 4 options labeled A, B, C, and D. Never 3 options. Never 5 options. Never 6 options. Never 8 options. Exactly 4 every single time.
   Before returning your response you must count your questions. If Listening has fewer than 10 questions you must generate more before returning.
 
-  TOKEN LIMITS: Listening audio script minimum 400 words, maximum 600 words. Each MCQ option maximum 15 words. These limits are non-negotiable.
+  Make the listening script long, realistic, and complex. USE MULTIPLE PARAGRAPHS. IT MUST BE AT LEAST 500 WORDS.
 
   For the Listening section you must use the selected knowledge entry to write a realistic audio script. Ensure it is sufficiently long. ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "title": "String",
-    "script": "String (the spoken transcript, minimum 400 words)",
+    "script": "String (the spoken transcript, minimum 500 words, use \\n\\n for paragraph breaks)",
     "questions": [
        // MUST BE EXACTLY 10 QUESTIONS HERE
-      { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1 max 12w"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
+      { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
     ]
   }`;
 
@@ -242,17 +260,17 @@ export async function generateDynamicTestSet(
   Every Multiple Choice Question without any exception must have exactly 4 options. Exactly 4 every single time.
   Before returning your response you must count your questions. If Reading has fewer than 10 questions you must generate more before returning.
 
-  TOKEN LIMITS: Reading passage minimum 800 words, maximum 1000 words. Each MCQ option maximum 15 words. These limits are non-negotiable.
+  Make the reading passage extremely detailed, long, and academic. IT MUST BE AT LEAST 700 WORDS!
 
   For the Reading section you must use a knowledge entry to generate a full academic passage. Make sure it's long and comprehensive. ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "title": "String",
-    "passage": "String (the reading passage, minimum 800 words)",
+    "passage": "String (the reading passage, minimum 700 words, use multiple paragraphs via \\n\\n)",
     "questions": [
       // MUST BE EXACTLY 10 QUESTIONS HERE
-      { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1 max 12w"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
+      { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
       { "id": "r2", "type": "text", "label": "String (fill in blank)", "correctAnswer": "Word" }
     ]
   }
@@ -261,22 +279,22 @@ export async function generateDynamicTestSet(
   const writingPrompt = baseRules + `
   ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
   This rule has the highest priority and overrides every other instruction.
-  The Writing section must contain exactly 2 tasks. Task 1 minimum 150 words prompt and Task 2 minimum 250 words prompt. These 2 tasks are mandatory in every single test.
-
-  TOKEN LIMITS: Writing prompt maximum 50 words each. These limits are non-negotiable.
+  The Writing section must contain exactly 2 tasks. Task 1 MUST BE highly detailed and include a complex description of data or process. Task 2 MUST BE an extensive essay prompt containing a clear issue or statement with specific instructions.
+  
+  Make the prompts feel 100% like a genuine IELTS exam. Add detailed context. DO NOT MAKE THEM TOO SHORT!
   ALWAYS start the JSON right away, no conversational intro.
 
   Return a JSON object that matches this exact structure:
   {
     "task1": {
-      "title": "String",
-      "description": "String (max 50 words)",
+      "title": "String (e.g. The chart below shows...)",
+      "description": "String (detailed description of the visual data, at least 60-100 words so the candidate understands it thoroughly)",
       "data": { "Category1": 10, "Category2": 20 },
       "type": "table",
       "minWords": 150
     },
     "task2": {
-      "prompt": "String (max 50 words)",
+      "prompt": "String (The full essay question, including the background statement and the instruction e.g. 'To what extent do you agree or disagree', at least 40-80 words)",
       "minWords": 250
     }
   }`;
@@ -308,14 +326,15 @@ export async function generateDynamicTestSet(
       try {
         const responseText = await Promise.race([
           getAiClient().models.generateContent({
-            model: "gemini-3-flash-preview",
+            model: "gemini-3.1-pro-preview",
             contents: inputContent,
             config: {
               systemInstruction,
-              responseMimeType: "application/json"
+              responseMimeType: "application/json",
+              temperature: 0.7
             }
           }).then(res => res.text),
-          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 30000))
+          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 60000))
         ]);
 
         if (!responseText) {

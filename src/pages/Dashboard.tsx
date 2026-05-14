@@ -34,7 +34,10 @@ import {
   Tooltip, 
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
+  BarChart,
+  Bar,
+  Cell
 } from 'recharts';
 import BottomNav from '../components/BottomNav';
 import RegistrationModal from '../components/RegistrationModal';
@@ -391,9 +394,20 @@ export default function Dashboard() {
         </AnimatePresence>
 
         {/* Action Grid with Countdown Card */}
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <motion.section 
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.08 }
+            }
+          }}
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+        >
           {ieltsReg && ieltsReg.status === 'upcoming' ? (
-            <div className="glass-card-purple p-4 relative overflow-hidden flex flex-col justify-between col-span-2 sm:col-span-1 shadow-[0_0_30px_rgba(124,58,237,0.15)] group min-h-[160px]">
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="glass-card-purple p-4 relative overflow-hidden flex flex-col justify-between col-span-2 shadow-[0_0_30px_rgba(124,58,237,0.15)] group min-h-[160px]">
               <div className="z-10 flex flex-col h-full justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -459,7 +473,7 @@ export default function Dashboard() {
                   />
                 </svg>
               </div>
-            </div>
+            </motion.div>
           ) : (
             <ActionCard title="Register IELTS" emoji="🧪" onClick={() => setShowRegistrationModal(true)} />
           )}
@@ -467,7 +481,7 @@ export default function Dashboard() {
           <ActionCard title="Tips & Guides" emoji="📚" onClick={() => navigate('/tips')} />
           <ActionCard title="My Results" emoji="📊" onClick={() => navigate('/results')} />
           <ActionCard title="Study Intel" emoji="🔍" onClick={() => navigate('/study-intel')} />
-        </section>
+        </motion.section>
 
         {/* While You Wait Section */}
         {ieltsReg && ieltsReg.status === 'upcoming' && (
@@ -485,7 +499,12 @@ export default function Dashboard() {
         )}
 
         {/* Stats & Study Plan */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
            <div className="glass-card p-6 min-h-[300px]">
               <div className="mb-6">
                  <h3 className="font-bold flex items-center gap-2"><TrendingUp size={18} className="text-[#A78BFA]" /> Band Progression</h3>
@@ -533,10 +552,15 @@ export default function Dashboard() {
                 <StudyTask title="Listen for Detail" subtitle="Section 3 Focus" completed={false} />
               </div>
            </div>
-        </div>
+        </motion.div>
 
         {/* Past Test Results */}
-        <div className="glass-card p-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="glass-card p-6"
+        >
           <h3 className="font-bold flex items-center gap-2 mb-4">
             <ClipboardList size={18} className="text-[#A78BFA]" /> Past Test Results
           </h3>
@@ -570,7 +594,46 @@ export default function Dashboard() {
                <p className="text-xs text-gray-500">No test results found yet.</p>
             </div>
           )}
-        </div>
+        </motion.div>
+
+        {/* Bar Chart Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="glass-card p-6 mb-8"
+        >
+           <h3 className="font-bold flex items-center gap-2 mb-6">
+              <Activity size={18} className="text-[#A78BFA]" /> Performance History
+           </h3>
+           <div className="h-64 w-full">
+             {chartData.length > 0 ? (
+               <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} />
+                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} domain={[0, 9]} ticks={[0, 2, 4, 6, 8, 9]} />
+                   <Tooltip 
+                     contentStyle={{ backgroundColor: '#1A1A2E', border: '1px solid rgba(124,58,237,0.2)', borderRadius: '12px', fontSize: '10px' }} 
+                     cursor={{ fill: 'rgba(124,58,237,0.1)' }}
+                   />
+                   <Bar dataKey="band" radius={[4, 4, 0, 0]}>
+                     {chartData.map((entry, index) => (
+                       <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#A78BFA' : '#7C3AED'} fillOpacity={index === chartData.length - 1 ? 1 : 0.6} />
+                     ))}
+                   </Bar>
+                 </BarChart>
+               </ResponsiveContainer>
+             ) : (
+               <div className="h-full flex flex-col items-center justify-center text-center space-y-2">
+                 <div className="p-3 bg-black/5 dark:bg-white/5 rounded-full inline-block">
+                   <Activity size={24} className="text-gray-500 dark:text-gray-400" />
+                 </div>
+                 <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">No detailed performance data</p>
+               </div>
+             )}
+           </div>
+        </motion.div>
       </main>
 
       <RegistrationModal 
@@ -694,9 +757,17 @@ function ScoreBubble({ label, score }: any) {
 
 function ActionCard({ title, emoji, onClick }: any) {
   return (
-    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onClick} className="glass-card p-4 flex flex-col items-center gap-2 text-center h-full">
-      <span className="text-3xl">{emoji}</span>
-      <span className="text-[10px] font-black uppercase tracking-widest leading-tight">{title}</span>
+    <motion.button 
+      variants={{ hidden: { opacity: 0, scale: 0.9, y: 20 }, visible: { opacity: 1, scale: 1, y: 0 } }}
+      whileHover={{ y: -5, scale: 1.02 }} 
+      whileTap={{ scale: 0.95 }} 
+      onClick={onClick} 
+      className="glass-card p-6 flex flex-col items-center justify-center gap-3 text-center h-full hover:border-[#7C3AED]/40 hover:shadow-[0_10px_30px_rgba(124,58,237,0.1)] transition-all min-h-[140px]"
+    >
+      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED]/10 to-[#A78BFA]/5 flex items-center justify-center border border-[#7C3AED]/20 shadow-inner">
+         <span className="text-2xl drop-shadow-md">{emoji}</span>
+      </div>
+      <span className="text-[11px] font-black uppercase tracking-widest leading-tight text-gray-800 dark:text-gray-100">{title}</span>
     </motion.button>
   );
 }

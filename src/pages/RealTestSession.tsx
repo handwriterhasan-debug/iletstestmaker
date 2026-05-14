@@ -234,7 +234,7 @@ export default function RealTestSession() {
     // Strict score calculation based on provided testset correct answers
     const getListeningScore = () => {
       let correct = 0;
-      testSet.listening.questions.forEach((q: any) => {
+      testSet.listening?.questions?.forEach((q: any) => {
         const uAns = (answers.listening?.[q.id] || '').toString().trim().toLowerCase();
         const cAns = (q.correctAnswer || q.answer || '').toString().trim().toLowerCase();
         if (uAns && cAns && uAns === cAns) {
@@ -248,7 +248,7 @@ export default function RealTestSession() {
 
     const getReadingScore = () => {
       let correct = 0;
-      testSet.reading.questions.forEach((q: any) => {
+      testSet.reading?.questions?.forEach((q: any) => {
         const uAns = (answers.reading?.[q.id] || '').toString().trim().toLowerCase();
         const cAns = (q.correctAnswer || q.answer || '').toString().trim().toLowerCase();
         if (uAns && cAns && uAns === cAns) {
@@ -849,7 +849,7 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
                  </thead>
                  <tbody>
                     {Array.isArray(testSet.writing?.task1?.data) 
-                      ? testSet.writing.task1.data.map((row: any, i: number) => (
+                      ? testSet.writing?.task1?.data?.map((row: any, i: number) => (
                           <tr key={`tr-arr-${i}`} className="border-b border-black/5 dark:border-white/5">
                             {Object.values(row || {}).map((v: any, j) => <td key={`td-arr-${i}-${j}`} className="p-2 font-bold">{v as string}</td>)}
                           </tr>

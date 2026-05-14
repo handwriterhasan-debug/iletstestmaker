@@ -67,7 +67,7 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
 
   const correctAnswers: any = {};
   if (isPractice && propPassage?.questions) {
-    propPassage.questions.forEach((q: any, i: number) => {
+    propPassage.questions?.forEach((q: any, i: number) => {
       correctAnswers[`q${i+1}`] = q.answer;
     });
   } else {

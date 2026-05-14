@@ -137,7 +137,7 @@ export default function PracticeSession() {
     // Calculate score for practice
     if (section === 'listening' && selectedListening) {
        const correctAnswers: any = {};
-       selectedListening.questions.forEach((q: any, i: number) => {
+       selectedListening?.questions?.forEach((q: any, i: number) => {
          correctAnswers[`p${i+1}`] = q.correct;
        });
 
@@ -150,7 +150,7 @@ export default function PracticeSession() {
        setScores(prev => ({ ...prev, listening: score }));
     } else if (section === 'reading' && selectedReading) {
        const correctAnswers: any = {};
-       selectedReading.questions.forEach((q: any, i: number) => {
+       selectedReading?.questions?.forEach((q: any, i: number) => {
          correctAnswers[`q${i+1}`] = q.answer;
        });
 
