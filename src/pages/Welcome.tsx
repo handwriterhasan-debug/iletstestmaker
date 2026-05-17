@@ -81,7 +81,7 @@ export default function Welcome() {
   return (
     <div className="min-h-screen flex flex-col p-6 items-center justify-center relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#7C3AED]/10 blur-[120px] -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#84cc16]/10 blur-[120px] -z-10" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -89,72 +89,72 @@ export default function Welcome() {
         className="w-full max-w-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-8 rounded-[40px] backdrop-blur-xl"
       >
         <div className="text-center mb-10">
-          <div className="inline-flex p-3 bg-[#7C3AED]/20 rounded-2xl mb-4">
-            <Sparkles className="text-[#A78BFA]" size={24} />
+          <div className="inline-flex p-3 bg-[#84cc16]/20 rounded-2xl mb-4">
+            <Sparkles className="text-[#65a30d] dark:text-[#a3e635]" size={24} />
           </div>
           <h1 className="text-3xl font-black tracking-tight">SET UP YOUR PORTAL</h1>
-          <p className="text-gray-600 dark:text-gray-300 font-medium mt-2">Welcome to your IELTS journey</p>
+          <p className="text-gray-800 dark:text-gray-200 font-medium mt-2">Welcome to your IELTS journey</p>
         </div>
 
         <div className="space-y-8">
           {/* Avatar Upload */}
           <div className="flex flex-col items-center">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-2 border-dashed border-[#7C3AED]/40 flex items-center justify-center overflow-hidden bg-black/5 dark:bg-white/5 transition-all group-hover:border-[#7C3AED]">
+              <div className="w-32 h-32 rounded-full border-2 border-dashed border-[#84cc16]/40 flex items-center justify-center overflow-hidden bg-black/5 dark:bg-white/5 transition-all group-hover:border-[#84cc16]">
                 {preview ? (
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <Camera className="text-gray-600 dark:text-gray-300" size={32} />
+                  <Camera className="text-gray-800 dark:text-gray-200" size={32} />
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 p-2 bg-[#7C3AED] rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-[#7C3AED]/20">
+              <label className="absolute bottom-0 right-0 p-2 bg-[#84cc16] rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-[#84cc16]/20">
                 <Camera size={16} />
                 <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
               </label>
             </div>
-            <p className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest mt-4">Upload Profile Picture</p>
+            <p className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest mt-4">Upload Profile Picture</p>
           </div>
 
           {/* Name Input */}
           <div className="grid grid-cols-1 gap-5">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-widest ml-1">Full Name</label>
+              <label className="text-xs font-bold text-black dark:text-white uppercase tracking-widest ml-1">Full Name</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-200" size={18} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" size={18} />
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#7C3AED] outline-none transition-all font-medium"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-widest ml-1">Email Address</label>
+              <label className="text-xs font-bold text-black dark:text-white uppercase tracking-widest ml-1">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-200" size={18} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" size={18} />
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#7C3AED] outline-none transition-all font-medium"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-widest ml-1">Age</label>
+              <label className="text-xs font-bold text-black dark:text-white uppercase tracking-widest ml-1">Age</label>
               <div className="relative">
-                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-200" size={18} />
+                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-black dark:text-white" size={18} />
                 <input 
                   type="number" 
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   placeholder="e.g. 25"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#7C3AED] outline-none transition-all font-medium"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function Welcome() {
           <button 
             onClick={handleStart}
             disabled={!name.trim() || !email.trim() || loading}
-            className="w-full btn-primary flex items-center justify-center gap-3 py-5 rounded-2xl text-lg font-black tracking-tight disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)]"
+            className="w-full btn-primary flex items-center justify-center gap-3 py-5 rounded-2xl text-lg font-black tracking-tight disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(132,204,22,0.3)]"
           >
             {loading ? 'Setting up...' : 'Enter Dashboard'}
             <ArrowRight size={20} />

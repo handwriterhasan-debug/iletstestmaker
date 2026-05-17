@@ -53,8 +53,8 @@ const TIPS: Record<Section, Tip[]> = {
       title: 'Environment', 
       description: (
         <div className="space-y-1.5 mt-1">
-          <p><span className="font-bold text-[#A78BFA]">Word:</span> Sustainability</p>
-          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> promote sustainability, long-term sustainability</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Word:</span> Sustainability</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Collocations:</span> promote sustainability, long-term sustainability</p>
           <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Governments must promote sustainability to mitigate the effects of global warming."</p>
         </div>
       )
@@ -64,8 +64,8 @@ const TIPS: Record<Section, Tip[]> = {
       title: 'Technology', 
       description: (
         <div className="space-y-1.5 mt-1">
-          <p><span className="font-bold text-[#A78BFA]">Word:</span> Obsolete</p>
-          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> become obsolete, render obsolete</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Word:</span> Obsolete</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Collocations:</span> become obsolete, render obsolete</p>
           <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Rapid technological innovation can rapidly render traditional manufacturing processes obsolete."</p>
         </div>
       )
@@ -75,8 +75,8 @@ const TIPS: Record<Section, Tip[]> = {
       title: 'Education', 
       description: (
         <div className="space-y-1.5 mt-1">
-          <p><span className="font-bold text-[#A78BFA]">Word:</span> Pedagogy</p>
-          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> modern pedagogy, pedagogical approach</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Word:</span> Pedagogy</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Collocations:</span> modern pedagogy, pedagogical approach</p>
           <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Modern pedagogy emphasizes critical thinking and problem-solving over rote memorization."</p>
         </div>
       )
@@ -86,8 +86,8 @@ const TIPS: Record<Section, Tip[]> = {
       title: 'Work', 
       description: (
         <div className="space-y-1.5 mt-1">
-          <p><span className="font-bold text-[#A78BFA]">Word:</span> Remuneration</p>
-          <p><span className="font-bold text-[#A78BFA]">Collocations:</span> adequate remuneration, financial remuneration</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Word:</span> Remuneration</p>
+          <p><span className="font-bold text-[#65a30d] dark:text-[#a3e635]">Collocations:</span> adequate remuneration, financial remuneration</p>
           <p className="italic text-gray-500 text-xs leading-relaxed border-l-2 border-gray-200 dark:border-gray-700 pl-2">"Adequate remuneration is essential for retaining highly skilled professionals in a competitive market."</p>
         </div>
       )
@@ -111,8 +111,8 @@ export default function TipsGuides() {
     <div className="min-h-screen flex flex-col items-center">
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#7C3AED]/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#7C3AED]/5 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#84cc16]/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#84cc16]/5 blur-[120px] rounded-full" />
       </div>
 
       <div className="w-full max-w-lg flex flex-col p-6 pb-40">
@@ -126,8 +126,8 @@ export default function TipsGuides() {
           <div className="space-y-1">
             <h1 className="text-3xl font-black uppercase tracking-tighter">Portal Guides</h1>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
-              <p className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-[0.2em]">Strategy Intel v2.026</p>
+              <div className="w-2 h-2 rounded-full bg-[#84cc16] animate-pulse" />
+              <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-[0.2em]">Strategy Intel v2.026</p>
             </div>
           </div>
         </header>
@@ -149,8 +149,8 @@ export default function TipsGuides() {
                 onClick={() => setActiveSection(section)}
                 className={`py-4 rounded-[18px] flex flex-col items-center gap-2 transition-all relative overflow-hidden ${
                   activeSection === section 
-                    ? 'bg-[#7C3AED] text-white shadow-[0_8px_20px_rgba(124,58,237,0.3)]' 
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-600 dark:text-gray-300'
+                    ? 'bg-[#84cc16] text-white shadow-[0_8px_20px_rgba(132,204,22,0.3)]' 
+                    : 'text-gray-800 dark:text-gray-200 hover:text-gray-800 dark:text-gray-200'
                 }`}
               >
                 <Icon size={16} className={activeSection === section ? 'animate-bounce' : ''} />
@@ -167,7 +167,7 @@ export default function TipsGuides() {
         <div className="space-y-6">
           <div className="flex items-center justify-between px-4 pb-4 border-b border-black/5 dark:border-white/5">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">Active Intel</span>
+              <span className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Active Intel</span>
               <span className="text-lg font-black uppercase tracking-tight">{activeSection} Optimization</span>
             </div>
             <motion.div 
@@ -195,12 +195,12 @@ export default function TipsGuides() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className={`relative p-5 bg-white/[0.02] border border-white/[0.06] rounded-[28px] overflow-hidden group hover:border-[#7C3AED]/40 transition-all ${
-                      tip.isNew ? 'ring-1 ring-[#7C3AED]/30 bg-[#7C3AED]/5' : ''
+                    className={`relative p-5 bg-white/[0.02] border border-white/[0.06] rounded-[28px] overflow-hidden group hover:border-[#84cc16]/40 transition-all ${
+                      tip.isNew ? 'ring-1 ring-[#84cc16]/30 bg-[#84cc16]/5' : ''
                     }`}
                   >
                     {tip.isNew && (
-                      <div className="absolute top-0 right-0 px-4 py-1.5 bg-[#7C3AED] rounded-bl-2xl text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
+                      <div className="absolute top-0 right-0 px-4 py-1.5 bg-[#84cc16] rounded-bl-2xl text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
                         <Sparkles size={8} /> 2026 UPDATE
                       </div>
                     )}
@@ -209,8 +209,8 @@ export default function TipsGuides() {
                         {tip.emoji}
                       </div>
                       <div className="space-y-1">
-                        <h4 className="font-black text-sm uppercase tracking-tight text-gray-900 dark:text-white group-hover:text-[#A78BFA] transition-colors">{tip.title}</h4>
-                        <p className="text-gray-700 dark:text-gray-200 text-xs font-medium leading-relaxed">{tip.description}</p>
+                        <h4 className="font-black text-sm uppercase tracking-tight text-gray-900 dark:text-white group-hover:text-[#65a30d] dark:text-[#a3e635] transition-colors">{tip.title}</h4>
+                        <p className="text-black dark:text-white text-xs font-medium leading-relaxed">{tip.description}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -223,15 +223,15 @@ export default function TipsGuides() {
         {/* Score Map */}
         <div className="mt-12 p-6 bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-[32px] space-y-6">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest">Global Band Metrics</span>
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-full">
-              <TrendingUp size={10} className="text-[#A78BFA]" />
-              <span className="text-[8px] font-black text-[#A78BFA] uppercase">Live Projection</span>
+            <span className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest">Global Band Metrics</span>
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#84cc16]/10 border border-[#84cc16]/20 rounded-full">
+              <TrendingUp size={10} className="text-[#65a30d] dark:text-[#a3e635]" />
+              <span className="text-[8px] font-black text-[#65a30d] dark:text-[#a3e635] uppercase">Live Projection</span>
             </div>
           </div>
           
           <div className="space-y-4">
-            <BandRow color="bg-[#7C3AED]" label="8.0 - 9.0" text="Master Practitioner" weight="100%" />
+            <BandRow color="bg-[#84cc16]" label="8.0 - 9.0" text="Master Practitioner" weight="100%" />
             <BandRow color="bg-green-500" label="6.0 - 7.5" text="Qualified User" weight="75%" />
             <BandRow color="bg-yellow-500" label="5.0 - 5.5" text="Initial Learner" weight="50%" />
             <BandRow color="bg-red-500" label="Below 5.0" text="Critical Prep Needed" weight="25%" />
@@ -246,8 +246,8 @@ function BandRow({ color, label, text, weight }: { color: string; label: string;
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-        <span className="text-gray-700 dark:text-gray-200">{label}</span>
-        <span className="text-gray-600 dark:text-gray-300">{text}</span>
+        <span className="text-black dark:text-white">{label}</span>
+        <span className="text-gray-800 dark:text-gray-200">{text}</span>
       </div>
       <div className="h-1.5 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
         <motion.div

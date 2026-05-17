@@ -22,10 +22,12 @@ import RealTestSession from './pages/RealTestSession';
 import FilfoAdmin from './pages/FilfoAdmin';
 import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
+import ThemeToggle from './components/ThemeToggle';
 
 export default function App() {
   return (
     <AuthProvider>
+      
       <Router>
         <Routes>
           {/* Public Routes */}

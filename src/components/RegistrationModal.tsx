@@ -130,7 +130,7 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-            className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-[#12121A] border-t border-black/10 dark:border-white/10 rounded-t-[32px] p-8 z-[11001] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
+            className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white dark:bg-[#12121A] border-t border-black/10 dark:border-white/10 rounded-t-[32px] p-8 z-[11001] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
           >
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
@@ -226,19 +226,19 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                     <div 
                       onClick={() => setSelectedDateOption('custom')}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                        selectedDateOption === 'custom' ? 'bg-[#7C3AED]/10 border-[#7C3AED]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
+                        selectedDateOption === 'custom' ? 'bg-[#84cc16]/10 border-[#84cc16]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <Calendar size={18} className={selectedDateOption === 'custom' ? 'text-[#A78BFA]' : 'text-gray-700 dark:text-gray-200'} />
+                          <Calendar size={18} className={selectedDateOption === 'custom' ? 'text-[#65a30d] dark:text-[#a3e635]' : 'text-black dark:text-white'} />
                           <span className="font-bold">Pick Custom Date & Time</span>
                         </div>
                       </div>
                       {selectedDateOption === 'custom' && (
                         <input 
                           type="datetime-local" 
-                          className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-[#7C3AED]"
+                          className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-[#84cc16]"
                           value={customDate}
                           onChange={(e) => setCustomDate(e.target.value)}
                         />
@@ -251,7 +251,7 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                       </div>
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-blue-400">Smart Recommendation</p>
-                        <p className="text-[10px] text-gray-700 dark:text-gray-200 leading-relaxed">
+                        <p className="text-[10px] text-black dark:text-white leading-relaxed">
                           Most students perform best after 2-3 days of focused practice. We recommend waiting at least 48 hours before your test.
                         </p>
                       </div>
@@ -259,7 +259,7 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                   </div>
 
                   {selectedDateOption && (
-                    <div className="text-center p-3 text-[10px] uppercase font-black tracking-widest text-[#A78BFA] animate-pulse">
+                    <div className="text-center p-3 text-[10px] uppercase font-black tracking-widest text-[#65a30d] dark:text-[#a3e635] animate-pulse">
                       Selected: {getTargetDate().toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
                     </div>
                   )}
@@ -281,7 +281,7 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                   animate={{ opacity: 1, scale: 1 }}
                   className="space-y-6"
                 >
-                  <div className="glass-card-purple p-6 space-y-4 relative overflow-hidden">
+                  <div className="glass-card-theme p-6 space-y-4 relative overflow-hidden">
                     <div className="flex items-center gap-3 text-green-400 mb-2">
                       <CheckCircle2 size={24} />
                       <h3 className="text-xl font-bold">You're Registered!</h3>
@@ -292,9 +292,9 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                       <SummaryRow label="Email" value={formData.email} icon={Mail} />
                       <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
                         <div className="flex items-center gap-3">
-                          <Fingerprint size={16} className="text-[#A78BFA]" />
+                          <Fingerprint size={16} className="text-[#65a30d] dark:text-[#a3e635]" />
                           <div className="flex flex-col">
-                            <span className="text-[8px] text-gray-600 dark:text-gray-300 uppercase font-black">Roll Number</span>
+                            <span className="text-[8px] text-gray-800 dark:text-gray-200 uppercase font-black">Roll Number</span>
                             <span className="text-sm font-mono font-bold">{rollNumber}</span>
                           </div>
                         </div>
@@ -350,7 +350,7 @@ function StepIndicator({ step, current, label }: { step: number; current: number
   return (
     <div className="flex flex-col items-center gap-2">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-        isCurrent ? 'bg-[#7C3AED] ring-4 ring-[#7C3AED]/20' : active ? 'bg-[#7C3AED]/40' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400'
+        isCurrent ? 'bg-[#84cc16] ring-4 ring-[#84cc16]/20' : active ? 'bg-[#84cc16]/40' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400'
       }`}>
         {active && !isCurrent ? <CheckCircle2 size={16} /> : step}
       </div>
@@ -362,14 +362,14 @@ function StepIndicator({ step, current, label }: { step: number; current: number
 function InputField({ icon: Icon, label, error, onChange, ...props }: any) {
   return (
     <div className="space-y-2">
-      <label className="text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 pl-1">{label}</label>
+      <label className="text-[10px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 pl-1">{label}</label>
       <div className="relative">
-        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={18} />
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={18} />
         <input 
           {...props}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full bg-black/5 dark:bg-white/5 border rounded-2xl py-4 pl-12 pr-4 focus:outline-none transition-all ${
-            error ? 'border-red-500/50 bg-red-500/5' : 'border-black/5 dark:border-white/5 focus:border-[#7C3AED]'
+            error ? 'border-red-500/50 bg-red-500/5' : 'border-black/5 dark:border-white/5 focus:border-[#84cc16]'
           }`}
         />
       </div>
@@ -383,11 +383,11 @@ function DateToggle({ id, label, sub, active, onClick }: any) {
     <button 
       onClick={() => onClick(id)}
       className={`p-4 rounded-2xl border text-left transition-all ${
-        active ? 'bg-[#7C3AED]/10 border-[#7C3AED] shadow-[0_10px_20px_rgba(124,58,237,0.1)]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
+        active ? 'bg-[#84cc16]/10 border-[#84cc16] shadow-[0_10px_20px_rgba(132,204,22,0.1)]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
       }`}
     >
-      <p className={`font-bold text-sm ${active ? 'text-[#A78BFA]' : 'text-gray-900 dark:text-white'}`}>{label}</p>
-      <p className="text-[10px] text-gray-600 dark:text-gray-300">{sub}</p>
+      <p className={`font-bold text-sm ${active ? 'text-[#65a30d] dark:text-[#a3e635]' : 'text-gray-900 dark:text-white'}`}>{label}</p>
+      <p className="text-[10px] text-gray-800 dark:text-gray-200">{sub}</p>
     </button>
   );
 }
@@ -396,8 +396,8 @@ function SummaryRow({ label, value, icon: Icon }: any) {
   return (
     <div className="flex items-center justify-between p-1">
       <div className="flex items-center gap-3">
-        <Icon size={16} className="text-gray-600 dark:text-gray-300" />
-        <span className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black">{label}</span>
+        <Icon size={16} className="text-gray-800 dark:text-gray-200" />
+        <span className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black">{label}</span>
       </div>
       <span className="text-xs font-bold">{value}</span>
     </div>

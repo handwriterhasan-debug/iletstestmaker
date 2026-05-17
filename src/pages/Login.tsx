@@ -33,7 +33,7 @@ export default function Login() {
         className="w-full max-w-md glass-card p-8 z-10"
       >
         <h2 className="text-3xl font-bold mb-2">Welcome Back</h2>
-        <p className="text-gray-700 dark:text-gray-200 mb-8">Sign in to continue your progress.</p>
+        <p className="text-black dark:text-white mb-8">Sign in to continue your progress.</p>
 
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-3 text-sm">
@@ -44,30 +44,30 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-600 dark:text-gray-300 ml-1">Email Address</label>
+            <label className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                 placeholder="name@example.com"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-600 dark:text-gray-300 ml-1">Password</label>
+            <label className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -89,9 +89,9 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-gray-700 dark:text-gray-200">
+        <p className="mt-8 text-center text-black dark:text-white">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-[#A78BFA] font-semibold hover:underline">
+          <Link to="/signup" className="text-[#65a30d] dark:text-[#a3e635] font-semibold hover:underline">
             Create one
           </Link>
         </p>

@@ -31,8 +31,8 @@ export default function Resources() {
         <div className="space-y-1">
           <h1 className="text-3xl font-black uppercase tracking-tighter">Study Intel</h1>
           <div className="flex items-center gap-2">
-            <Search size={12} className="text-[#A78BFA]" />
-            <p className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-[0.2em]">Global Resource Database</p>
+            <Search size={12} className="text-[#65a30d] dark:text-[#a3e635]" />
+            <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-[0.2em]">Global Resource Database</p>
           </div>
         </div>
       </header>
@@ -49,7 +49,7 @@ export default function Resources() {
              </div>
              <div>
                <h3 className="font-black uppercase tracking-tight">IELTS Search Engine</h3>
-               <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">Search for past papers, vocabulary sheets, and verified preparation materials.</p>
+               <p className="text-xs text-gray-800 dark:text-gray-200 font-medium">Search for past papers, vocabulary sheets, and verified preparation materials.</p>
              </div>
           </div>
           
@@ -78,10 +78,10 @@ export default function Resources() {
 
 function ResourceCard({ title, desc, tag }: { title: string; desc: string; tag: string }) {
   return (
-    <div className="glass-card p-6 border-black/5 dark:border-white/5 hover:border-[#7C3AED]/30 transition-all group">
-      <div className="text-[8px] font-black uppercase tracking-widest text-[#A78BFA] mb-2">{tag}</div>
-      <h4 className="font-black text-lg mb-1 group-hover:text-[#A78BFA] transition-colors">{title}</h4>
-      <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{desc}</p>
+    <div className="glass-card p-6 border-black/5 dark:border-white/5 hover:border-[#84cc16]/30 transition-all group">
+      <div className="text-[8px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] mb-2">{tag}</div>
+      <h4 className="font-black text-lg mb-1 group-hover:text-[#65a30d] dark:text-[#a3e635] transition-colors">{title}</h4>
+      <p className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">{desc}</p>
     </div>
   );
 }

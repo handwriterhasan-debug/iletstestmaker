@@ -21,11 +21,11 @@ export default function WaveformPlayer({ blobUrl, onEnded, onPlay, onPause }: Wa
 
     wavesurferRef.current = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: 'rgba(124, 58, 237, 0.4)', // purple slightly faded
-      progressColor: 'rgb(124, 58, 237)', // main purple
+      waveColor: 'rgba(132,204,22, 0.4)', // lime slightly faded
+      progressColor: 'rgb(5, 150, 105)', // main lime
       height: 48,
       cursorWidth: 2,
-      cursorColor: 'rgb(124, 58, 237)',
+      cursorColor: 'rgb(5, 150, 105)',
       barWidth: 3,
       barGap: 2,
       barRadius: 3,
@@ -75,7 +75,7 @@ export default function WaveformPlayer({ blobUrl, onEnded, onPlay, onPause }: Wa
     <div className="flex items-center gap-4 w-full bg-black/5 dark:bg-white/5 p-3 rounded-2xl border border-black/5 dark:border-white/5">
       <button 
         onClick={togglePlay}
-        className="w-10 h-10 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shrink-0 hover:bg-[#6D28D9] transition-colors relative"
+        className="w-10 h-10 rounded-full bg-[#84cc16] text-white flex items-center justify-center shrink-0 hover:bg-[#65a30d] transition-colors relative"
       >
         {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
       </button>

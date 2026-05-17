@@ -36,6 +36,7 @@ export default function MockTest() {
   const [submitStatus, setSubmitStatus] = useState('');
   const [completedRollNumber, setCompletedRollNumber] = useState('');
   const [testSet, setTestSet] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
 
   // Auto-save every 30 seconds - Use memory for now or a dedicated drafts table if needed
   const autoSave = useCallback(async () => {
@@ -170,6 +171,12 @@ export default function MockTest() {
         overall: overallBand
       };
 
+      setAiAnalysis({
+        writing1: w1,
+        writing2: w2,
+        speaking: speakingScore
+      });
+
       await ieltsService.saveResult(reg?.id || 'mock_test', scores);
 
       setSubmitStatus('Your result is ready! 🎉');
@@ -189,31 +196,34 @@ export default function MockTest() {
 
   if (currentSection === 'setup') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 sm:p-10">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 sm:p-10 relative overflow-hidden">
+        <div className="absolute top-1/4 -left-1/4 w-[50%] h-[50%] rounded-full bg-[#84cc16] blur-[150px] opacity-10 pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-1/4 w-[50%] h-[50%] rounded-full bg-blue-500 blur-[150px] opacity-5 pointer-events-none" />
+        
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#7C3AED]/20 relative overflow-hidden"
+          className="glass-card-theme p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#84cc16]/30 relative z-10 shadow-[0_20px_50px_-10px_rgba(132,204,22,0.15)]"
         >
           <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Shield size={120} className="text-[#A78BFA]" />
+             <Shield size={160} className="text-[#65a30d] dark:text-[#a3e635] rotate-12" />
           </div>
 
           <div className="space-y-4 relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/10 flex items-center justify-center text-[#A78BFA] border border-[#7C3AED]/20">
-                <Play size={20} fill="currentColor" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#84cc16]/20 to-[#a3e635]/10 flex items-center justify-center text-[#65a30d] dark:text-[#a3e635] border border-[#84cc16]/30 shadow-inner">
+                <Play size={24} fill="currentColor" />
               </div>
-              <h2 className="text-2xl font-black uppercase tracking-tight">Diagnostic Protocol</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tight drop-shadow-sm text-gray-900 dark:text-white">Diagnostic Protocol</h2>
             </div>
-            <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed max-w-md">
+            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium leading-relaxed max-w-md">
               You are about to initiate a full IELTS simulation. Ensure your environment is controlled and your hardware is verified.
             </p>
           </div>
 
           <div className="space-y-6 relative z-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-300">Select Difficulty Level</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635]">Select Difficulty Level</label>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {[
                   { id: 'Easy', label: 'Easy', sub: 'Band 4-5' },
@@ -224,35 +234,35 @@ export default function MockTest() {
                   <button
                     key={level.id}
                     onClick={() => setDifficulty(level.id as 'Easy' | 'Average' | 'Hard' | 'Expert')}
-                    className={`py-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 ${
+                    className={`py-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${
                       difficulty === level.id 
-                        ? 'bg-[#7C3AED]/20 border-[#7C3AED] text-gray-900 dark:text-white shadow-[0_0_20px_rgba(124,58,237,0.2)]' 
-                        : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 hover:border-black/10 dark:border-white/10 hover:bg-white/[0.08]'
+                        ? 'bg-[#84cc16]/20 border-[#84cc16] text-gray-900 dark:text-white shadow-[0_0_20px_rgba(132,204,22,0.2)] scale-105' 
+                        : 'bg-black/5 dark:bg-white/5 border-transparent text-gray-600 dark:text-gray-400 hover:border-[#84cc16]/50 hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
-                    <span className="text-xs font-black uppercase tracking-widest">{level.label}</span>
-                    <span className="text-[10px] opacity-70 font-bold tracking-widest">{level.sub}</span>
+                    <span className="text-sm font-black uppercase tracking-widest">{level.label}</span>
+                    <span className="text-[10px] opacity-80 font-bold tracking-widest">{level.sub}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-orange-500/5 border border-orange-500/10 p-5 rounded-2xl flex items-start gap-4">
-               <AlertTriangle className="text-orange-400 mt-0.5 shrink-0" size={18} />
+            <div className="glass-card bg-orange-500/10 border border-orange-500/20 p-6 rounded-2xl flex items-start gap-4 shadow-[inset_0_2px_10px_rgba(249,115,22,0.1)]">
+               <AlertTriangle className="text-orange-400 mt-1 shrink-0 animate-pulse" size={24} />
                <div className="space-y-1">
-                 <p className="text-xs font-bold text-orange-400">Total Duration: 2h 44m</p>
-                 <p className="text-[10px] text-orange-400/60 leading-relaxed uppercase tracking-wide">
-                   Refresh/Close is prohibited once session initiates.
+                 <p className="text-sm font-black text-orange-400 uppercase tracking-widest">Total Duration: 2h 44m</p>
+                 <p className="text-xs text-orange-500/80 font-medium leading-relaxed">
+                   Refresh/Close is strictly prohibited once the session initiates.
                  </p>
                </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-10">
-             <button onClick={() => navigate('/app')} className="flex-1 px-8 py-5 rounded-2xl border border-black/10 dark:border-white/10 text-gray-700 dark:text-gray-200 font-black uppercase tracking-widest hover:bg-black/5 dark:bg-white/5 transition-all text-sm">
+             <button onClick={() => navigate('/app')} className="flex-1 px-8 py-5 rounded-2xl border border-black/10 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-widest hover:bg-black/5 dark:bg-white/5 transition-all text-sm">
                 Cancel
              </button>
-             <button onClick={startTest} disabled={loading} className="flex-1 px-8 py-5 rounded-2xl bg-[#7C3AED] text-white font-black uppercase tracking-widest hover:bg-[#6D28D9] transition-all shadow-[0_10px_30px_rgba(124,58,237,0.3)] text-sm flex justify-center items-center gap-2">
+             <button onClick={startTest} disabled={loading} className="flex-1 px-8 py-5 rounded-2xl bg-[#84cc16] text-white font-black uppercase tracking-widest hover:bg-[#65a30d] transition-all shadow-[0_10px_30px_rgba(132,204,22,0.3)] text-sm flex justify-center items-center gap-2">
                 {loading ? <Loader2 className="animate-spin" size={20} /> : "Initiate Test"}
              </button>
           </div>
@@ -287,12 +297,12 @@ export default function MockTest() {
             </div>
           ) : (
             <>
-              <Loader2 size={32} className="animate-spin text-[#A78BFA] mx-auto" />
-              <p className="text-xs font-black uppercase tracking-widest text-[#A78BFA]">{loadingMessage}</p>
+              <Loader2 size={32} className="animate-spin text-[#65a30d] dark:text-[#a3e635] mx-auto" />
+              <p className="text-xs font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{loadingMessage}</p>
               
               <div className="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] transition-all duration-500 ease-out"
+                  className="h-full bg-gradient-to-r from-[#84cc16] to-[#a3e635] transition-all duration-500 ease-out"
                   style={{ width: `${loadingPercentage}%` }}
                 />
               </div>
@@ -317,31 +327,39 @@ export default function MockTest() {
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="glass-card-purple p-12 max-w-md w-full flex flex-col items-center space-y-8"
+          className="glass-card-theme p-12 max-w-md w-full flex flex-col items-center space-y-8"
         >
           {loading ? (
              <div className="relative">
-               <Loader2 size={80} className="text-[#A78BFA] animate-spin" />
+               <Loader2 size={80} className="text-[#65a30d] dark:text-[#a3e635] animate-spin" />
                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-[#7C3AED]/20 rounded-full animate-pulse" />
+                  <div className="w-12 h-12 bg-[#84cc16]/20 rounded-full animate-pulse" />
                </div>
              </div>
           ) : (
             <CheckCircle2 size={80} className="text-green-500" />
           )}
           
-          <div className="space-y-4">
+          <div className="space-y-4 w-full">
              <h2 className="text-2xl font-black uppercase tracking-tight">{submitStatus}</h2>
              
              {!loading && completedRollNumber && (
                <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-4 rounded-xl space-y-1 my-4">
-                 <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black tracking-widest">Your Roll Number</p>
-                 <p className="text-xl font-mono font-bold text-[#A78BFA] select-all">{completedRollNumber}</p>
-                 <p className="text-[10px] text-gray-700 dark:text-gray-200 italic">Copy this carefully, you will need it to view your results!</p>
+                 <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest">Your Roll Number</p>
+                 <p className="text-xl font-mono font-bold text-[#65a30d] dark:text-[#a3e635] select-all">{completedRollNumber}</p>
+                 <p className="text-[10px] text-black dark:text-white italic">Copy this carefully, you will need it to view your results!</p>
                </div>
              )}
 
-             <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed">
+             {!loading && aiAnalysis && (
+               <div className="w-full space-y-4 max-h-[35vh] overflow-y-auto px-2 text-left">
+                  {aiAnalysis.writing1 && <AIAnalysisCard title="Writing Task 1 Analysis" data={aiAnalysis.writing1} />}
+                  {aiAnalysis.writing2 && <AIAnalysisCard title="Writing Task 2 Analysis" data={aiAnalysis.writing2} />}
+                  {aiAnalysis.speaking && <AIAnalysisCard title="Speaking Analysis" data={aiAnalysis.speaking} />}
+               </div>
+             )}
+
+             <p className="text-black dark:text-white text-sm leading-relaxed">
                "Success is not final, failure is not fatal: it is the courage to continue that counts."
                <br/><span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">— Winston Churchill</span>
              </p>
@@ -368,19 +386,19 @@ export default function MockTest() {
                 navigate('/app');
               }
             }} 
-            className="p-2 hover:bg-black/5 dark:bg-white/5 rounded-lg transition-colors text-gray-600 dark:text-gray-300 mr-2"
+            className="p-2 hover:bg-black/5 dark:bg-white/5 rounded-lg transition-colors text-gray-800 dark:text-gray-200 mr-2"
           >
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-lg font-black uppercase tracking-tighter text-gray-900 dark:text-white">
-            IELTS<span className="text-[#A78BFA]">MAKER</span> <span className="font-light text-gray-600 dark:text-gray-300 text-xs ml-2 tracking-widest">MOCK 2026-A</span>
+            IELTS<span className="text-[#65a30d] dark:text-[#a3e635]">MAKER</span> <span className="font-light text-gray-800 dark:text-gray-200 text-xs ml-2 tracking-widest">MOCK 2026-A</span>
           </h1>
           <div className="hidden md:flex gap-2">
             {SECTION_ORDER.map((s, idx) => (
               <div 
                 key={s} 
                 className={`w-3 h-3 rounded-full border transition-all ${
-                  SECTION_ORDER.indexOf(currentSection) >= idx ? 'bg-[#7C3AED] border-[#7C3AED]' : 'border-black/10 dark:border-white/10'
+                  SECTION_ORDER.indexOf(currentSection) >= idx ? 'bg-[#84cc16] border-[#84cc16]' : 'border-black/10 dark:border-white/10'
                 }`} 
               />
             ))}
@@ -389,7 +407,7 @@ export default function MockTest() {
 
         <div className="flex items-center gap-8">
            <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-6 py-2.5 rounded-full border border-black/5 dark:border-white/5">
-              <Clock size={16} className={`${timeRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-[#A78BFA]'}`} />
+              <Clock size={16} className={`${timeRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-[#65a30d] dark:text-[#a3e635]'}`} />
               <span className={`font-mono font-bold tabular-nums text-lg ${timeRemaining < 300 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
                 {formatTime(timeRemaining)}
               </span>
@@ -397,7 +415,7 @@ export default function MockTest() {
            
            <button 
              onClick={handleSectionComplete}
-             className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:text-white transition-colors"
+             className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black dark:text-white hover:text-gray-900 dark:text-white transition-colors"
            >
               Next Section <ChevronRight size={14} />
            </button>
@@ -407,8 +425,8 @@ export default function MockTest() {
       {/* Section Indicator */}
       <div className="pt-28 pb-4 px-8">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[#A78BFA]">{currentSection}</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#7C3AED]/50 to-transparent" />
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[#65a30d] dark:text-[#a3e635]">{currentSection}</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#84cc16]/50 to-transparent" />
         </div>
       </div>
 
@@ -440,11 +458,45 @@ export default function MockTest() {
 
       {/* Safety Notice */}
       <footer className="fixed bottom-0 left-0 right-0 bg-[var(--bg-page)]/90 border-t border-black/5 dark:border-white/5 p-4 flex justify-center backdrop-blur-md">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">
            <AlertTriangle size={12} className="text-orange-400" />
            Mock Test in progress: Do not refresh or close this tab
         </div>
       </footer>
+    </div>
+  );
+}
+
+function AIAnalysisCard({ title, data }: { title: string; data: any }) {
+  if (!data || !data.breakdown) return null;
+  return (
+    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-sm capitalize text-gray-900 dark:text-white">{title}</span>
+        <span className="text-[10px] font-black bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] px-2 py-0.5 rounded">Band {data.band}</span>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2">
+        {Object.entries(data.breakdown).map(([key, val]: any) => (
+          <div key={key} className="bg-black/5 dark:bg-white/5 p-2 rounded-lg text-center">
+            <p className="text-[8px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest">{key.replace(/([A-Z])/g, ' $1')}</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white">{val}</p>
+          </div>
+        ))}
+      </div>
+      
+      {data.suggestions && data.suggestions.length > 0 && (
+        <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/5">
+           <p className="text-[8px] text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest">Key Suggestions</p>
+           <ul className="space-y-1">
+              {data.suggestions.slice(0, 3).map((s: string, i: number) => (
+                <li key={i} className="text-[10px] text-gray-800 dark:text-gray-200 flex gap-2">
+                  <span className="text-[#65a30d] dark:text-[#a3e635]">•</span> {s}
+                </li>
+              ))}
+           </ul>
+        </div>
+      )}
     </div>
   );
 }

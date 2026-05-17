@@ -153,7 +153,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
             key={p}
             onClick={() => setPart(p as any)}
             className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
-              part === p ? 'bg-[#7C3AED] text-white shadow-lg' : 'text-gray-600 dark:text-gray-300 hover:text-gray-600 dark:text-gray-300'
+              part === p ? 'bg-[#84cc16] text-white shadow-lg' : 'text-gray-800 dark:text-gray-200 hover:text-gray-800 dark:text-gray-200'
             }`}
           >
             Part 0{p}
@@ -165,7 +165,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
         {part === 1 && (
           <motion.div key="p1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
             <h3 className="text-xl font-bold">Part 1: Introduction & Interview</h3>
-            <p className="text-gray-700 dark:text-gray-200 text-sm mb-10">Answer the following questions about yourself. Aim for 2-3 sentences each.</p>
+            <p className="text-black dark:text-white text-sm mb-10">Answer the following questions about yourself. Aim for 2-3 sentences each.</p>
             
             <div className="space-y-4">
               {part1Questions.map((q: string, i: number) => (
@@ -176,19 +176,19 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                         onClick={() => playQuestion(q, `p1-${i}`)}
                         disabled={playingId !== null}
                         className={`p-3 rounded-xl transition-all ${
-                          playingId === `p1-${i}` ? 'bg-[#7C3AED] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white'
+                          playingId === `p1-${i}` ? 'bg-[#84cc16] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white'
                         }`}
                       >
                         {playingId === `p1-${i}` ? <Loader2 size={16} className="animate-spin" /> : <Volume2 size={16} />}
                       </button>
-                      <p className="font-bold text-gray-700 dark:text-gray-200">{q}</p>
+                      <p className="font-bold text-black dark:text-white">{q}</p>
                     </div>
                     {recordings[`p1-${i}`] ? (
                       <div className="w-1/2 flex items-center gap-3">
                          <div className="flex-1">
                            <WaveformPlayer blobUrl={recordings[`p1-${i}`].blob} />
                          </div>
-                         <button onClick={() => toggleRecording(`p1-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
+                         <button onClick={() => toggleRecording(`p1-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#84cc16] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
                            <RotateCcw size={16} />
                          </button>
                       </div>
@@ -196,7 +196,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                       <button 
                         onClick={() => toggleRecording(`p1-${i}`)}
                         className={`p-4 rounded-full transition-all relative ${
-                          isRecording && currentRecordingId.current === `p1-${i}` ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-black/10 dark:bg-white/10 text-gray-700 dark:text-gray-200 group-hover:bg-[#7C3AED] group-hover:text-white'
+                          isRecording && currentRecordingId.current === `p1-${i}` ? 'bg-red-600 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)]' : 'bg-black/10 dark:bg-white/10 text-black dark:text-white group-hover:bg-[#84cc16] group-hover:text-white'
                         }`}
                         disabled={isRecording && currentRecordingId.current !== `p1-${i}`}
                       >
@@ -229,13 +229,13 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
 
         {part === 2 && (
           <motion.div key="p2" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8">
-             <div className="glass-card p-10 bg-gradient-to-tr from-purple-900/20 to-transparent border-purple-500/20">
+             <div className="glass-card p-10 bg-gradient-to-tr from-lime-900/20 to-transparent border-lime-500/20">
                 <div className="flex items-center justify-between mb-8">
-                   <h3 className="text-sm font-black uppercase tracking-widest text-[#A78BFA]">Part 2: Individual Long Turn</h3>
+                   <h3 className="text-sm font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">Part 2: Individual Long Turn</h3>
                    {prepTime > 0 && !isRecording && (
-                     <div className="flex items-center gap-2 bg-[#7C3AED]/10 px-4 py-2 rounded-full border border-[#7C3AED]/20">
-                        <Timer size={16} className="text-[#A78BFA]" />
-                        <span className="font-mono font-bold text-[#A78BFA]">Preparation: {prepTime}s</span>
+                     <div className="flex items-center gap-2 bg-[#84cc16]/10 px-4 py-2 rounded-full border border-[#84cc16]/20">
+                        <Timer size={16} className="text-[#65a30d] dark:text-[#a3e635]" />
+                        <span className="font-mono font-bold text-[#65a30d] dark:text-[#a3e635]">Preparation: {prepTime}s</span>
                      </div>
                    )}
                 </div>
@@ -245,14 +245,14 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                     onClick={() => playQuestion(`${part2Cue.cue}. ${part2Cue.points.join('. ')}`, 'p2-main')}
                     disabled={playingId !== null}
                     className={`absolute top-6 right-6 p-3 rounded-xl transition-all ${
-                      playingId === 'p2-main' ? 'bg-[#7C3AED] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white'
+                      playingId === 'p2-main' ? 'bg-[#84cc16] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white'
                     }`}
                   >
                     {playingId === 'p2-main' ? <Loader2 size={16} className="animate-spin" /> : <Volume2 size={16} />}
                   </button>
-                  <p className="text-gray-700 dark:text-gray-200 text-[10px] uppercase font-black tracking-widest">Cue Card</p>
+                  <p className="text-black dark:text-white text-[10px] uppercase font-black tracking-widest">Cue Card</p>
                   <h4 className="text-2xl font-bold">{part2Cue.cue}</h4>
-                  <ul className="space-y-2 text-gray-600 dark:text-gray-300 text-sm list-disc pl-6 leading-relaxed">
+                  <ul className="space-y-2 text-gray-800 dark:text-gray-200 text-sm list-disc pl-6 leading-relaxed">
                     {part2Cue.points.map((p: string, i: number) => (
                       <li key={i}>{p}</li>
                     ))}
@@ -280,7 +280,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                        <div className="flex-1">
                          <WaveformPlayer blobUrl={recordings['p2'].blob} />
                        </div>
-                       <button onClick={() => toggleRecording('p2')} className="p-4 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-2xl transition-colors shrink-0" title="Re-record">
+                       <button onClick={() => toggleRecording('p2')} className="p-4 bg-black/5 dark:bg-white/5 hover:bg-[#84cc16] hover:text-white rounded-2xl transition-colors shrink-0" title="Re-record">
                          <RotateCcw size={20} />
                        </button>
                      </div>
@@ -288,13 +288,13 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                 ) : (
                   <button 
                     onClick={() => toggleRecording('p2')}
-                    className="w-32 h-32 rounded-full bg-[#7C3AED] flex flex-col items-center justify-center gap-2 group hover:scale-105 transition-all shadow-[0_0_50px_rgba(124,58,237,0.4)]"
+                    className="w-32 h-32 rounded-full bg-[#84cc16] flex flex-col items-center justify-center gap-2 group hover:scale-105 transition-all shadow-[0_0_50px_rgba(132,204,22,0.4)]"
                   >
                     <Mic2 size={40} className="text-gray-900 dark:text-white" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-800/80 dark:text-white/80">Start Speaking</span>
                   </button>
                 )}
-                <p className="text-gray-600 dark:text-gray-300 text-xs text-center">Aim to speak for 1-2 minutes until the examiner stops you.</p>
+                <p className="text-gray-800 dark:text-gray-200 text-xs text-center">Aim to speak for 1-2 minutes until the examiner stops you.</p>
              </div>
           </motion.div>
         )}
@@ -315,7 +315,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                           onClick={() => playQuestion(q, `p3-${i}`)}
                           disabled={playingId !== null}
                           className={`p-3 rounded-xl transition-all ${
-                            playingId === `p3-${i}` ? 'bg-[#7C3AED] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white'
+                            playingId === `p3-${i}` ? 'bg-[#84cc16] text-white' : 'bg-black/5 dark:bg-white/5 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white'
                           }`}
                         >
                           {playingId === `p3-${i}` ? <Loader2 size={16} className="animate-spin" /> : <Volume2 size={16} />}
@@ -327,7 +327,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                            <div className="flex-1">
                              <WaveformPlayer blobUrl={recordings[`p3-${i}`].blob} />
                            </div>
-                           <button onClick={() => toggleRecording(`p3-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#7C3AED] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
+                           <button onClick={() => toggleRecording(`p3-${i}`)} className="p-3 bg-black/5 dark:bg-white/5 hover:bg-[#84cc16] hover:text-white rounded-xl transition-colors shrink-0" title="Re-record">
                              <RotateCcw size={16} />
                            </button>
                         </div>
@@ -339,7 +339,7 @@ export default function SpeakingSection({ onComplete, timeRemaining, speakingSet
                         disabled={isRecording && currentRecordingId.current !== `p3-${i}`}
                         className={`flex justify-center items-center gap-3 px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${
                           recordings[`p3-${i}`] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
-                          isRecording && currentRecordingId.current === `p3-${i}` ? 'bg-red-600 text-white shadow-lg' : 'bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-200 hover:bg-[#7C3AED] hover:text-white'
+                          isRecording && currentRecordingId.current === `p3-${i}` ? 'bg-red-600 text-white shadow-lg' : 'bg-black/5 dark:bg-white/5 text-black dark:text-white hover:bg-[#84cc16] hover:text-white'
                         }`}
                       >
                         {isRecording && currentRecordingId.current === `p3-${i}` ? <Square size={16} fill="currentColor" /> : <Mic2 size={16} />}

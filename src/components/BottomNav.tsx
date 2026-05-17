@@ -23,7 +23,7 @@ export default function BottomNav() {
 
   return (
     <div className="fixed bottom-8 left-0 right-0 flex justify-center px-4 z-50 pointer-events-none">
-      <nav className="glass-nav p-2 flex justify-around items-center w-full max-w-[380px] pointer-events-auto shadow-2xl relative shadow-purple-900/5">
+      <nav className="glass-nav p-2 flex justify-around items-center w-full max-w-[380px] pointer-events-auto shadow-2xl relative shadow-lime-900/5">
         <div className="absolute inset-0 rounded-[28px] bg-gradient-to-t from-white/20 to-transparent pointer-events-none"></div>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -33,7 +33,7 @@ export default function BottomNav() {
               to={item.path}
               className={cn(
                 "relative z-10 p-3 rounded-2xl transition-all",
-                isActive ? "bg-[#7C3AED] text-white shadow-[0_4px_15px_rgba(124,58,237,0.4)]" : "text-gray-500 dark:text-gray-400 hover:text-[#A78BFA] hover:bg-black/5 dark:hover:bg-white/5"
+                isActive ? "bg-[#84cc16] text-white shadow-[0_4px_15px_rgba(132,204,22,0.4)]" : "text-gray-500 dark:text-gray-400 hover:text-[#65a30d] dark:text-[#a3e635] hover:bg-black/5 dark:hover:bg-white/5"
               )}
             >
               <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />

@@ -58,7 +58,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 py-12 relative">
-      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(circle_at_center,_#7C3AED_1px,_transparent_1px)] bg-[size:30px_30px]" />
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(circle_at_center,_#84cc16_1px,_transparent_1px)] bg-[size:30px_30px]" />
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -66,7 +66,7 @@ export default function SignUp() {
         className="w-full max-w-md glass-card p-8 z-10"
       >
         <h2 className="text-3xl font-bold mb-2">Create Account</h2>
-        <p className="text-gray-700 dark:text-gray-200 mb-8">Join the IEM Prep community today.</p>
+        <p className="text-black dark:text-white mb-8">Join the IEM Prep community today.</p>
 
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-3 text-sm">
@@ -80,12 +80,12 @@ export default function SignUp() {
           <div className="flex flex-col items-center mb-6">
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className="relative w-24 h-24 rounded-full border-2 border-dashed border-[#7C3AED]/50 flex items-center justify-center cursor-pointer overflow-hidden group hover:border-[#7C3AED] transition-colors bg-black/5 dark:bg-white/5"
+              className="relative w-24 h-24 rounded-full border-2 border-dashed border-[#84cc16]/50 flex items-center justify-center cursor-pointer overflow-hidden group hover:border-[#84cc16] transition-colors bg-black/5 dark:bg-white/5"
             >
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
               ) : (
-                <Camera className="text-[#A78BFA]" size={30} />
+                <Camera className="text-[#65a30d] dark:text-[#a3e635]" size={30} />
               )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <span className="text-xs font-bold">CHANGE</span>
@@ -98,29 +98,29 @@ export default function SignUp() {
               onChange={handleFileChange} 
               className="hidden" 
             />
-            <span className="text-xs text-gray-600 dark:text-gray-300 mt-2 uppercase tracking-widest font-semibold">Avatar Image</span>
+            <span className="text-xs text-gray-800 dark:text-gray-200 mt-2 uppercase tracking-widest font-semibold">Avatar Image</span>
           </div>
 
           <div className="space-y-4">
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
               <input
                 required
                 type="text"
                 placeholder="Full Name"
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               />
             </div>
 
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
               <input
                 required
                 type="email"
                 placeholder="Email Address"
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
@@ -128,12 +128,12 @@ export default function SignUp() {
 
             <div className="grid grid-cols-1 gap-4">
                <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
                 <input
                   required
                   type="number"
                   placeholder="Age"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                   value={formData.age}
                   onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                 />
@@ -141,12 +141,12 @@ export default function SignUp() {
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
               <input
                 required
                 type="password"
                 placeholder="Password"
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
@@ -169,9 +169,9 @@ export default function SignUp() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-gray-700 dark:text-gray-200 text-sm">
+        <p className="mt-8 text-center text-black dark:text-white text-sm">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#A78BFA] font-semibold hover:underline">
+          <Link to="/login" className="text-[#65a30d] dark:text-[#a3e635] font-semibold hover:underline">
             Sign In
           </Link>
         </p>

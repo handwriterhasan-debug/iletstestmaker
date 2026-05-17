@@ -86,7 +86,7 @@ export default function TestCountdown() {
   if (checkingLimit) {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="w-10 h-10 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#84cc16] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -98,7 +98,7 @@ export default function TestCountdown() {
           <Lock size={40} />
         </div>
         <h2 className="text-3xl font-black uppercase tracking-tight text-gray-900 dark:text-white">Monthly Limit Reached</h2>
-        <p className="text-gray-700 dark:text-gray-200 max-w-xs mx-auto">
+        <p className="text-black dark:text-white max-w-xs mx-auto">
           You've completed 3 tests this month. To ensure quality learning, the portal limits attempts to 3 per month (3/3).
         </p>
         <button 
@@ -114,12 +114,12 @@ export default function TestCountdown() {
   return (
     <div className="min-h-screen flex flex-col items-center relative overflow-hidden">
       {/* Decorative pulse */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#7C3AED]/5 blur-[150px] rounded-full animate-pulse" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#84cc16]/5 blur-[150px] rounded-full animate-pulse" />
 
       <header className="w-full flex justify-between items-center mb-10 z-10">
         <button 
           onClick={() => navigate('/app')}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest text-[10px] hover:text-gray-900 dark:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest text-[10px] hover:text-gray-900 dark:text-white transition-colors"
         >
           <ChevronLeft size={16} /> Cancel Session
         </button>
@@ -149,7 +149,7 @@ export default function TestCountdown() {
                cy="160"
                r="150"
                fill="transparent"
-               stroke="#7C3AED"
+               stroke="#84cc16"
                strokeWidth="8"
                strokeDasharray={942}
                strokeDashoffset={942 - (942 * progress) / 100}
@@ -159,17 +159,17 @@ export default function TestCountdown() {
            </svg>
            
            <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2">
-             <Timer className="text-gray-600 dark:text-gray-300 mb-2" size={32} />
+             <Timer className="text-gray-800 dark:text-gray-200 mb-2" size={32} />
              <span className="text-7xl font-black font-mono tracking-tighter tabular-nums leading-none">
                 {formatTime(timeLeft)}
              </span>
-             <span className="text-[10px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-[0.3em]">Seconds Remaining</span>
+             <span className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-[0.3em]">Seconds Remaining</span>
            </div>
         </motion.div>
 
         {/* Tip Container */}
         <div className="w-full max-w-sm glass-card p-8 min-h-[160px] flex flex-col items-center justify-center text-center relative">
-          <div className="absolute -top-5 bg-[#7C3AED] p-3 rounded-2xl shadow-xl">
+          <div className="absolute -top-5 bg-[#84cc16] p-3 rounded-2xl shadow-xl">
              <Lightbulb className="text-gray-900 dark:text-white" size={24} />
           </div>
           
@@ -182,8 +182,8 @@ export default function TestCountdown() {
               transition={{ duration: 0.4 }}
               className="mt-2"
             >
-              <h4 className="text-[10px] text-[#A78BFA] font-black uppercase tracking-[0.2em] mb-3">Today's Insight</h4>
-              <p className="text-lg font-bold leading-relaxed text-gray-700 dark:text-gray-200">
+              <h4 className="text-[10px] text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-[0.2em] mb-3">Today's Insight</h4>
+              <p className="text-lg font-bold leading-relaxed text-black dark:text-white">
                 "{TIPS[tipIndex]}"
               </p>
             </motion.div>
@@ -196,12 +196,12 @@ export default function TestCountdown() {
             {TIPS.map((_, idx) => (
               <div 
                 key={idx} 
-                className={`w-2 h-2 rounded-full transition-all duration-500 ${tipIndex === idx ? 'w-8 bg-[#7C3AED]' : 'bg-black/10 dark:bg-white/10'}`} 
+                className={`w-2 h-2 rounded-full transition-all duration-500 ${tipIndex === idx ? 'w-8 bg-[#84cc16]' : 'bg-black/10 dark:bg-white/10'}`} 
               />
             ))}
          </div>
          
-         <button className="flex items-center gap-2 text-gray-700 dark:text-gray-200 text-sm hover:text-gray-900 dark:text-white transition-colors group">
+         <button className="flex items-center gap-2 text-black dark:text-white text-sm hover:text-gray-900 dark:text-white transition-colors group">
             Loading Exam Environment... <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
          </button>
       </footer>

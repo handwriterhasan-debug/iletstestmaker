@@ -268,7 +268,7 @@ export default function Profile() {
   };
 
   const getBandColor = (score: number) => {
-    if (score >= 8) return 'bg-[#7C3AED]';
+    if (score >= 8) return 'bg-[#84cc16]';
     if (score >= 6) return 'bg-green-500';
     if (score >= 5) return 'bg-yellow-500';
     return 'bg-red-500';
@@ -286,7 +286,7 @@ export default function Profile() {
           </button>
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tight">Your Profile</h1>
-            <p className="text-gray-600 dark:text-gray-300 text-sm font-bold uppercase tracking-widest mt-1">Administer your learning</p>
+            <p className="text-gray-800 dark:text-gray-200 text-sm font-bold uppercase tracking-widest mt-1">Administer your learning</p>
           </div>
         </div>
         <button 
@@ -305,7 +305,7 @@ export default function Profile() {
            <div className="absolute top-0 right-0 p-4">
               <button 
                 onClick={() => setEditing(!editing)}
-                className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] hover:underline"
+                className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] hover:underline"
               >
                 {editing ? 'Cancel' : 'Edit Profile'}
               </button>
@@ -313,14 +313,14 @@ export default function Profile() {
            
            <div className="flex flex-col items-center space-y-6">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-[#7C3AED] bg-black/5 dark:bg-white/5 flex items-center justify-center overflow-hidden shadow-2xl transition-transform group-hover:scale-105">
+                <div className="w-32 h-32 rounded-full border-4 border-[#84cc16] bg-black/5 dark:bg-white/5 flex items-center justify-center overflow-hidden shadow-2xl transition-transform group-hover:scale-105">
                    {profile?.avatar_url ? (
                       <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                    ) : (
-                      <User size={64} className="text-[#A78BFA]/30" />
+                      <User size={64} className="text-[#65a30d] dark:text-[#a3e635]/30" />
                    )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-3 bg-[#7C3AED] rounded-full shadow-lg border-4 border-[var(--bg-page)] cursor-pointer hover:scale-110 transition-transform">
+                <label className="absolute bottom-0 right-0 p-3 bg-[#84cc16] rounded-full shadow-lg border-4 border-[var(--bg-page)] cursor-pointer hover:scale-110 transition-transform">
                    <Camera size={16} className="text-gray-900 dark:text-white" />
                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={saving} />
                 </label>
@@ -345,21 +345,21 @@ export default function Profile() {
               {editing ? (
                 <div className="w-full space-y-4">
                    <div className="space-y-2">
-                      <p className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">Full Name</p>
+                      <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Full Name</p>
                       <input 
                         type="text" 
                         value={editForm.full_name}
                         onChange={(e) => setEditForm(v => ({ ...v, full_name: e.target.value }))}
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#7C3AED]"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#84cc16]"
                       />
                    </div>
                    <div className="space-y-2">
-                      <p className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">Age</p>
+                      <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Age</p>
                       <input 
                         type="number" 
                         value={editForm.age}
                         onChange={(e) => setEditForm(v => ({ ...v, age: e.target.value }))}
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#7C3AED]"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#84cc16]"
                       />
                    </div>
                    <button 
@@ -373,8 +373,8 @@ export default function Profile() {
               ) : (
                 <div className="text-center space-y-1">
                   <h2 className="text-2xl font-black tracking-tight">{profile?.full_name}</h2>
-                  <p className="text-gray-600 dark:text-gray-300 font-bold flex items-center justify-center gap-2"><Mail size={14} /> {profile?.email}</p>
-                  <p className="text-xs text-[#A78BFA] font-black uppercase tracking-widest mt-2">{profile?.age} Years Old • Candidate</p>
+                  <p className="text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center gap-2"><Mail size={14} /> {profile?.email}</p>
+                  <p className="text-xs text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest mt-2">{profile?.age} Years Old • Candidate</p>
                 </div>
               )}
            </div>
@@ -382,16 +382,16 @@ export default function Profile() {
 
         {/* My Test Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
              <Rocket size={16} /> My Scheduled Test
            </h3>
            {ieltsReg ? (
-             <div className="glass-card-purple p-6 space-y-6 relative overflow-hidden group">
+             <div className="glass-card-theme p-6 space-y-6 relative overflow-hidden group">
                 <div className="flex justify-between items-start">
                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-gray-700 dark:text-gray-200 tracking-widest">Registered IELTS Test</p>
+                      <p className="text-[10px] font-black uppercase text-black dark:text-white tracking-widest">Registered IELTS Test</p>
                       <div className="flex items-center gap-2">
-                        <Fingerprint size={14} className="text-[#A78BFA]" />
+                        <Fingerprint size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
                         <p className="text-xl font-mono font-bold">{ieltsReg.rollNumber}</p>
                       </div>
                    </div>
@@ -402,21 +402,21 @@ export default function Profile() {
 
                 <div className="grid grid-cols-2 gap-4 border-y border-black/5 dark:border-white/5 py-4">
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
                          <Calendar size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Date</span>
                       </div>
                       <p className="text-xs font-bold">{new Date(ieltsReg.testDate).toLocaleDateString()}</p>
                    </div>
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
                          <Clock size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Time</span>
                       </div>
                       <p className="text-xs font-bold">{new Date(ieltsReg.testDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                    </div>
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
                          <Flame size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Practices</span>
                       </div>
@@ -444,10 +444,10 @@ export default function Profile() {
              </div>
            ) : (
              <div className="glass-card p-10 text-center space-y-4">
-                <p className="text-xs text-gray-600 dark:text-gray-300 italic">No target test registered yet.</p>
+                <p className="text-xs text-gray-800 dark:text-gray-200 italic">No target test registered yet.</p>
                 <button 
                   onClick={() => navigate('/app')}
-                  className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] hover:underline"
+                  className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] hover:underline"
                 >
                   Register Now to set a target 🎯
                 </button>
@@ -457,13 +457,13 @@ export default function Profile() {
 
         {/* Stats Grid */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
              <TrendingUp size={16} /> Performance Insights
            </h3>
            <div className="grid grid-cols-2 gap-4">
               <StatCard label="Practice Streak" value={`${stats.streak} Days`} icon={<Flame className="text-orange-500" size={18} />} />
               <StatCard label="This Month" value={`${stats.testsThisMonth} / 3`} icon={<Calendar size={18} className="text-blue-500" />} />
-              <StatCard label="Best Band" value={stats.bestBand.toFixed(1)} icon={<Award size={18} className="text-[#A78BFA]" />} />
+              <StatCard label="Best Band" value={stats.bestBand.toFixed(1)} icon={<Award size={18} className="text-[#65a30d] dark:text-[#a3e635]" />} />
               <StatCard label="Avg Practice" value="7.5" icon={<TrendingUp size={18} className="text-green-500" />} />
            </div>
         </section>
@@ -471,7 +471,7 @@ export default function Profile() {
         {/* Professional Optimization Section */}
         <section className="space-y-4">
            <div className="flex items-center justify-between">
-             <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center gap-2">
+             <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
                <Award size={16} /> Profile Optimization
              </h3>
              {profile?.resume_url && (
@@ -479,7 +479,7 @@ export default function Profile() {
              )}
            </div>
            
-           <div className="glass-card p-6 border-[#7C3AED]/20 bg-gradient-to-br from-[#7C3AED]/5 to-transparent">
+           <div className="glass-card p-6 border-[#84cc16]/20 bg-gradient-to-br from-[#84cc16]/5 to-transparent">
               <div className="flex flex-col sm:flex-row gap-6 items-center">
                  <div className="w-24 h-32 bg-black/5 dark:bg-white/5 rounded-xl border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center relative group overflow-hidden">
                     {profile?.resume_url ? (
@@ -493,10 +493,10 @@ export default function Profile() {
                  </div>
                  <div className="flex-1 space-y-3 text-center sm:text-left">
                     <h4 className="font-bold text-gray-900 dark:text-white">Upload Resume (PNG)</h4>
-                    <p className="text-xs text-gray-700 dark:text-gray-200 italic">Adding your resume helps us tailor your study plan and optimize your candidate profile for premium opportunities.</p>
+                    <p className="text-xs text-black dark:text-white italic">Adding your resume helps us tailor your study plan and optimize your candidate profile for premium opportunities.</p>
                     
                     <div className="flex flex-wrap gap-2 justify-center sm:justify-start pt-2">
-                       <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${resuming ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#7C3AED] hover:bg-[#8B5CF6] shadow-lg shadow-[#7C3AED]/20'}`}>
+                       <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${resuming ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#84cc16] hover:bg-[#84cc16] shadow-lg shadow-[#84cc16]/20'}`}>
                           {resuming ? 'Optimizing...' : (profile?.resume_url ? 'Update PNG Resume' : 'Add PNG Resume')}
                           <input type="file" className="hidden" accept="image/png,image/jpeg" onChange={handleResumeUpload} disabled={resuming} />
                        </label>
@@ -517,7 +517,7 @@ export default function Profile() {
 
         {/* Practice History Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
              <TrendingUp size={16} /> Practice History
            </h3>
            <div className="grid grid-cols-1 gap-3">
@@ -525,31 +525,31 @@ export default function Profile() {
                 <motion.div 
                   key={idx}
                   whileHover={{ y: -2 }}
-                  className="glass-card p-4 border border-[#7C3AED]/20 bg-gradient-to-r from-[#7C3AED]/5 to-transparent flex items-center justify-between"
+                  className="glass-card p-4 border border-[#84cc16]/20 bg-gradient-to-r from-[#84cc16]/5 to-transparent flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#7C3AED] shadow-lg">
+                     <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#84cc16] shadow-lg">
                         <span className="text-[8px] font-black text-gray-800/80 dark:text-white/80 leading-none">BAND</span>
                         <span className="text-lg font-black text-gray-900 dark:text-white leading-none">{res.overall}</span>
                      </div>
                      <div>
                         <div className="flex items-center gap-2">
-                           <span className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA]">{res.date}</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{res.date}</span>
                            <span className="w-1 h-1 rounded-full bg-gray-600" />
-                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200 capitalize">{res.type}</span>
+                           <span className="text-[10px] font-bold text-black dark:text-white capitalize">{res.type}</span>
                         </div>
                         <p className="font-bold text-sm tracking-tight text-gray-900/90 dark:text-white/90 mt-0.5">{res.section}</p>
-                        <p className="text-[8px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest mt-1">
+                        <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mt-1">
                            L: {res.listening}/5 • R: {res.reading}/10 • W: ✅ • S: ✅
                         </p>
                      </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#7C3AED]/10 text-[#A78BFA]">PRACTICE</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635]">PRACTICE</span>
                   </div>
                 </motion.div>
               )) : (
-                <div className="glass-card p-10 text-center text-xs text-gray-600 dark:text-gray-300 italic">
+                <div className="glass-card p-10 text-center text-xs text-gray-800 dark:text-gray-200 italic">
                    No practice history recorded.
                 </div>
               )}
@@ -558,7 +558,7 @@ export default function Profile() {
 
         {/* History Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
              <History size={16} /> Official Test History
            </h3>
            <div className="space-y-3">
@@ -574,7 +574,7 @@ export default function Profile() {
                      </div>
                      <div>
                         <p className="font-bold text-sm tracking-tight">{res.roll_number || res.test_registrations?.roll_number || 'Mock Test'}</p>
-                        <p className="text-[10px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest">
+                        <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest">
                            {res.test_registrations?.test_date ? new Date(res.test_registrations.test_date).toLocaleDateString() : new Date(res.created_at).toLocaleDateString()}
                         </p>
                      </div>
@@ -582,7 +582,7 @@ export default function Profile() {
                   <ChevronRight size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors" />
                 </motion.div>
               )) : (
-                <div className="glass-card p-10 text-center text-xs text-gray-600 dark:text-gray-300 italic">
+                <div className="glass-card p-10 text-center text-xs text-gray-800 dark:text-gray-200 italic">
                    No completed tests in history.
                 </div>
               )}
@@ -601,8 +601,8 @@ export default function Profile() {
                </div>
                <div className="space-y-2">
                   <h4 className="text-lg font-bold">Cancel Registration?</h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                    This will permanently clear your target test date and roll number: <span className="text-[#A78BFA] font-mono">{ieltsReg?.rollNumber}</span>. This action cannot be undone.
+                  <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">
+                    This will permanently clear your target test date and roll number: <span className="text-[#65a30d] dark:text-[#a3e635] font-mono">{ieltsReg?.rollNumber}</span>. This action cannot be undone.
                   </p>
                </div>
                <div className="space-y-2">
@@ -635,7 +635,7 @@ export default function Profile() {
                </div>
                <div className="space-y-2">
                   <h4 className="text-lg font-bold">Wipe All Data?</h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed uppercase tracking-tighter font-medium">
+                  <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed uppercase tracking-tighter font-medium">
                     This will delete your profile, practice history, and all registrations. You will start completely fresh.
                   </p>
                </div>
@@ -667,7 +667,7 @@ function StatCard({ label, value, icon }: any) {
   return (
     <div className="glass-card p-5 flex flex-col items-center gap-2 text-center border-black/5 dark:border-white/5 bg-white/[0.02]">
        <div className="p-3 bg-black/5 dark:bg-white/5 rounded-2xl mb-1">{icon}</div>
-       <p className="text-[10px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-widest leading-none">{label}</p>
+       <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest leading-none">{label}</p>
        <p className="text-xl font-black text-gray-900 dark:text-white">{value}</p>
     </div>
   )

@@ -16,6 +16,37 @@ function getAiClient() {
   return aiClient;
 }
 
+export async function extractKnowledgeFromFile(file: File): Promise<string> {
+  const ai = getAiClient();
+  
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string; 
+      resolve(result.split(',')[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const mimeType = file.type;
+  
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { text: "Extract and summarize the key educational and academic information from this document. Provide pure text that can be used as knowledge reference for an IELTS test. Do not include any conversational filler." },
+          { inlineData: { data: base64, mimeType } }
+        ]
+      }
+    ]
+  });
+
+  return response.text || "No content extracted.";
+}
+
 export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1 | 2) {
   const systemInstruction = `
   You are a brutally honest and fully certified IELTS examiner. You work exactly like the real British Council and IDP scoring system. Your job is to give the student the most accurate and realistic band score possible, not to encourage them, not to be polite, and not to assume effort where there is none. A fake high score harms the student more than an honest low score because it creates false confidence before their real exam.
@@ -219,13 +250,41 @@ export async function generateDynamicTestSet(
   
   TARGET STUDENT DIFFICULTY LEVEL: ${difficulty}
 
-  You will be provided with "Reference Knowledge" entries. Each entry may contain an "Admin Assigned Difficulty". 
+  You have a built-in knowledge source stored in your context from the Official IELTS Academic Sample Test 2023 sourced from ielts.org. This source contains real listening scripts about second-hand furniture, student research discussions, and learner persistence lectures. It contains real reading passages about Marie Curie and older workers in the modern workforce. It contains real writing tasks about internet access data across four countries and the university tuition debate. It contains real speaking topics about hometown, studies, hobbies, tourism, and travel. Whenever you generate any question for any section, you must randomly pull from this built-in knowledge source alongside any FILFO Reference Knowledge entries the user has added. Do not always use the same passage or topic. Pick randomly each time so every test feels different. Never reveal correct answers during the test. Only show them after submission on the results screen.
+
+  FILFO ENTRY — OFFICIAL IELTS ACADEMIC SAMPLE TEST 2023
+  TITLE: Official IELTS Academic Complete Sample Test 2023
+  SOURCE: ielts.org Official Academic Sample Materials
+  SECTIONS COVERED: Listening, Reading, Writing, Speaking
+  SUITABLE FOR: All question types in both Practice Mode and Full IELTS Test Mode
+  DIFFICULTY LEVEL: Intermediate to Advanced — Band 6.0 to 8.0
+
+  LISTENING KNOWLEDGE BANK:
+  Use the following real IELTS listening content to generate questions. Section 1 is a conversation between two people about second-hand furniture. The seller's name is Johnson, contact number is 07712 445 886, the dining table is dark brown and seats 6 people, the bookcase height is approximately 180 cm, the armchair is in good condition, the dining table costs 85 dollars, the address is Maple Street, available from Saturday onwards, and free delivery is included. Generate Note Completion questions, Form Completion questions, and Short Answer questions from this content. Section 3 is an educational discussion between a student named Judy, her tutor, and fellow students about a research project. Judy's research focuses on the relationship between motivation and learning outcomes. The tutor suggests she should review existing literature more thoroughly. The problem with her methodology is that the questionnaire has ambiguous wording. The tutor finds the variation between different subject groups most interesting. Judy plans to conduct follow-up interviews next. Generate Multiple Choice Questions with tricky distractors from this content where all options sound plausible but only one is correct. Section 4 is a university lecture about learner persistence. Key findings are that student motivation is linked to a key predictor, study environment affects concentration and needs management, peer support increases performance by 40 percent, short-term goals are more effective than long-term goals, self-regulation is strongest in adult learners, weekly feedback is ideal, visual learning style is preferred, and external pressure reduces engagement. Generate Table Completion and Note Completion questions from this content.
+
+  READING KNOWLEDGE BANK:
+  Use the following two real IELTS academic reading passages to generate questions.
+  Passage 1 is about Marie Curie. She was a physicist and chemist who researched radioactivity. She was the first woman to win a Nobel Prize, the first person to win it twice, and the only person to win in two different sciences which were Physics in 1903 and Chemistry in 1911. She was born Maria Sklodowska in Warsaw Poland and moved to Paris in 1891. She married Pierre Curie in 1895 and together they discovered polonium named after her homeland and radium in 1898 from pitchblende ore. It took her four years to isolate one gram of pure radium. After Pierre died in a road accident in 1906 she became the first female professor at the University of Paris. During World War One she developed mobile X-ray units called petites Curies and trained 150 women as radiological technicians. Over one million wounded soldiers were treated using her units. She died on 4 July 1934 from aplastic anaemia caused by radiation exposure. Her notebooks remain radioactive and are stored in lead-lined boxes. Correct answers for True False Not Given questions are: Statement 1 TRUE — she was first to win Nobel Prize twice. Statement 2 FALSE — she was born in Poland not France. Statement 3 TRUE — polonium named after her homeland Poland. Statement 4 FALSE — it took four years not less than two. Statement 5 FALSE — Pierre died in a road accident not laboratory accident. Statement 6 TRUE — she became first female professor at University of Paris. Statement 7 TRUE — over one million soldiers treated. Note completion answers are: Maria Sklodowska, University of Paris, 1895, pitchblende, X-ray.
+  Passage 2 is about older workers in the modern workforce. In developed economies the proportion of workers aged 55 and over has risen due to increased life expectancy, changes to pension systems, and employer recognition of experienced worker value. A 2019 OECD study found older workers have lower absenteeism and stay longer with employers but may take longer to adapt to new technologies. The UK abolished default retirement age in 2011. Similar policies exist in Australia, Germany, and Japan. Critics say this disadvantages younger job seekers. Mentoring programmes and flexible working are effective retention strategies. Age discrimination in recruitment persists even when qualifications are equal. Correct answers for Multiple Choice are: Question 1 is B — a combination of several social and economic factors. Question 2 is B — had lower rates of workplace absence. Question 3 is C — statutory means legal. Question 4 is C — mentoring programmes and flexible arrangements. Question 5 is C — persists despite equal qualifications between age groups.
+
+  WRITING KNOWLEDGE BANK:
+  Use the following real IELTS writing tasks to generate Task 1 and Task 2 prompts.
+  Task 1 prompt: The table shows the percentage of households with internet access in four countries between 2000 and 2020. UK went from 26 percent in 2000 to 96 percent in 2020. Germany went from 18 percent to 94 percent. Brazil went from 3 percent to 75 percent. India went from 0.5 percent to 50 percent. The student must summarise main features and make comparisons in at least 150 words. A band 8 answer describes all four countries, uses comparative language like rose sharply and remained stable, identifies the overall trend of growth across all nations, highlights the digital divide between developed and developing nations, and notes Brazil's dramatic relative growth and India still reaching only 50 percent by 2020.
+  Task 2 prompt: Some people believe university education should be free for all students. Others argue students should pay their own tuition. Discuss both views and give your own opinion in at least 250 words. A strong band 7.5 answer has a clear introduction stating a position, body paragraph 1 arguing for free education with examples like Norway and Germany, body paragraph 2 arguing for student fees with the UK loan system as example, and a conclusion recommending a progressive means-tested hybrid system. Task 2 carries 67 percent of the total writing band and Task 1 carries 33 percent.
+
+  SPEAKING KNOWLEDGE BANK:
+  Use the following real IELTS speaking content to generate Part 1, Part 2, and Part 3 prompts.
+  Part 1 topics are Hometown with questions about where the student is from, what they like about it, how it has changed, and whether they want to stay there. Studies and Work with questions about current studies or job, why they chose their field, and future plans. Free Time and Hobbies with questions about leisure activities, how long they have had that interest, indoor versus outdoor preference, and whether hobbies changed since childhood.
+  Part 2 cue card: Describe a place you have visited that made a strong impression on you. The student should say where the place is and when they visited, what they did and saw there, why it made a strong impression, and whether they would like to return. One minute preparation time, then speak for one to two minutes.
+  Part 3 discussion topics are Tourism and Travel with questions about why people enjoy visiting new places, how tourism has changed in your country, advantages and disadvantages of international tourism for local communities, whether mass tourism causes more harm than good, how travel might change due to climate change, and whether virtual tourism will ever replace real travel.
+
+  You will also be provided with "Reference Knowledge" entries. Each entry may contain an "Admin Assigned Difficulty". 
   You MUST base the test around this knowledge AND try to match the test questions' difficulty to BOTH the TARGET STUDENT DIFFICULTY LEVEL and the Admin Assigned Difficulty of the knowledge.
   If the Admin Assigned Difficulty is different from the TARGET STUDENT DIFFICULTY LEVEL, blend them reasonably or lean towards the Student Difficulty Level.
 
-  You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
+  Mix and match randomly so that sometimes Listening comes from the furniture conversation, sometimes from Judy's research, sometimes from the learner persistence lecture, and sometimes from the custom Reference Knowledge. Reading questions can come from Marie Curie or Older Workers randomly. Always use the correct answers provided above when checking student responses for objective sections. Never reveal the correct answers to the student during the test. Only reveal them in the results screen after submission.
 
-  If no reference knowledge is provided, generate a completely random topic for the test.
+  You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
 
   Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
 

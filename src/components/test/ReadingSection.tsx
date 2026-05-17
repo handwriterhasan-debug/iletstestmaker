@@ -118,7 +118,7 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
         </div>
         
         <h3 className="text-3xl font-black mb-10 leading-tight">{passage.title}</h3>
-        <div className="space-y-6 text-gray-600 dark:text-gray-300 leading-relaxed text-lg whitespace-pre-wrap">
+        <div className="space-y-6 text-gray-800 dark:text-gray-200 leading-relaxed text-lg whitespace-pre-wrap">
           {passage?.content?.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>) || null}
         </div>
       </div>
@@ -129,18 +129,18 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
           <h3 className="text-sm font-black uppercase tracking-widest text-green-400">
             {isPractice ? 'Questions 1-10' : 'Questions 1-13'}
           </h3>
-          <Bookmark className="text-gray-600 dark:text-gray-300" size={16} />
+          <Bookmark className="text-gray-800 dark:text-gray-200" size={16} />
         </div>
 
         <div className="space-y-10">
-          <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl text-xs text-gray-700 dark:text-gray-200 border border-black/5 dark:border-white/5 italic">
+          <div className="bg-black/5 dark:bg-white/5 p-4 rounded-xl text-xs text-black dark:text-white border border-black/5 dark:border-white/5 italic">
             {isPractice ? 'Read the passage and answer the following questions.' : 'Do the following statements agree with the information given in Reading Passage 1? In boxes 11-13, select: TRUE, FALSE or NOT GIVEN.'}
           </div>
 
           {questions.map((q, idx) => (
             <div key={q.id} className="space-y-4">
               <div className="flex justify-between items-start">
-                <p className="font-bold text-gray-700 dark:text-gray-200">{(isPractice ? idx + 1 : q.id)}. {q.label}</p>
+                <p className="font-bold text-black dark:text-white">{(isPractice ? idx + 1 : q.id)}. {q.label}</p>
                 {submitted && correctAnswers[q.id] && (
                   <span className={`text-[10px] font-black uppercase px-2 py-1 rounded ${
                     isCorrect(q.id)
@@ -162,7 +162,7 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
                       className={`flex-1 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
                         answers[q.id] === opt 
                           ? (submitted ? (opt === correctAnswers[q.id] ? 'bg-green-500 border-green-500 text-white' : 'bg-red-500 border-red-500 text-white') : 'bg-green-500 border-green-500 text-white') 
-                          : (submitted && opt === correctAnswers[q.id] ? 'border-green-500 text-green-400' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 hover:border-green-500/30')
+                          : (submitted && opt === correctAnswers[q.id] ? 'border-green-500 text-green-400' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-800 dark:text-gray-200 hover:border-green-500/30')
                       }`}
                     >
                       {opt}
@@ -179,7 +179,7 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
                       className={`py-3 px-4 rounded-xl border text-left text-xs font-bold transition-all ${
                         answers[q.id] === opt 
                           ? (submitted ? (opt === correctAnswers[q.id] ? 'bg-green-500 border-green-500 text-white' : 'bg-red-500 border-red-500 text-white') : 'bg-green-500 border-green-500 text-white') 
-                          : (submitted && opt === correctAnswers[q.id] ? 'border-green-500 text-green-400' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-600 dark:text-gray-300 hover:border-green-500/30')
+                          : (submitted && opt === correctAnswers[q.id] ? 'border-green-500 text-green-400' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-800 dark:text-gray-200 hover:border-green-500/30')
                       }`}
                     >
                       {opt}
@@ -213,7 +213,7 @@ export default function ReadingSection({ onComplete, timeRemaining, isPractice, 
                       <div className="bg-green-500/10 p-4 rounded-xl border border-green-500/20 text-center">
                          <span className="text-xs font-black text-green-400 uppercase tracking-widest">Score Reveal</span>
                          <h4 className="text-3xl font-black">{calculateScore()} / 10</h4>
-                         <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 mt-1 uppercase">Practice Complete</p>
+                         <p className="text-[10px] font-bold text-gray-800 dark:text-gray-200 mt-1 uppercase">Practice Complete</p>
                       </div>
                       <button onClick={() => onComplete(answers)} className="w-full btn-primary h-14">Continue</button>
                    </div>

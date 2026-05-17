@@ -131,7 +131,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
   return (
     <div className="space-y-12">
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-[40px] blur opacity-20 filter transition duration-1000 group-hover:opacity-40" />
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-lime-600 rounded-[40px] blur opacity-20 filter transition duration-1000 group-hover:opacity-40" />
         <div className="relative glass-card p-12 flex flex-col items-center text-center space-y-8 bg-black/40 backdrop-blur-3xl border-black/5 dark:border-white/5 rounded-[36px]">
           <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shadow-[0_0_40px_rgba(37,99,235,0.15)]">
             <Headphones size={48} strokeWidth={1.5} />
@@ -143,14 +143,14 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
             </h2>
             <div className="flex items-center justify-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-[10px] text-gray-600 dark:text-gray-300 font-black uppercase tracking-[0.3em]">
+              <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-[0.3em]">
                 {isPractice ? 'Narrative Comprehension' : 'Module 01: Social Context'}
               </p>
             </div>
-            <p className="text-gray-700 dark:text-gray-200 text-sm max-w-sm mx-auto leading-relaxed pt-2">
+            <p className="text-black dark:text-white text-sm max-w-sm mx-auto leading-relaxed pt-2">
               {isPractice 
                 ? 'Listen to the story carefully and answer the questions. You can play the audio up to 3 times.'
-                : <>The recording will play <span className="text-[#A78BFA] font-black underline underline-offset-4 decoration-2">UP TO 3 TIMES</span>. Ensure your environmental conditions are optimal before initiation.</>
+                : <>The recording will play <span className="text-[#65a30d] dark:text-[#a3e635] font-black underline underline-offset-4 decoration-2">UP TO 3 TIMES</span>. Ensure your environmental conditions are optimal before initiation.</>
               }
             </p>
           </div>
@@ -161,7 +161,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
               disabled={playCount >= 3 || loading}
               className={`w-full py-6 rounded-2xl flex items-center justify-center gap-4 font-black uppercase tracking-[0.2em] transition-all border ${
                 (playCount >= 3)
-                  ? 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-600 dark:text-gray-300' 
+                  ? 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-800 dark:text-gray-200' 
                   : 'bg-blue-600 border-blue-400 text-white hover:bg-blue-500 hover:scale-[1.02] active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.3)]'
               }`}
             >
@@ -206,7 +206,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {questions.map((q) => (
             <div key={q.id} className="glass-card p-6 space-y-4">
-              <label className="text-sm font-bold text-gray-600 dark:text-gray-300">{q.label}</label>
+              <label className="text-sm font-bold text-gray-800 dark:text-gray-200">{q.label}</label>
               {q.type === 'text' ? (
                 <div className="space-y-2">
                   <input 
@@ -229,7 +229,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
                       key={`opt-${optIndex}`}
                       onClick={() => updateAnswer(q.id, opt)}
                       className={`py-3 px-4 rounded-lg border text-left text-xs font-bold transition-all ${
-                        answers[q.id] === opt ? 'bg-blue-500 border-blue-500 text-white' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-700 dark:text-gray-200 hover:border-blue-500/30'
+                        answers[q.id] === opt ? 'bg-blue-500 border-blue-500 text-white' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-blue-500/30'
                       }`}
                     >
                       {opt}

@@ -78,7 +78,7 @@ export default function LiveAudioVisualizer({ stream, isRecording }: LiveAudioVi
         return (
           <div
             key={i}
-            className="w-1.5 bg-[#7C3AED] rounded-full transition-all duration-75"
+            className="w-1.5 bg-[#84cc16] rounded-full transition-all duration-75"
             style={{ height: `${height}px`, opacity: Math.max(0.3, vol + 0.3) }}
           />
         );

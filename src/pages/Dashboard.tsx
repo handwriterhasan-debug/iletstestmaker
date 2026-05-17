@@ -40,6 +40,7 @@ import {
   Cell
 } from 'recharts';
 import BottomNav from '../components/BottomNav';
+import ThemeToggle from '../components/ThemeToggle';
 import RegistrationModal from '../components/RegistrationModal';
 import TestStartPopup from '../components/TestStartPopup';
 import OnboardingModal from '../components/OnboardingModal';
@@ -311,7 +312,7 @@ export default function Dashboard() {
   };
 
   // Removed blocking spinner to stop the "buffer" screen
-  // if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin"></div></div>;
+  // if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-[#84cc16] border-t-transparent rounded-full animate-spin"></div></div>;
 
   const hoursToTest = countdown.total / (1000 * 60 * 60);
   const minutesToTest = Math.ceil(countdown.total / (1000 * 60));
@@ -320,21 +321,22 @@ export default function Dashboard() {
     <div className="min-h-screen pb-32 relative">
       {/* Subtle loading indicator */}
       {loading && (
-        <div className="fixed top-0 left-0 right-0 h-1 bg-[#7C3AED]/20 z-50">
-          <div className="h-full bg-[#7C3AED] animate-pulse w-full"></div>
+        <div className="fixed top-0 left-0 right-0 h-1 bg-[#84cc16]/20 z-50">
+          <div className="h-full bg-[#84cc16] animate-pulse w-full"></div>
         </div>
       )}
       <header className="p-6 pt-10 sm:p-8 sm:pt-12 flex items-center justify-between">
         <div>
-          <span className="text-gray-700 dark:text-gray-200 text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-bold mb-1 block underline decoration-[#7C3AED]">Learning Portal</span>
+          <span className="text-black dark:text-white text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-bold mb-1 block underline decoration-[#84cc16]">Learning Portal</span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Hi, <span className="text-[#A78BFA]">{profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}! 👋</span>
+            Hi, <span className="text-[#65a30d] dark:text-[#a3e635]">{profile?.full_name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Student'}! 👋</span>
           </h1>
         </div>
         <div className="flex items-center space-x-3">
+          <ThemeToggle className="w-10 h-10 border-2" />
           <button 
             onClick={() => navigate('/results')}
-            className="flex items-center gap-2 px-3 py-2 bg-[#7C3AED]/10 text-[#A78BFA] border border-[#7C3AED]/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-[#7C3AED]/20 transition-all shadow-sm"
+            className="flex items-center gap-2 px-3 py-2 bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] border border-[#84cc16]/20 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-[#84cc16]/20 transition-all shadow-sm"
           >
             <Award size={14} className="shrink-0" /> <span className="hidden xs:inline">My Results</span>
           </button>
@@ -344,7 +346,7 @@ export default function Dashboard() {
           </div>
           <button 
             onClick={() => navigate('/profile')}
-            className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#9F67FF] border-2 border-[#7C3AED] overflow-hidden active:scale-95 transition-transform"
+            className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#84cc16] to-[#bef264] border-2 border-[#84cc16] overflow-hidden active:scale-95 transition-transform"
           >
             {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-900 dark:text-white font-bold">{profile?.full_name?.charAt(0) || user?.user_metadata?.full_name?.charAt(0) || 'S'}</div>}
           </button>
@@ -369,8 +371,8 @@ export default function Dashboard() {
                 </motion.div>
               )}
               {minutesToTest <= 10 && minutesToTest > 0 && (
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-[#7C3AED]/20 border border-[#7C3AED]/50 rounded-2xl flex items-center gap-4 shadow-[0_0_20px_rgba(124,58,237,0.3)] animate-pulse">
-                  <Rocket className="text-[#A78BFA]" size={20} />
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-[#84cc16]/20 border border-[#84cc16]/50 rounded-2xl flex items-center gap-4 shadow-[0_0_20px_rgba(132,204,22,0.3)] animate-pulse">
+                  <Rocket className="text-[#65a30d] dark:text-[#a3e635]" size={20} />
                   <p className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white">⚡ {minutesToTest} MINUTES! Get ready to start your test.</p>
                 </motion.div>
               )}
@@ -389,7 +391,7 @@ export default function Dashboard() {
             className="flex items-center gap-3 pl-4"
           >
              <Lightbulb size={14} className="text-yellow-400" />
-             <p className="text-[10px] text-gray-700 dark:text-gray-200 uppercase font-black tracking-widest">💡 Tip: {MOTIVATIONAL_TIPS[tipIndex]}</p>
+             <p className="text-[10px] text-black dark:text-white uppercase font-black tracking-widest">💡 Tip: {MOTIVATIONAL_TIPS[tipIndex]}</p>
           </motion.div>
         </AnimatePresence>
 
@@ -407,12 +409,12 @@ export default function Dashboard() {
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
         >
           {ieltsReg && ieltsReg.status === 'upcoming' ? (
-            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="glass-card-purple p-4 relative overflow-hidden flex flex-col justify-between col-span-2 shadow-[0_0_30px_rgba(124,58,237,0.15)] group min-h-[160px]">
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="glass-card-theme p-4 relative overflow-hidden flex flex-col justify-between col-span-2 shadow-[0_0_30px_rgba(132,204,22,0.15)] group min-h-[160px]">
               <div className="z-10 flex flex-col h-full justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <Fingerprint size={14} className="text-[#A78BFA]" />
+                      <Fingerprint size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
                       <span className="text-[10px] font-mono font-bold text-gray-800/80 dark:text-white/80">{ieltsReg.rollNumber}</span>
                     </div>
                     <button 
@@ -427,7 +429,7 @@ export default function Dashboard() {
                       <span className="text-[8px] font-black uppercase tracking-widest">Cancel</span>
                     </button>
                   </div>
-                   <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#A78BFA] mb-2 flex items-center gap-2">
+                   <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635] mb-2 flex items-center gap-2">
                      <Clock size={10} /> Test starts in:
                    </p>
                 </div>
@@ -442,7 +444,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between mt-auto pt-2 border-t border-black/5 dark:border-white/5">
                    <div className="flex items-center gap-1.5">
                      <TrendingUp size={12} className="text-green-400" />
-                     <span className="text-[8px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-tighter">Practices Done:</span>
+                     <span className="text-[8px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-tighter">Practices Done:</span>
                    </div>
                    <div className="flex items-center gap-3">
                      <span className="text-xs font-black text-gray-900 dark:text-white">{ieltsReg.practiceSessionsDone}</span>
@@ -450,16 +452,16 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              <div className="absolute inset-0 bg-[#7C3AED]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-[#84cc16]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               
               {/* Progress Ring Overlay */}
               <div className="absolute -top-4 -right-4 w-28 h-28 opacity-10 group-hover:opacity-30 transition-opacity pointer-events-none">
                 <svg className="w-full h-full -rotate-90">
-                  <circle cx="56" cy="56" r="48" fill="transparent" stroke="rgba(124,58,237,0.1)" strokeWidth="6" />
+                  <circle cx="56" cy="56" r="48" fill="transparent" stroke="rgba(132,204,22,0.1)" strokeWidth="6" />
                   <circle 
                     cx="56" cy="56" r="48" 
                     fill="transparent" 
-                    stroke="#7C3AED" 
+                    stroke="#84cc16" 
                     strokeWidth="6" 
                     strokeDasharray={301} 
                     strokeDashoffset={(() => {
@@ -487,8 +489,8 @@ export default function Dashboard() {
         {ieltsReg && ieltsReg.status === 'upcoming' && (
           <section className="space-y-4">
              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-600 dark:text-gray-300 pl-1">📚 While You Wait</h3>
-                <span className="text-[10px] font-bold text-[#A78BFA] flex items-center gap-1">Don't waste time <ChevronRight size={10} /></span>
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-800 dark:text-gray-200 pl-1">📚 While You Wait</h3>
+                <span className="text-[10px] font-bold text-[#65a30d] dark:text-[#a3e635] flex items-center gap-1">Don't waste time <ChevronRight size={10} /></span>
              </div>
              <div className="grid grid-cols-3 gap-3">
                 <WaitCard title="Practice" sub="Sharpen skills" btn="Start" onClick={() => navigate('/practice')} color="bg-blue-500" />
@@ -507,28 +509,28 @@ export default function Dashboard() {
         >
            <div className="glass-card p-6 min-h-[300px]">
               <div className="mb-6">
-                 <h3 className="font-bold flex items-center gap-2"><TrendingUp size={18} className="text-[#A78BFA]" /> Band Progression</h3>
+                 <h3 className="font-bold flex items-center gap-2"><TrendingUp size={18} className="text-[#65a30d] dark:text-[#a3e635]" /> Band Progression</h3>
               </div>
               <div className="h-48 w-full flex items-center justify-center">
                 {loading ? (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-[#7C3AED] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase tracking-widest font-bold">Loading stats...</p>
+                    <div className="w-5 h-5 border-2 border-[#84cc16] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase tracking-widest font-bold">Loading stats...</p>
                   </div>
                 ) : chartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorBand" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#84cc16" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#84cc16" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} domain={[0, 9]} />
-                      <Tooltip contentStyle={{ backgroundColor: '#1A1A2E', border: 'none', borderRadius: '12px', fontSize: '10px' }} />
-                      <Area type="monotone" dataKey="band" stroke="#7C3AED" strokeWidth={3} fillOpacity={1} fill="url(#colorBand)" />
+                      <Tooltip contentStyle={{ backgroundColor: 'var(--glass-bg)', border: 'none', borderRadius: '12px', fontSize: '10px' }} />
+                      <Area type="monotone" dataKey="band" stroke="#84cc16" strokeWidth={3} fillOpacity={1} fill="url(#colorBand)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
@@ -536,7 +538,7 @@ export default function Dashboard() {
                     <div className="p-3 bg-black/5 dark:bg-white/5 rounded-full inline-block">
                       <Activity size={24} className="text-gray-500 dark:text-gray-400" />
                     </div>
-                    <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">No test data yet</p>
+                    <p className="text-[10px] font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">No test data yet</p>
                   </div>
                 )}
               </div>
@@ -562,7 +564,7 @@ export default function Dashboard() {
           className="glass-card p-6"
         >
           <h3 className="font-bold flex items-center gap-2 mb-4">
-            <ClipboardList size={18} className="text-[#A78BFA]" /> Past Test Results
+            <ClipboardList size={18} className="text-[#65a30d] dark:text-[#a3e635]" /> Past Test Results
           </h3>
           {pastResults.length > 0 ? (
             <div className="space-y-4">
@@ -571,13 +573,13 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between mb-3 border-b border-black/10 dark:border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                        <CalendarIcon size={14} className="text-gray-500" />
-                       <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                       <span className="text-xs font-bold text-black dark:text-white">
                           {new Date(res.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                        </span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-[#7C3AED]/10 px-2 py-1 rounded">
-                       <Award size={14} className="text-[#A78BFA]" />
-                       <span className="text-xs font-black text-[#A78BFA]">Band {res.overall_band?.toFixed(1) || '0.0'}</span>
+                    <div className="flex items-center gap-1.5 bg-[#84cc16]/10 px-2 py-1 rounded">
+                       <Award size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
+                       <span className="text-xs font-black text-[#65a30d] dark:text-[#a3e635]">Band {res.overall_band?.toFixed(1) || '0.0'}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-2">
@@ -604,7 +606,7 @@ export default function Dashboard() {
           className="glass-card p-6 mb-8"
         >
            <h3 className="font-bold flex items-center gap-2 mb-6">
-              <Activity size={18} className="text-[#A78BFA]" /> Performance History
+              <Activity size={18} className="text-[#65a30d] dark:text-[#a3e635]" /> Performance History
            </h3>
            <div className="h-64 w-full">
              {chartData.length > 0 ? (
@@ -614,12 +616,12 @@ export default function Dashboard() {
                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} />
                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#666' }} domain={[0, 9]} ticks={[0, 2, 4, 6, 8, 9]} />
                    <Tooltip 
-                     contentStyle={{ backgroundColor: '#1A1A2E', border: '1px solid rgba(124,58,237,0.2)', borderRadius: '12px', fontSize: '10px' }} 
-                     cursor={{ fill: 'rgba(124,58,237,0.1)' }}
+                     contentStyle={{ backgroundColor: 'var(--glass-bg)', border: '1px solid rgba(132,204,22,0.2)', borderRadius: '12px', fontSize: '10px' }} 
+                     cursor={{ fill: 'rgba(132,204,22,0.1)' }}
                    />
                    <Bar dataKey="band" radius={[4, 4, 0, 0]}>
                      {chartData.map((entry, index) => (
-                       <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#A78BFA' : '#7C3AED'} fillOpacity={index === chartData.length - 1 ? 1 : 0.6} />
+                       <Cell key={`cell-${index}`} fill={index === chartData.length - 1 ? '#a3e635' : '#84cc16'} fillOpacity={index === chartData.length - 1 ? 1 : 0.6} />
                      ))}
                    </Bar>
                  </BarChart>
@@ -629,7 +631,7 @@ export default function Dashboard() {
                  <div className="p-3 bg-black/5 dark:bg-white/5 rounded-full inline-block">
                    <Activity size={24} className="text-gray-500 dark:text-gray-400" />
                  </div>
-                 <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">No detailed performance data</p>
+                 <p className="text-[10px] font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">No detailed performance data</p>
                </div>
              )}
            </div>
@@ -683,7 +685,7 @@ export default function Dashboard() {
                    <Trash2 className="text-red-500" size={32} />
                 </div>
                 <h2 className="text-xl font-bold mb-2">Cancel Test?</h2>
-                <p className="text-sm text-gray-700 dark:text-gray-200 mb-8 leading-relaxed">
+                <p className="text-sm text-black dark:text-white mb-8 leading-relaxed">
                   Are you sure you want to cancel your registration? Your progress and roll number will be removed.
                 </p>
                 <div className="flex flex-col gap-3">
@@ -696,7 +698,7 @@ export default function Dashboard() {
                    </button>
                    <button 
                      onClick={() => setShowCancelConfirm(false)}
-                     className="w-full py-4 bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-200 font-bold uppercase tracking-widest rounded-2xl hover:bg-black/10 dark:bg-white/10 transition-all"
+                     className="w-full py-4 bg-black/5 dark:bg-white/5 text-black dark:text-white font-bold uppercase tracking-widest rounded-2xl hover:bg-black/10 dark:bg-white/10 transition-all"
                    >
                      No, Keep It
                    </button>
@@ -722,17 +724,18 @@ function CountdownUnit({ val, label }: { val: number; label: string }) {
 
 function WaitCard({ title, sub, btn, onClick, color }: any) {
   return (
-    <div className="glass-card p-3 flex flex-col justify-between min-h-[110px] group hover:border-black/20 dark:border-white/20 transition-all">
-       <div>
+    <div className="glass-card p-4 flex flex-col justify-between min-h-[120px] group hover:border-white/20 transition-all dark:hover:border-white/10 relative overflow-hidden">
+       <div className="relative z-10">
           <p className="text-[10px] font-black uppercase text-gray-900 dark:text-white tracking-widest mb-1">{title}</p>
-          <p className="text-[8px] text-gray-600 dark:text-gray-300 font-medium leading-tight">{sub}</p>
+          <p className="text-[8px] text-gray-600 dark:text-gray-400 font-medium leading-tight">{sub}</p>
        </div>
        <button 
          onClick={onClick}
-         className={`w-full mt-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-gray-900/90 dark:text-white/90 group-hover:brightness-110 transition-all ${color}`}
+         className={`w-full mt-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-white shadow-lg group-hover:scale-105 active:scale-95 transition-all relative z-10 ${color}`}
        >
           {btn}
        </button>
+       <div className={`absolute -bottom-4 -right-4 w-16 h-16 rounded-full blur-[20px] opacity-20 ${color} pointer-events-none group-hover:opacity-40 transition-opacity`} />
     </div>
   );
 }
@@ -748,9 +751,9 @@ function TimeBox({ val, unit }: any) {
 
 function ScoreBubble({ label, score }: any) {
   return (
-    <div className="bg-black/5 dark:bg-white/5 p-3 rounded-xl text-center border border-black/5 dark:border-white/5">
-      <p className="text-[10px] text-gray-600 dark:text-gray-300 mb-1">{label}</p>
-      <p className="font-black text-[#A78BFA]">{score.toFixed(1)}</p>
+    <div className="bg-white/5 dark:bg-black/20 p-3 rounded-2xl text-center border border-black/5 dark:border-white/5 shadow-inner">
+      <p className="text-[10px] text-gray-600 dark:text-gray-400 font-black tracking-widest uppercase mb-1">{label}</p>
+      <p className="text-lg font-black text-[#65a30d] dark:text-[#a3e635] drop-shadow-md">{score.toFixed(1)}</p>
     </div>
   );
 }
@@ -762,12 +765,13 @@ function ActionCard({ title, emoji, onClick }: any) {
       whileHover={{ y: -5, scale: 1.02 }} 
       whileTap={{ scale: 0.95 }} 
       onClick={onClick} 
-      className="glass-card p-6 flex flex-col items-center justify-center gap-3 text-center h-full hover:border-[#7C3AED]/40 hover:shadow-[0_10px_30px_rgba(124,58,237,0.1)] transition-all min-h-[140px]"
+      className="glass-card p-6 flex flex-col items-center justify-center gap-4 text-center h-full hover:border-[#84cc16]/40 shadow-[0_10px_20px_rgba(0,0,0,0.02)] transition-all min-h-[150px] relative overflow-hidden group"
     >
-      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED]/10 to-[#A78BFA]/5 flex items-center justify-center border border-[#7C3AED]/20 shadow-inner">
-         <span className="text-2xl drop-shadow-md">{emoji}</span>
+      <div className="absolute inset-0 bg-gradient-to-t from-[#84cc16]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#84cc16]/20 to-[#a3e635]/10 flex items-center justify-center border border-[#84cc16]/30 shadow-[inset_0_2px_10px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform duration-300">
+         <span className="text-3xl drop-shadow-lg">{emoji}</span>
       </div>
-      <span className="text-[11px] font-black uppercase tracking-widest leading-tight text-gray-800 dark:text-gray-100">{title}</span>
+      <span className="text-[11px] font-black uppercase tracking-widest leading-tight text-gray-900 dark:text-white relative z-10">{title}</span>
     </motion.button>
   );
 }
@@ -776,12 +780,12 @@ function StudyTask({ title, subtitle, completed }: any) {
   return (
     <div className={`p-3 rounded-xl flex items-center justify-between border ${completed ? 'bg-green-500/5 border-green-500/20' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5'}`}>
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${completed ? 'bg-green-500/20 text-green-400' : 'bg-[#7C3AED]/20 text-[#A78BFA]'}`}>
+        <div className={`p-2 rounded-lg ${completed ? 'bg-green-500/20 text-green-400' : 'bg-[#84cc16]/20 text-[#65a30d] dark:text-[#a3e635]'}`}>
           {completed ? <CheckCircle2 size={16} /> : <BookOpen size={16} />}
         </div>
         <div>
-          <p className={`text-xs font-bold ${completed ? 'text-gray-600 dark:text-gray-300 line-through' : ''}`}>{title}</p>
-          <p className="text-[9px] text-gray-600 dark:text-gray-300">{subtitle}</p>
+          <p className={`text-xs font-bold ${completed ? 'text-gray-800 dark:text-gray-200 line-through' : ''}`}>{title}</p>
+          <p className="text-[9px] text-gray-800 dark:text-gray-200">{subtitle}</p>
         </div>
       </div>
       {!completed && <ChevronRight size={14} className="text-gray-500 dark:text-gray-400" />}

@@ -81,32 +81,32 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="w-full max-w-md bg-[#0F0F1B] border border-black/10 dark:border-white/10 rounded-[40px] p-8 relative overflow-hidden shadow-[0_0_80px_rgba(124,58,237,0.2)]"
+              className="w-full max-w-md bg-white dark:bg-[#0F0F1B] border border-black/10 dark:border-white/10 rounded-[40px] p-8 relative overflow-hidden shadow-[0_0_80px_rgba(132,204,22,0.2)]"
             >
               {/* Background Glow */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#7C3AED]/20 rounded-full blur-[100px] pointer-events-none" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#84cc16]/20 rounded-full blur-[100px] pointer-events-none" />
               <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
 
               <div className="relative z-10 space-y-8">
                 <div className="text-center space-y-2">
-                  <div className="w-16 h-16 bg-[#7C3AED]/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-[#7C3AED]/20">
-                    <Sparkles className="text-[#A78BFA]" size={32} />
+                  <div className="w-16 h-16 bg-[#84cc16]/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-[#84cc16]/20">
+                    <Sparkles className="text-[#65a30d] dark:text-[#a3e635]" size={32} />
                   </div>
                   <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">Quick Setup</h2>
-                  <p className="text-gray-700 dark:text-gray-200 text-xs uppercase tracking-widest font-bold">Personalize your IELTS Journey</p>
+                  <p className="text-black dark:text-white text-xs uppercase tracking-widest font-bold">Personalize your IELTS Journey</p>
                 </div>
 
                 <div className="space-y-6">
                   {step === 1 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] ml-1">Full Name</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] ml-1">Full Name</label>
                         <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={18} />
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={18} />
                           <input
                             type="text"
                             placeholder="Enter your name"
-                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#7C3AED]/50 transition-all font-bold"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#84cc16]/50 transition-all font-bold"
                             value={formData.full_name}
                             onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                             onKeyDown={(e) => e.key === 'Enter' && nextStep()}
@@ -119,13 +119,13 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                   {step === 2 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] ml-1">Your Age</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] ml-1">Your Age</label>
                         <div className="relative">
-                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={18} />
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={18} />
                           <input
                             type="number"
                             placeholder="How old are you?"
-                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#7C3AED]/50 transition-all font-bold"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#84cc16]/50 transition-all font-bold"
                             value={formData.age}
                             onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                             onKeyDown={(e) => e.key === 'Enter' && nextStep()}
@@ -138,13 +138,13 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                   {step === 3 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] ml-1">Gmail Address</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] ml-1">Gmail Address</label>
                         <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300" size={18} />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={18} />
                           <input
                             type="email"
                             placeholder="yourname@gmail.com"
-                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#7C3AED]/50 transition-all font-bold"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-[#84cc16]/50 transition-all font-bold"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             onKeyDown={(e) => e.key === 'Enter' && nextStep()}
@@ -157,7 +157,7 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                   {step === 4 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA] ml-1">Gender</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] ml-1">Gender</label>
                         <div className="grid grid-cols-2 gap-3">
                           {['Male', 'Female', 'Other'].map((g) => (
                             <button
@@ -165,8 +165,8 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                               onClick={() => setFormData({ ...formData, gender: g })}
                               className={`py-4 rounded-2xl border font-bold transition-all ${
                                 formData.gender === g 
-                                  ? 'bg-[#7C3AED] border-[#7C3AED] text-white shadow-[0_10px_20px_rgba(124,58,237,0.3)]' 
-                                  : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:border-black/20 dark:border-white/20'
+                                  ? 'bg-[#84cc16] border-[#84cc16] text-white shadow-[0_10px_20px_rgba(132,204,22,0.3)]' 
+                                  : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-black dark:text-white hover:border-black/20 dark:border-white/20'
                               }`}
                             >
                               {g}
@@ -180,16 +180,16 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                   {step === 5 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                       <div className="text-center space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#A78BFA]">Profile Picture</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">Profile Picture</label>
                         <div className="relative w-32 h-32 mx-auto">
                           <div 
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full h-full rounded-[40px] bg-black/5 dark:bg-white/5 border-2 border-dashed border-black/10 dark:border-white/10 hover:border-[#7C3AED]/50 transition-all flex items-center justify-center cursor-pointer overflow-hidden group"
+                            className="w-full h-full rounded-[40px] bg-black/5 dark:bg-white/5 border-2 border-dashed border-black/10 dark:border-white/10 hover:border-[#84cc16]/50 transition-all flex items-center justify-center cursor-pointer overflow-hidden group"
                           >
                             {formData.avatar_url ? (
                               <img src={formData.avatar_url} alt="Preview" className="w-full h-full object-cover" />
                             ) : (
-                              <Camera className="text-gray-600 dark:text-gray-300 group-hover:text-[#A78BFA] transition-colors" size={32} />
+                              <Camera className="text-gray-800 dark:text-gray-200 group-hover:text-[#65a30d] dark:text-[#a3e635] transition-colors" size={32} />
                             )}
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                               <Upload className="text-gray-900 dark:text-white" size={24} />
@@ -203,7 +203,7 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                             onChange={handleFileChange}
                           />
                         </div>
-                        <p className="text-[10px] text-gray-600 dark:text-gray-300 font-bold uppercase tracking-widest">Tap to upload your photo</p>
+                        <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Tap to upload your photo</p>
                       </div>
                     </motion.div>
                   )}
@@ -219,7 +219,7 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                         (step === 3 && !formData.email) ||
                         (step === 4 && !formData.gender)
                       }
-                      className="w-full py-5 bg-[#7C3AED] hover:bg-[#8B5CF6] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-3xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-[0_20px_40px_rgba(124,58,237,0.3)]"
+                      className="w-full py-5 bg-[#84cc16] hover:bg-[#84cc16] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-3xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-[0_20px_40px_rgba(132,204,22,0.3)]"
                     >
                       Continue
                       <ChevronRight size={18} />
@@ -228,7 +228,7 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                     <button
                       onClick={handleSubmit}
                       disabled={loading}
-                      className="w-full py-5 bg-gradient-to-r from-[#7C3AED] to-[#9F67FF] hover:brightness-110 disabled:opacity-50 text-gray-900 dark:text-white rounded-3xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-[0_20px_40px_rgba(124,58,237,0.3)]"
+                      className="w-full py-5 bg-gradient-to-r from-[#84cc16] to-[#bef264] hover:brightness-110 disabled:opacity-50 text-gray-900 rounded-3xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all shadow-[0_20px_40px_rgba(132,204,22,0.3)]"
                     >
                       {loading ? (
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -248,7 +248,7 @@ export default function OnboardingModal({ isOpen, onComplete, userId }: Onboardi
                     <div
                       key={s}
                       className={`h-1 rounded-full transition-all duration-300 ${
-                        s === step ? 'w-8 bg-[#7C3AED]' : 'w-2 bg-black/20 dark:bg-white/20'
+                        s === step ? 'w-8 bg-[#84cc16]' : 'w-2 bg-black/20 dark:bg-white/20'
                       }`}
                     />
                   ))}

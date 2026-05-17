@@ -37,7 +37,7 @@ function CustomCalendar({ selectedDate, onSelect }: { selectedDate: Date | null,
     const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
     for (let i = 0; i < 7; i++) {
         days.push(
-            <div key={i} className="text-center font-bold text-xs text-gray-600 dark:text-gray-300 uppercase">
+            <div key={i} className="text-center font-bold text-xs text-gray-800 dark:text-gray-200 uppercase">
                 {format(addDays(startDate, i), 'EEE')}
             </div>
         );
@@ -77,7 +77,7 @@ function CustomCalendar({ selectedDate, onSelect }: { selectedDate: Date | null,
                 : isPast 
                   ? "text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50" 
                   : isSelected 
-                    ? "bg-[#7C3AED] text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.5)]" 
+                    ? "bg-[#84cc16] text-white font-bold shadow-[0_0_15px_rgba(132,204,22,0.5)]" 
                     : "text-gray-900 dark:text-white cursor-pointer hover:bg-green-500/20"
             }`}
           >
@@ -234,7 +234,7 @@ export default function RegisterTest() {
   return (
     <div className="min-h-screen p-6 pb-32 relative overflow-hidden">
         {/* Background blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-[#7C3AED]/10 blur-[80px] rounded-full" />
+      <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-[#84cc16]/10 blur-[80px] rounded-full" />
       
       <header className="flex items-center gap-4 mb-10 pt-6">
         <button onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)} className="p-3 glass-card rounded-full hover:bg-black/10 dark:bg-white/10 transition-colors">
@@ -257,28 +257,28 @@ export default function RegisterTest() {
                 <div className="glass-card p-8 space-y-6">
                   <div className="space-y-1">
                     <h3 className="text-xl font-black uppercase tracking-tight">Personal Info</h3>
-                    <p className="text-gray-700 dark:text-gray-200 text-sm">Please provide your legal name and age as per identity document.</p>
+                    <p className="text-black dark:text-white text-sm">Please provide your legal name and age as per identity document.</p>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Full Name</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-gray-800 dark:text-gray-200">Full Name</label>
                       <input 
                         type="text" 
                         value={formData.fullName}
                         onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                         placeholder="John Doe"
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Age</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-gray-800 dark:text-gray-200">Age</label>
                       <input 
                         type="number" 
                         value={formData.age}
                         onChange={(e) => setFormData({...formData, age: e.target.value})}
                         placeholder="25"
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                       />
                     </div>
                   </div>
@@ -298,18 +298,18 @@ export default function RegisterTest() {
                 <div className="glass-card p-8 space-y-6">
                   <div className="space-y-1">
                     <h3 className="text-xl font-black uppercase tracking-tight">Contact Details</h3>
-                    <p className="text-gray-700 dark:text-gray-200 text-sm">Valid Gmail address for sending your roll number and test updates.</p>
+                    <p className="text-black dark:text-white text-sm">Valid Gmail address for sending your roll number and test updates.</p>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Gmail Address</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-gray-800 dark:text-gray-200">Gmail Address</label>
                       <input 
                         type="email" 
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         placeholder="example@gmail.com"
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#7C3AED] transition-colors"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-4 focus:outline-none focus:border-[#84cc16] transition-colors"
                       />
                     </div>
                   </div>
@@ -329,8 +329,8 @@ export default function RegisterTest() {
                 {/* Test Date Selection */}
                 <div className="glass-card p-8 space-y-6">
                   <div className="space-y-1">
-                    <h3 className="text-xl font-black uppercase tracking-tight text-[#A78BFA]">Select Test Date</h3>
-                    <p className="text-gray-700 dark:text-gray-200 text-sm">Choose when you'd like to take your formal IELTS test.</p>
+                    <h3 className="text-xl font-black uppercase tracking-tight text-[#65a30d] dark:text-[#a3e635]">Select Test Date</h3>
+                    <p className="text-black dark:text-white text-sm">Choose when you'd like to take your formal IELTS test.</p>
                   </div>
                   
                   <div className="space-y-3">
@@ -359,12 +359,12 @@ export default function RegisterTest() {
                     <div 
                       onClick={() => setTestDateOption('custom')}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col gap-3 ${
-                        testDateOption === 'custom' ? 'bg-[#7C3AED]/10 border-[#7C3AED]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5'
+                        testDateOption === 'custom' ? 'bg-[#84cc16]/10 border-[#84cc16]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold">Pick manually</span>
-                        <Calendar size={18} className={testDateOption === 'custom' ? 'text-[#A78BFA]' : 'text-gray-600 dark:text-gray-300'} />
+                        <Calendar size={18} className={testDateOption === 'custom' ? 'text-[#65a30d] dark:text-[#a3e635]' : 'text-gray-800 dark:text-gray-200'} />
                       </div>
                       {testDateOption === 'custom' && (
                         <div onClick={e => e.stopPropagation()} className="mt-2">
@@ -379,7 +379,7 @@ export default function RegisterTest() {
 
                   {/* Difficulty Selection */}
                   <div className="space-y-3 mt-6">
-                    <h3 className="text-xl font-black uppercase tracking-tight text-[#A78BFA]">Simulation Difficulty</h3>
+                    <h3 className="text-xl font-black uppercase tracking-tight text-[#65a30d] dark:text-[#a3e635]">Simulation Difficulty</h3>
                     <div className="grid grid-cols-2 gap-3">
                        {[
                          { id: 'Easy', label: 'Easy', sub: 'Band 4-5' },
@@ -392,8 +392,8 @@ export default function RegisterTest() {
                            onClick={() => setDifficultyLevel(level.id as 'Easy' | 'Average' | 'Hard' | 'Expert')}
                            className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                              difficultyLevel === level.id 
-                               ? 'bg-[#7C3AED] border-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]' 
-                               : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:border-[#7C3AED]/50'
+                               ? 'bg-[#84cc16] border-[#84cc16] text-white shadow-[0_0_15px_rgba(132,204,22,0.4)]' 
+                               : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-black dark:text-white hover:border-[#84cc16]/50'
                            }`}
                          >
                            <span className="text-sm font-bold">{level.label}</span>
@@ -405,7 +405,7 @@ export default function RegisterTest() {
 
                   {/* Time Selection */}
                   <div className="space-y-3 mt-6">
-                    <h3 className="text-xl font-black uppercase tracking-tight text-[#A78BFA]">Select Time</h3>
+                    <h3 className="text-xl font-black uppercase tracking-tight text-[#65a30d] dark:text-[#a3e635]">Select Time</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                        {AVAILABLE_TIMES.map(time => (
                          <div 
@@ -413,8 +413,8 @@ export default function RegisterTest() {
                            onClick={() => setSelectedTime(time)}
                            className={`p-3 rounded-xl border text-center text-sm font-bold transition-all cursor-pointer ${
                              selectedTime === time 
-                               ? 'bg-[#7C3AED] border-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]' 
-                               : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:border-[#7C3AED]/50'
+                               ? 'bg-[#84cc16] border-[#84cc16] text-white shadow-[0_0_15px_rgba(132,204,22,0.4)]' 
+                               : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-black dark:text-white hover:border-[#84cc16]/50'
                            }`}
                          >
                            {time}
@@ -424,12 +424,12 @@ export default function RegisterTest() {
                   </div>
                 </div>
 
-                <div className="glass-card p-6 bg-[#7C3AED]/5 border-[#7C3AED]/20">
+                <div className="glass-card p-6 bg-[#84cc16]/5 border-[#84cc16]/20">
                   <div className="flex gap-4">
-                    <Info className="text-[#A78BFA]" size={20} />
+                    <Info className="text-[#65a30d] dark:text-[#a3e635]" size={20} />
                     <div className="space-y-1">
-                      <p className="text-xs font-bold text-gray-600 dark:text-gray-300">Registration Policy</p>
-                      <p className="text-[10px] text-gray-600 dark:text-gray-300">By confirming, you agree that your information is correct. A unique roll number will be generated immediately.</p>
+                      <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Registration Policy</p>
+                      <p className="text-[10px] text-gray-800 dark:text-gray-200">By confirming, you agree that your information is correct. A unique roll number will be generated immediately.</p>
                     </div>
                   </div>
                 </div>
@@ -437,7 +437,7 @@ export default function RegisterTest() {
                 <button 
                   onClick={handleRegister}
                   disabled={submitting}
-                  className="w-full btn-primary h-16 flex items-center justify-center gap-2 shadow-[0_20px_50px_rgba(124,58,237,0.3)]"
+                  className="w-full btn-primary h-16 flex items-center justify-center gap-2 shadow-[0_20px_50px_rgba(132,204,22,0.3)]"
                 >
                   {submitting ? (
                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -458,27 +458,27 @@ export default function RegisterTest() {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center pt-10"
           >
-            <div className="glass-card-purple p-10 flex flex-col items-center text-center max-w-sm w-full">
+            <div className="glass-card-theme p-10 flex flex-col items-center text-center max-w-sm w-full">
               <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.4)]">
                 <CheckCircle className="text-gray-900 dark:text-white" size={40} />
               </div>
               <h2 className="text-3xl font-black mb-2 uppercase tracking-tight">Registered!</h2>
-              <p className="text-gray-700 dark:text-gray-200 text-sm mb-8">A confirmation email has been dispatched to your address.</p>
+              <p className="text-black dark:text-white text-sm mb-8">A confirmation email has been dispatched to your address.</p>
               
               <div className="w-full space-y-4 border-t border-black/10 dark:border-white/10 pt-8 text-left">
                 <div>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black tracking-widest mb-1">Candidate</p>
+                  <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest mb-1">Candidate</p>
                   <p className="font-bold">{success.name}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black tracking-widest mb-1">Exam Date</p>
+                  <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest mb-1">Exam Date</p>
                   <p className="font-bold">{success.date}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black tracking-widest mb-1">Time</p>
+                  <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest mb-1">Time</p>
                   <p className="font-bold">{success.time}</p>
                 </div>
-                <div className="bg-[#7C3AED] p-4 rounded-xl">
+                <div className="bg-[#84cc16] p-4 rounded-xl">
                   <p className="text-[10px] text-gray-800/80 dark:text-white/80 uppercase font-black tracking-widest mb-1">Roll Number</p>
                   <p className="font-mono text-2xl font-black text-gray-900 dark:text-white">{success.rollNumber}</p>
                 </div>
@@ -501,12 +501,12 @@ export default function RegisterTest() {
 function DetailRow({ icon: Icon, label, value }: any) {
   return (
     <div className="flex items-center gap-4 bg-white/[0.03] p-3 rounded-xl border border-black/5 dark:border-white/5">
-      <div className="p-2 bg-[#7C3AED]/10 rounded-lg">
-        <Icon className="text-[#A78BFA]" size={18} />
+      <div className="p-2 bg-[#84cc16]/10 rounded-lg">
+        <Icon className="text-[#65a30d] dark:text-[#a3e635]" size={18} />
       </div>
       <div>
-        <p className="text-[10px] text-gray-600 dark:text-gray-300 uppercase font-black tracking-widest leading-none mb-1">{label}</p>
-        <p className="font-bold text-sm text-gray-700 dark:text-gray-200">{value || '---'}</p>
+        <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest leading-none mb-1">{label}</p>
+        <p className="font-bold text-sm text-black dark:text-white">{value || '---'}</p>
       </div>
     </div>
   );
@@ -517,15 +517,15 @@ function DateOption({ label, date, id, selected, onClick }: any) {
     <div 
       onClick={onClick}
       className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-        selected ? 'bg-[#7C3AED]/10 border-[#7C3AED]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5'
+        selected ? 'bg-[#84cc16]/10 border-[#84cc16]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5'
       }`}
     >
       <div>
         <p className="font-bold">{label}</p>
-        <p className="text-xs text-gray-700 dark:text-gray-200">{date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+        <p className="text-xs text-black dark:text-white">{date.toLocaleDateString('default', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
       </div>
       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-        selected ? 'border-[#7C3AED] bg-[#7C3AED]' : 'border-black/20 dark:border-white/20'
+        selected ? 'border-[#84cc16] bg-[#84cc16]' : 'border-black/20 dark:border-white/20'
       }`}>
         {selected && <div className="w-2 h-2 rounded-full bg-white" />}
       </div>
