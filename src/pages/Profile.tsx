@@ -24,7 +24,8 @@ import {
   X,
   FilePlus,
   ExternalLink,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -524,29 +525,68 @@ export default function Profile() {
               {practiceHistory.length > 0 ? practiceHistory.map((res: any, idx: number) => (
                 <motion.div 
                   key={idx}
-                  whileHover={{ y: -2 }}
-                  className="glass-card p-4 border border-[#84cc16]/20 bg-gradient-to-r from-[#84cc16]/5 to-transparent flex items-center justify-between"
+                  className="glass-card p-5 border border-[#84cc16]/20 bg-gradient-to-r from-[#84cc16]/5 to-transparent flex flex-col gap-4"
                 >
-                  <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#84cc16] shadow-lg">
-                        <span className="text-[8px] font-black text-gray-800/80 dark:text-white/80 leading-none">BAND</span>
-                        <span className="text-lg font-black text-gray-900 dark:text-white leading-none">{res.overall}</span>
-                     </div>
-                     <div>
-                        <div className="flex items-center gap-2">
-                           <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{res.date}</span>
-                           <span className="w-1 h-1 rounded-full bg-gray-600" />
-                           <span className="text-[10px] font-bold text-black dark:text-white capitalize">{res.type}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#84cc16] shadow-lg">
+                          <span className="text-[8px] font-black text-white/80 leading-none">BAND</span>
+                          <span className="text-lg font-black text-white leading-none">{res.score?.toFixed(1) || '0.0'}</span>
+                       </div>
+                       <div>
+                          <div className="flex items-center gap-2">
+                             <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">
+                               {new Date(res.created_at).toLocaleDateString()}
+                             </span>
+                             <span className="w-1 h-1 rounded-full bg-gray-600" />
+                             <span className="text-[10px] font-bold text-black dark:text-white capitalize text-[#65a30d]">
+                               {res.duration_minutes} Min
+                             </span>
+                          </div>
+                          <p className="font-bold text-sm tracking-tight text-gray-900/90 dark:text-white/90 mt-0.5 capitalize">{res.section} Practice</p>
+                          {(res.scores?.listening !== undefined || res.scores?.reading !== undefined) && (
+                            <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mt-1">
+                               L: {res.scores?.listening || 0}/40 • R: {res.scores?.reading || 0}/40
+                            </p>
+                          )}
+                       </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635]">PRACTICE</span>
+                    </div>
+                  </div>
+                  
+                  {res.ai_analysis && (
+                    <div className="mt-2 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-xs text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
+                        <span className="font-black uppercase tracking-widest text-[9px] text-[#65a30d] dark:text-[#a3e635]">AI Feedback</span>
+                      </div>
+                      <p className="font-medium leading-relaxed mb-3">{res.ai_analysis.feedback}</p>
+                      
+                      {res.ai_analysis.breakdown && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                          {Object.entries(res.ai_analysis.breakdown).map(([key, val]: any) => (
+                            <div key={key} className="bg-black/5 dark:bg-white/5 p-2 rounded-lg text-center">
+                              <p className="text-[8px] uppercase font-black tracking-widest opacity-60 mb-1 truncate">{key}</p>
+                              <p className="font-bold">{val}</p>
+                            </div>
+                          ))}
                         </div>
-                        <p className="font-bold text-sm tracking-tight text-gray-900/90 dark:text-white/90 mt-0.5">{res.section}</p>
-                        <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mt-1">
-                           L: {res.listening}/5 • R: {res.reading}/10 • W: ✅ • S: ✅
-                        </p>
-                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635]">PRACTICE</span>
-                  </div>
+                      )}
+                      
+                      {res.ai_analysis.suggestions && res.ai_analysis.suggestions.length > 0 && (
+                        <div className="space-y-1">
+                           <p className="text-[8px] uppercase font-black tracking-widest opacity-60 mb-1">Key Suggestions</p>
+                           {res.ai_analysis.suggestions.slice(0, 2).map((suggestion: string, idx: number) => (
+                             <p key={idx} className="flex gap-2 text-[10px]">
+                               <span className="text-[#65a30d]">•</span> {suggestion}
+                             </p>
+                           ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               )) : (
                 <div className="glass-card p-10 text-center text-xs text-gray-800 dark:text-gray-200 italic">

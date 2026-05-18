@@ -76,7 +76,7 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
       try {
         const responseText = await Promise.race([
           getAiClient().models.generateContent({
-            model: "gemini-3.1-pro-preview",
+            model: "gemini-2.5-flash",
             contents: `Prompt: ${prompt}\n\nEssay: ${essay}`,
             config: {
               systemInstruction,
@@ -169,7 +169,7 @@ export async function scoreIELTSSpeaking(userResponses: (string | { base64: stri
       try {
         const responseText = await Promise.race([
           getAiClient().models.generateContent({
-            model: "gemini-3.1-pro-preview",
+            model: "gemini-2.5-flash",
             contents: parts,
             config: {
               systemInstruction,
@@ -234,7 +234,7 @@ export async function generateDynamicTestSet(
           (options.customFilfoTitle && d.title === options.customFilfoTitle)
         );
         if (match) {
-          finalRefs = [`Title: ${match.title}\nAdmin Assigned Difficulty: ${match.difficulty || 'Average'}\nContent: ${match.content}`];
+          finalRefs = [`Title: ${match.title}\nAdmin Assigned Difficulty: ${match.difficulty || 'Average'}\nContent: ${match.content}${match.imageUrl ? `\nImage URL: ${match.imageUrl}` : ''}`];
         }
       } catch (e) {
         // Ignore JSON parse errors
@@ -294,155 +294,136 @@ export async function generateDynamicTestSet(
   You must always validate your own output before returning it. Before finishing your response mentally check that every MCQ has exactly 4 options, every correct field has a value, all JSON brackets are closed, and no field is empty or undefined.
   Never return conversational text mixed inside the JSON. The entire response must be pure clean JSON with no explanation text before it, no markdown code blocks around it, no apology messages inside it, and no commentary after it. Pure JSON only, nothing else.`;
 
-  const listeningPrompt = baseRules + `
-  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
-  This rule has the highest priority and overrides every other instruction.
-  The Listening section must contain exactly 10 Multiple Choice Questions. No more no less. All 10 must be generated before returning any response.
-  Every Multiple Choice Question in every section in every test must have exactly 4 options labeled A, B, C, and D. Never 3 options. Never 5 options. Never 6 options. Never 8 options. Exactly 4 every single time.
-  Before returning your response you must count your questions. If Listening has fewer than 10 questions you must generate more before returning.
-
-  Make the listening script long, realistic, and complex. USE MULTIPLE PARAGRAPHS. IT MUST BE AT LEAST 500 WORDS.
-
-  For the Listening section you must use the selected knowledge entry to write a realistic audio script. Ensure it is sufficiently long. ALWAYS start the JSON right away, no conversational intro.
-
-  Return a JSON object that matches this exact structure:
-  {
-    "title": "String",
-    "script": "String (the spoken transcript, minimum 500 words, use \\n\\n for paragraph breaks)",
-    "questions": [
-       // MUST BE EXACTLY 10 QUESTIONS HERE
-      { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
-    ]
-  }`;
-
-  const readingPrompt = baseRules + `
-  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
-  This rule has the highest priority and overrides every other instruction.
-  The Reading section must contain exactly 10 questions. These MUST be a complex mix of Multiple Choice, True False Not Given, and Sentence Completion but the total count must always be exactly 10. Never return fewer than 10.
-  Every Multiple Choice Question without any exception must have exactly 4 options. Exactly 4 every single time.
-  Before returning your response you must count your questions. If Reading has fewer than 10 questions you must generate more before returning.
-
-  Make the reading passage extremely detailed, long, and academic. IT MUST BE AT LEAST 800 WORDS and feature highly advanced academic vocabulary, complex sentence structures, and subtle arguments to thoroughly test inference and comprehension.
-
-  For the Reading section you must use a knowledge entry to generate a full academic passage. Make sure it's long and comprehensive. Use multiple interconnected paragraphs that explore the topic from varying perspectives (historical, statistical, argumentative). ALWAYS start the JSON right away, no conversational intro.
-
-  The questions must be difficult and require deep textual inference, not just simple word matching.
+  const systemPrompt = `
+  You are an advanced IELTS test generation engine connected to a custom knowledge vault called FILFO. Your entire behavior is governed by the following rules without exception.
   
-  Return a JSON object that matches this exact structure:
-  {
-    "title": "String (A formal, academic title)",
-    "passage": "String (the reading passage, minimum 800 words, use multiple paragraphs via \\n\\n)",
-    "questions": [
-      // MUST BE EXACTLY 10 QUESTIONS HERE (Mix of mcq, tfng, and text)
-      { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
-      { "id": "r2", "type": "tfng", "question": "String (Statement to evaluate)", "options": [{"id": "True", "text": "True"}, {"id": "False", "text": "False"}, {"id": "Not Given", "text": "Not Given"}], "correctAnswer": "True" },
-      { "id": "r3", "type": "text", "label": "String (fill in blank entirely based on the text)", "correctAnswer": "Word" }
-    ]
-  }
-  Make sure you generate exactly 10 questions inside the questions array, and format them perfectly!`;
+  TARGET STUDENT DIFFICULTY LEVEL: ${difficulty}
 
-  const writingPrompt = baseRules + `
-  ABSOLUTE RULE — MINIMUM QUESTION COUNT PER SECTION
-  This rule has the highest priority and overrides every other instruction.
-  The Writing section must contain exactly 2 tasks. Task 1 MUST BE highly detailed and include a complex description of multiple data sets (e.g., comparing two completely different charts or a complex process). Task 2 MUST BE an extensive, multi-dimensional essay prompt containing a clear issue, opposing viewpoints, or a complex scenario with specific instructions.
+  You have a built-in knowledge source stored in your context from the Official IELTS Academic Sample Test 2023. Mix and match randomly so that sometimes questions come from the real test content, and sometimes from the custom Reference Knowledge. 
   
-  Make the prompts feel 100% like a genuine, high-level IELTS exam. Add detailed context.
-  ALWAYS start the JSON right away, no conversational intro.
+  You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
 
-  Return a JSON object that matches this exact structure:
+  Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
+
+  STRICT QUESTION COUNT AND FORMAT RULES:
+  The Listening section must have exactly 10 Multiple Choice Questions.
+  The Reading section must have exactly 10 questions which can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but total must equal 10.
+  Every Multiple Choice Question without exception must have exactly 4 options labeled A, B, C, and D.
+  The Writing section must have exactly 2 tasks (Task 1 and Task 2). For Task 1, if there is an Image URL in the reference content (e.g. a celebrity or an incident like a war), you must use type="image", provide the imageUrl, and ask the candidate to describe the context or the picture. Otherwise, use type="table" and provide a proper short table of data related to the topic. For Task 2, ask an opinion-based question related to the topic.
+  The Speaking section must have exactly 3 parts: Part 1 (3 warm-up questions), Part 2 (1 cue card), Part 3 (3 discussion questions).
+  
+  CRITICAL WORD COUNT RULES:
+  Keep Reading passages between 400 and 700 words maximum.
+  Keep Listening audio scripts between 200 and 400 words maximum.
+  Keep Writing prompts under 80 words each.
+  Keep Speaking cue cards under 60 words each.
+  This restriction is critical to prevent timeouts and ensure stability.
+
+  Return a COMPLETE SINGLE JSON object representing the entire test matching this exact structure:
   {
-    "task1": {
-      "title": "String (e.g. The charts below show...) Ensure it sounds highly academic.",
-      "description": "String (A very detailed description of the complex visual data or process, at least 80-120 words so the candidate understands it thoroughly and must analyze trends or stages)",
-      "data": { "Category1": 10, "Category2": 20, "Category3": 45, "Category4": 80 },
-      "type": "table",
-      "minWords": 150
+    "listening": {
+      "title": "String",
+      "script": "String (the spoken transcript, 200-400 words)",
+      "questions": [
+        // MUST BE EXACTLY 10 MCQs
+        { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
+      ]
     },
-    "task2": {
-      "prompt": "String (The full essay question, including a detailed background statement presenting a complex global/societal issue and the instruction e.g. 'Discuss both these views and give your own opinion', at least 60-100 words)",
-      "minWords": 250
+    "reading": {
+      "title": "String",
+      "passage": "String (the reading passage, 400-700 words)",
+      "questions": [
+        // MUST BE EXACTLY 10 QUESTIONS TOTAL
+        { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
+        { "id": "r2", "type": "tfng", "question": "String", "options": [{"id": "True", "text": "True"}, {"id": "False", "text": "False"}, {"id": "Not Given", "text": "Not Given"}], "correctAnswer": "True" },
+        { "id": "r3", "type": "text", "label": "String", "correctAnswer": "Word" }
+      ]
+    },
+    "writing": {
+      "task1": {
+        "title": "String",
+        "description": "String (Detailed prompt, max 80 words)",
+        "imageUrl": "Optional string (Include if you have an Image URL in your reference)",
+        "data": { "Category1": 10, "Category2": 20 },
+        "type": "table or image",
+        "minWords": 150
+      },
+      "task2": {
+        "prompt": "String (Essay prompt asking for opinions, max 80 words)",
+        "minWords": 250
+      }
+    },
+    "speaking": {
+      "part1": ["Question 1", "Question 2", "Question 3"],
+      "part2": { "cue": "Topic (max 60 words)", "points": ["Point 1", "Point 2", "Point 3", "Point 4"] },
+      "part3": ["Question 1", "Question 2", "Question 3"]
     }
-  }`;
-
-  const speakingPrompt = baseRules + `
-  ABSOLUTE RULE — MINIMUM PROMPT COUNT PER SECTION
-  This rule has the highest priority and overrides every other instruction.
-  The Speaking section must contain exactly 7 prompts total. Part 1 must have exactly 3 warm up questions. Part 2 must have exactly 1 cue card. Part 3 must have exactly 3 discussion questions. Total 7 always.
-
-  TOKEN LIMITS: Speaking cue card maximum 40 words. These limits are non-negotiable.
-  ALWAYS start the JSON right away, no conversational intro.
-
-  Return a JSON object that matches this exact structure:
-  {
-    "part1": ["Question 1", "Question 2", "Question 3"],
-    "part2": { "cue": "Topic to describe (max 40 words)", "points": ["Point 1", "Point 2", "Point 3", "Point 4"] },
-    "part3": ["Question 1", "Question 2", "Question 3"]
-  }`;
+  }
+  `;
 
   const inputContent = finalRefs.length > 0 
-    ? `Please generate an IELTS test based heavily on the following knowledge:\n\n${finalRefs.join('\n\n')}`
-    : `Please generate an IELTS test on a surprise, random topic.`;
+    ? `Please generate a full complete IELTS test based heavily on the following knowledge:\n\n${finalRefs.join('\n\n')}`
+    : `Please generate a full complete IELTS test on a surprise, random topic.`;
 
-  async function generateSectionWithRetry(
-    systemInstruction: string,
-    fallbackData: any
-  ) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const responseText = await Promise.race([
-          getAiClient().models.generateContent({
-            model: "gemini-3.1-pro-preview",
-            contents: inputContent,
-            config: {
-              systemInstruction,
-              responseMimeType: "application/json",
-              temperature: 0.7
-            }
-          }).then(res => res.text),
-          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 60000))
-        ]);
+  const { realTestLibrary } = await import('../data/realTestLibrary');
+  const fallback = realTestLibrary[10] || realTestLibrary[0];
 
-        if (!responseText) {
-           return fallbackData; 
-        }
-        
+  onProgress && onProgress("Generating full test (Listening, Reading, Writing, Speaking)...", 50);
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const responseText = await Promise.race([
+        getAiClient().models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: inputContent,
+          config: {
+            systemInstruction: systemPrompt,
+            responseMimeType: "application/json",
+            temperature: 0.7
+          }
+        }).then(res => res.text),
+        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 90000)) // 90 seconds timeout for full test
+      ]);
+
+      if (responseText) {
         try {
           const parsed = JSON.parse(responseText);
-          if (Object.keys(parsed).length === 0) return fallbackData;
-          return parsed;
+          if (Object.keys(parsed).length > 0) {
+            return {
+              difficulty,
+              listening: parsed.listening,
+              reading: parsed.reading,
+              writing: parsed.writing,
+              speaking: parsed.speaking
+            };
+          }
         } catch(e) {
-          return fallbackData; 
+          console.error("Failed to parse JSON response:", e);
         }
-      } catch (e: any) {
-        if (attempt === 2) {
-           throw new Error("Test generation took too long. Please try again.");
-        }
+      }
+    } catch (e: any) {
+      console.error(`Attempt ${attempt} failed:`, e);
+      
+      // If quota exceeded or rate limited, don't bother retrying
+      if (e?.status === 429 || e?.message?.includes('429') || e?.message?.includes('RESOURCE_EXHAUSTED') || e?.message?.includes('quota')) {
+        console.warn("API quota exceeded. Falling back to library test.");
+        break;
+      }
+
+      if (attempt === 2) {
+         console.warn("Test generation failed. Falling back to library test.");
+         break;
       }
     }
   }
 
-  // Use a library test that actually has 10 questions as fallback
-  const { realTestLibrary } = await import('../data/realTestLibrary');
-  const fallback = realTestLibrary[10] || realTestLibrary[0];
-
-  onProgress && onProgress("Loading Listening Section 1 of 4", 25);
-  const listening = await generateSectionWithRetry(listeningPrompt, fallback.listening);
-  
-  onProgress && onProgress("Loading Reading Section 2 of 4", 50);
-  const reading = await generateSectionWithRetry(readingPrompt, fallback.reading);
-
-  onProgress && onProgress("Loading Writing Section 3 of 4", 75);
-  const writing = await generateSectionWithRetry(writingPrompt, fallback.writing);
-
-  onProgress && onProgress("Loading Speaking Section 4 of 4", 100);
-  const speaking = await generateSectionWithRetry(speakingPrompt, fallback.speaking);
-
+  // If all attempts failed, use fallback
   return {
     difficulty,
-    listening,
-    reading,
-    writing,
-    speaking
+    listening: fallback.listening,
+    reading: fallback.reading,
+    writing: fallback.writing,
+    speaking: fallback.speaking
   };
 }
 

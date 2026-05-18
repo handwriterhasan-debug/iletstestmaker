@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
-import { Clock, CheckCircle2, ChevronRight, AlertTriangle, Loader2, ArrowLeft, Play, Shield } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronRight, AlertTriangle, Loader2, ArrowLeft, Play, Shield, Info } from 'lucide-react';
 import ListeningSection from '../components/test/ListeningSection';
 import ReadingSection from '../components/test/ReadingSection';
 import WritingSection from '../components/test/WritingSection';
 import SpeakingSection from '../components/test/SpeakingSection';
+import ScoringCriteriaModal from '../components/ScoringCriteriaModal';
 import { scoreIELTSEssay, scoreIELTSSpeaking, generateDynamicTestSet } from '../services/aiScoringService';
 import { ieltsService } from '../services/ieltsService';
 import { realTestLibrary } from '../data/realTestLibrary';
@@ -37,6 +38,7 @@ export default function MockTest() {
   const [completedRollNumber, setCompletedRollNumber] = useState('');
   const [testSet, setTestSet] = useState<any>(null);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
 
   // Auto-save every 30 seconds - Use memory for now or a dedicated drafts table if needed
   const autoSave = useCallback(async () => {
@@ -69,7 +71,7 @@ export default function MockTest() {
     setLoadingError(null);
     try {
       const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}`);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
       
       let chosen;
       if (refs.length > 0) {
@@ -196,14 +198,14 @@ export default function MockTest() {
 
   if (currentSection === 'setup') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 sm:p-10 relative overflow-hidden">
+      <div className="min-h-[100dvh] flex py-12 px-6 sm:px-10 relative overflow-x-hidden">
         <div className="absolute top-1/4 -left-1/4 w-[50%] h-[50%] rounded-full bg-[#84cc16] blur-[150px] opacity-10 pointer-events-none" />
         <div className="absolute bottom-1/4 -right-1/4 w-[50%] h-[50%] rounded-full bg-blue-500 blur-[150px] opacity-5 pointer-events-none" />
         
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-card-theme p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#84cc16]/30 relative z-10 shadow-[0_20px_50px_-10px_rgba(132,204,22,0.15)]"
+          className="m-auto glass-card-theme p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#84cc16]/30 relative z-10 shadow-[0_20px_50px_-10px_rgba(132,204,22,0.15)] shrink-0"
         >
           <div className="absolute top-0 right-0 p-8 opacity-5">
              <Shield size={160} className="text-[#65a30d] dark:text-[#a3e635] rotate-12" />
@@ -353,9 +355,9 @@ export default function MockTest() {
 
              {!loading && aiAnalysis && (
                <div className="w-full space-y-4 max-h-[35vh] overflow-y-auto px-2 text-left">
-                  {aiAnalysis.writing1 && <AIAnalysisCard title="Writing Task 1 Analysis" data={aiAnalysis.writing1} />}
-                  {aiAnalysis.writing2 && <AIAnalysisCard title="Writing Task 2 Analysis" data={aiAnalysis.writing2} />}
-                  {aiAnalysis.speaking && <AIAnalysisCard title="Speaking Analysis" data={aiAnalysis.speaking} />}
+                  {aiAnalysis.writing1 && <AIAnalysisCard title="Writing Task 1 Analysis" data={aiAnalysis.writing1} onInfoClick={() => setIsCriteriaModalOpen(true)} />}
+                  {aiAnalysis.writing2 && <AIAnalysisCard title="Writing Task 2 Analysis" data={aiAnalysis.writing2} onInfoClick={() => setIsCriteriaModalOpen(true)} />}
+                  {aiAnalysis.speaking && <AIAnalysisCard title="Speaking Analysis" data={aiAnalysis.speaking} onInfoClick={() => setIsCriteriaModalOpen(true)} />}
                </div>
              )}
 
@@ -456,6 +458,8 @@ export default function MockTest() {
         </AnimatePresence>
       </main>
 
+      <ScoringCriteriaModal isOpen={isCriteriaModalOpen} onClose={() => setIsCriteriaModalOpen(false)} />
+
       {/* Safety Notice */}
       <footer className="fixed bottom-0 left-0 right-0 bg-[var(--bg-page)]/90 border-t border-black/5 dark:border-white/5 p-4 flex justify-center backdrop-blur-md">
         <div className="flex items-center gap-2 text-[10px] font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">
@@ -467,12 +471,23 @@ export default function MockTest() {
   );
 }
 
-function AIAnalysisCard({ title, data }: { title: string; data: any }) {
+function AIAnalysisCard({ title, data, onInfoClick }: { title: string; data: any; onInfoClick?: () => void }) {
   if (!data || !data.breakdown) return null;
   return (
     <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 space-y-4">
       <div className="flex items-center justify-between">
-        <span className="font-bold text-sm capitalize text-gray-900 dark:text-white">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-sm capitalize text-gray-900 dark:text-white">{title}</span>
+          {onInfoClick && (
+            <button
+              onClick={onInfoClick}
+              className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+              title="View Scoring Criteria"
+            >
+              <Info size={14} />
+            </button>
+          )}
+        </div>
         <span className="text-[10px] font-black bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] px-2 py-0.5 rounded">Band {data.band}</span>
       </div>
       

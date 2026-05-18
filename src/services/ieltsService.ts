@@ -296,6 +296,8 @@ export const ieltsService = {
       section: practiceData.section,
       duration_minutes: practiceData.duration,
       score: practiceData.overallBand,
+      scores: practiceData.scores,
+      ai_analysis: practiceData.aiAnalysis,
       created_at: new Date().toISOString()
     });
     setStorageItem(STORAGE_KEYS.PRACTICE, history);

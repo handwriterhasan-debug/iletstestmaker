@@ -102,7 +102,7 @@ export default function RealTestSession() {
       setRegistration(reg);
 
       const filfoData = JSON.parse(localStorage.getItem('filfo_ielts') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}`);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
       
       let chosen;
       if (refs.length > 0) {
@@ -242,7 +242,7 @@ export default function RealTestSession() {
         }
       });
       // Scale to 40 (assuming 10 questions)
-      const rawOutOf40 = (correct / testSet.listening.questions.length) * 40;
+      const rawOutOf40 = (correct / (testSet.listening?.questions?.length || 10)) * 40;
       return rawToBand(Math.round(rawOutOf40));
     };
 
@@ -256,7 +256,7 @@ export default function RealTestSession() {
         }
       });
       // Scale to 40
-      const rawOutOf40 = (correct / testSet.reading.questions.length) * 40;
+      const rawOutOf40 = (correct / (testSet.reading?.questions?.length || 10)) * 40;
       return rawToBand(Math.round(rawOutOf40));
     };
 
@@ -368,7 +368,7 @@ export default function RealTestSession() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (loading || (!testSet && !loadingError)) return (
+  if (loading || !testSet || loadingError) return (
     <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4">
       <div className="text-center space-y-6 max-w-sm w-full bg-black/5 dark:bg-white/5 p-8 rounded-2xl border border-black/10 dark:border-white/10 backdrop-blur-md">
         {loadingError ? (
@@ -837,7 +837,11 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635]">TASK 1 (20 Minutes)</label>
         <div className="glass-card p-6 bg-black/5 dark:bg-white/5 space-y-4">
            <h3 className="font-bold">{testSet.writing?.task1?.title}</h3>
-           {testSet.writing?.task1?.type === 'table' ? (
+           {testSet.writing?.task1?.imageUrl ? (
+             <div className="relative rounded-xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10">
+               <img src={testSet.writing.task1.imageUrl} alt="Task 1 Reference" className="w-full object-contain max-h-[300px] bg-black/5 dark:bg-white/5" referrerPolicy="no-referrer" />
+             </div>
+           ) : testSet.writing?.task1?.type === 'table' ? (
              <div className="overflow-x-auto">
                <table className="w-full text-[10px]">
                  <thead>
@@ -851,12 +855,12 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
                     {Array.isArray(testSet.writing?.task1?.data) 
                       ? testSet.writing?.task1?.data?.map((row: any, i: number) => (
                           <tr key={`tr-arr-${i}`} className="border-b border-black/5 dark:border-white/5">
-                            {Object.values(row || {}).map((v: any, j) => <td key={`td-arr-${i}-${j}`} className="p-2 font-bold">{v as string}</td>)}
+                            {Object.values(row || {}).map((v: any, j) => <td key={`td-arr-${i}-${j}`} className="p-2 font-bold">{Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>)}
                           </tr>
                         ))
                       : (
                           <tr key="tr-obj" className="border-b border-black/5 dark:border-white/5">
-                            {Object.values(testSet.writing?.task1?.data || {}).map((v: any, j) => <td key={`td-obj-${j}`} className="p-2 font-bold">{JSON.stringify(v)}</td>)}
+                            {Object.values(testSet.writing?.task1?.data || {}).map((v: any, j) => <td key={`td-obj-${j}`} className="p-2 font-bold">{Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>)}
                           </tr>
                         )}
                  </tbody>

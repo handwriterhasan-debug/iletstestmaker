@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Headphones, BookOpen, PenTool, Mic2, Clock, ArrowLeft, CheckCircle2, Play, ChevronRight, Sparkles, Loader2, Target, Bookmark } from 'lucide-react';
+import { Headphones, BookOpen, PenTool, Mic2, Clock, ArrowLeft, CheckCircle2, Play, ChevronRight, Sparkles, Loader2, Target, Bookmark, Info } from 'lucide-react';
 import ListeningSection from '../components/test/ListeningSection';
 import ReadingSection from '../components/test/ReadingSection';
 import WritingSection from '../components/test/WritingSection';
 import SpeakingSection from '../components/test/SpeakingSection';
+import ScoringCriteriaModal from '../components/ScoringCriteriaModal';
 import { generateDynamicTestSet } from '../services/aiScoringService';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
@@ -31,6 +32,7 @@ export default function PracticeSession() {
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
   const [scores, setScores] = useState({ listening: 0, reading: 0 });
 
   // Randomized content state
@@ -49,7 +51,7 @@ export default function PracticeSession() {
     setLoadingError(null);
     try {
       const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}`);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
 
       if (refs.length > 0) {
         const randomRefs = refs.sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -186,33 +188,12 @@ export default function PracticeSession() {
     setStage('done');
     setShowResultModal(true);
     
-    // Save to practice_sessions using service
-    if (user) {
-        const listBand = section === 'listening' ? parseFloat(calculateBand('listening', currentScores.listening, selectedListening?.questions?.length || 40)) : 0;
-        const readBand = section === 'reading' ? parseFloat(calculateBand('reading', currentScores.reading, selectedReading?.questions?.length || 40)) : 0;
-        
-        // Ensure overall practice score makes sense, even for one section (should average by active sections, but here is only reading or listening, round to 0.5)
-        const average = listBand || readBand;
-        const overall = Math.round(average * 2) / 2;
-
-        await ieltsService.savePracticeSession({
-            section,
-            duration: timeSetting,
-            listeningScore: currentScores.listening,
-            readingScore: currentScores.reading,
-            listeningBand: listBand,
-            readingBand: readBand,
-            writingSubmitted: section === 'writing',
-            speakingRecorded: section === 'speaking',
-            overallBand: overall
-        });
-    }
-
     // Generate AI feedback for Practice Session
     setLoadingFeedback(true);
+    let aiResponse: any = null;
     try {
       const { scoreIELTSEssay, scoreIELTSSpeaking } = await import('../services/aiScoringService');
-      let aiResponse;
+      
       if (section === 'writing') {
         const writingData = data || answers || {};
         const essayContent = writingData.task === 1 ? writingData.task1 : writingData.task2;
@@ -250,6 +231,30 @@ export default function PracticeSession() {
       setFeedback("Excellent work finishing the practice session! Review your answers and try again to improve your score.");
     } finally {
       setLoadingFeedback(false);
+      
+      // Save to practice_sessions using service
+      if (user) {
+          const listBand = section === 'listening' ? parseFloat(calculateBand('listening', currentScores.listening, selectedListening?.questions?.length || 40)) : 0;
+          const readBand = section === 'reading' ? parseFloat(calculateBand('reading', currentScores.reading, selectedReading?.questions?.length || 40)) : 0;
+          
+          // Ensure overall practice score makes sense, even for one section (should average by active sections, but here is only reading or listening, round to 0.5)
+          const average = listBand || readBand || aiResponse?.band || 0;
+          const overall = Math.round(average * 2) / 2;
+
+          await ieltsService.savePracticeSession({
+              section,
+              duration: timeSetting,
+              scores: currentScores,
+              aiAnalysis: aiResponse,
+              listeningScore: currentScores.listening,
+              readingScore: currentScores.reading,
+              listeningBand: listBand,
+              readingBand: readBand,
+              writingSubmitted: section === 'writing',
+              speakingRecorded: section === 'speaking',
+              overallBand: overall
+          });
+      }
     }
   };
 
@@ -540,6 +545,13 @@ export default function PracticeSession() {
                         <div className="flex items-center gap-3">
                           {section === 'writing' ? <PenTool size={18} className="text-orange-400" /> : <Mic2 size={18} className="text-lime-400" />}
                           <span className="font-bold text-sm capitalize">{section} Analysis</span>
+                          <button
+                            onClick={() => setIsCriteriaModalOpen(true)}
+                            className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                            title="View Scoring Criteria"
+                          >
+                            <Info size={14} />
+                          </button>
                         </div>
                         <span className="text-[10px] font-black bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] px-2 py-0.5 rounded">Band {aiAnalysis.band}</span>
                       </div>
@@ -625,6 +637,7 @@ export default function PracticeSession() {
           </div>
         )}
       </AnimatePresence>
+      <ScoringCriteriaModal isOpen={isCriteriaModalOpen} onClose={() => setIsCriteriaModalOpen(false)} />
     </div>
   );
 }

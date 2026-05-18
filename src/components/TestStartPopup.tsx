@@ -11,13 +11,14 @@ interface TestStartPopupProps {
 
 export default function TestStartPopup({ registration, onStart, onDelay, onCancel, delaysUsed }: TestStartPopupProps) {
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[60px] flex flex-col items-center justify-center p-6 overflow-y-auto">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#84cc16]/10 via-transparent to-transparent opacity-50" />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-[400px] space-y-8 py-10 relative z-10 glass-card-theme p-8 shadow-[0_20px_60px_-10px_rgba(132,204,22,0.3)]"
-      >
+    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[60px] overflow-y-auto">
+      <div className="min-h-full flex py-10 px-4 sm:px-6">
+        <div className="fixed inset-0 bg-gradient-to-br from-[#84cc16]/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="m-auto w-full max-w-[400px] space-y-6 sm:space-y-8 py-8 sm:py-10 relative z-10 glass-card-theme p-6 sm:p-8 shadow-[0_20px_60px_-10px_rgba(132,204,22,0.3)] shrink-0"
+        >
         {/* Branding */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-4 py-1 bg-[#84cc16]/10 rounded-full border border-[#84cc16]/20 shadow-[0_0_15px_rgba(132,204,22,0.2)]">
@@ -112,6 +113,7 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
            </button>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

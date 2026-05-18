@@ -76,6 +76,7 @@ export default function FilfoAdmin() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newDifficulty, setNewDifficulty] = useState('Average');
+  const [newImageUrl, setNewImageUrl] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ export default function FilfoAdmin() {
   const handleSave = () => {
     if (!newTitle.trim() || !newContent.trim()) return;
     
-    const newItem = { id: Date.now().toString(), title: newTitle, content: newContent, difficulty: newDifficulty };
+    const newItem = { id: Date.now().toString(), title: newTitle, content: newContent, difficulty: newDifficulty, imageUrl: newImageUrl };
     if (activeTab === 'ielts') {
       const updated = [...ieltsKnowledge, newItem];
       setIeltsKnowledge(updated);
@@ -141,6 +142,7 @@ export default function FilfoAdmin() {
     setNewTitle('');
     setNewContent('');
     setNewDifficulty('Average');
+    setNewImageUrl('');
   };
 
   const handleDelete = (id: string, type: 'ielts' | 'practice') => {
@@ -239,6 +241,13 @@ export default function FilfoAdmin() {
                   placeholder="Topic / Title" 
                   className="flex-1 w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl h-14 px-6 focus:outline-none focus:border-[#84cc16] transition-colors"
                 />
+                <input 
+                  type="url" 
+                  value={newImageUrl} 
+                  onChange={(e) => setNewImageUrl(e.target.value)} 
+                  placeholder="Image URL (optional)" 
+                  className="flex-1 w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl h-14 px-6 focus:outline-none focus:border-[#84cc16] transition-colors"
+                />
                 <div className="relative w-full sm:w-48">
                   <select
                     value={newDifficulty}
@@ -261,6 +270,7 @@ export default function FilfoAdmin() {
                 placeholder="Paste reference text here, or upload a document/image below..." 
                 className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#84cc16] transition-colors min-h-[250px] resize-none"
               />
+              <p className="text-[10px] text-gray-500 font-bold uppercase mt-1">Tip: To show an image in Writing Task 1, paste a public Image URL (e.g. from Wikipedia/Imgur) into the "Image URL" field. Uploading large files below only extracts text.</p>
               
               <div className="flex gap-4">
                 <input 
@@ -329,6 +339,11 @@ export default function FilfoAdmin() {
                           {item.difficulty && (
                             <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#84cc16]/10 text-[#84cc16]">
                               {item.difficulty}
+                            </span>
+                          )}
+                          {item.imageUrl && (
+                            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">
+                              Image attached
                             </span>
                           )}
                         </div>

@@ -40,9 +40,9 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
     if (testSet.writing.task1.type === 'bar' || testSet.writing.task1.type === 'table') {
       let mappedData: any[] = [];
       if (Array.isArray(testSet.writing.task1.data)) {
-        mappedData = testSet.writing.task1.data.map((row: any, i: number) => ({ label: `Row ${i+1}`, value: JSON.stringify(row) }));
+        mappedData = testSet.writing.task1.data.map((row: any, i: number) => ({ label: `Row ${i+1}`, value: Array.isArray(row) ? row.join(', ') : typeof row === 'object' ? JSON.stringify(row) : String(row) }));
       } else if (testSet.writing.task1.data && typeof testSet.writing.task1.data === 'object') {
-        mappedData = Object.entries(testSet.writing.task1.data).map(([k, v]) => ({ label: k, value: JSON.stringify(v) }));
+        mappedData = Object.entries(testSet.writing.task1.data).map(([k, v]) => ({ label: k, value: Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v) }));
       }
       
       defaultTask1 = {
@@ -188,31 +188,22 @@ export default function WritingSection({ onComplete, timeRemaining, isPractice, 
                 {task1Data.description || task1Data.title}
               </p>
               
-              {isPractice || testSet ? (
-                <div className="relative group/card overflow-hidden rounded-3xl border-2 border-[#84cc16]/30  shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                  <div className="absolute top-0 right-0 p-3 bg-[#84cc16] text-white rounded-bl-2xl font-black text-[10px] tracking-widest z-10">PLAYER CARD</div>
+              {task1Data.imageUrl ? (
+                <div className="relative rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg">
+                  <img src={task1Data.imageUrl} alt="Writing Task Reference" className="w-full object-contain max-h-[400px] bg-black/5 dark:bg-white/5" referrerPolicy="no-referrer" />
+                </div>
+              ) : isPractice || testSet ? (
+                <div className="relative group/card overflow-hidden rounded-3xl border-2 border-[#84cc16]/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                  <div className="absolute top-0 right-0 p-3 bg-[#84cc16] text-white rounded-bl-2xl font-black text-[10px] tracking-widest z-10">REFERENCE DATA</div>
                   
                   <div className="p-8 space-y-6">
-                    <div className="flex items-center gap-4 border-b border-black/10 dark:border-white/10 pb-4">
-                      <div className="w-16 h-16 rounded-2xl bg-[#84cc16]/20 flex items-center justify-center text-3xl">🏏</div>
-                      <div>
-                        <h4 className="text-2xl font-black text-gray-900 dark:text-white leading-none">VIRAT KOHLI</h4>
-                        <p className="text-[10px] text-[#65a30d] dark:text-[#a3e635] font-bold uppercase tracking-[0.2em] mt-1">International Legend</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      {task1Data.data.map((item: any, idx: number) => (
-                        <div key={idx} className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5">
-                           <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mb-1">{item.label}</p>
-                           <p className="text-sm font-bold text-black dark:text-white">{item.value}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {(task1Data.data || []).map((item: any, idx: number) => (
+                        <div key={idx} className="bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 overflow-hidden">
+                           <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mb-1">{item.label || `Row ${idx+1}`}</p>
+                           <p className="text-sm font-bold text-black dark:text-white truncate">{item.value}</p>
                         </div>
                       ))}
-                    </div>
-
-                    <div className="bg-[#84cc16]/10 p-4 rounded-xl border border-[#84cc16]/20">
-                       <p className="text-[10px] text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest mb-1 italic">Summary of Skills</p>
-                       <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed font-medium">Extra: Known for aggressive batting, elite fitness standards, and unmatched chase ability in limited overs.</p>
                     </div>
                   </div>
                 </div>
