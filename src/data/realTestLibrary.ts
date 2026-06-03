@@ -14,6 +14,7 @@ export interface RealTestSet {
   writing: {
     task1: any;
     task2: any;
+    task3?: any;
   };
   speaking: {
     part1: string[];

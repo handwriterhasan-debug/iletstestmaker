@@ -13,42 +13,42 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
   return (
     <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[60px] overflow-y-auto">
       <div className="min-h-full flex py-10 px-4 sm:px-6">
-        <div className="fixed inset-0 bg-gradient-to-br from-[#84cc16]/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+        <div className="fixed inset-0 bg-gradient-to-br from-[#0ea5e9]/10 via-transparent to-transparent opacity-50 pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="m-auto w-full max-w-[400px] space-y-6 sm:space-y-8 py-8 sm:py-10 relative z-10 glass-card-theme p-6 sm:p-8 shadow-[0_20px_60px_-10px_rgba(132,204,22,0.3)] shrink-0"
+          className="m-auto w-full max-w-[400px] space-y-6 sm:space-y-8 py-8 sm:py-10 relative z-10 glass-card-theme p-6 sm:p-8 shadow-[0_20px_60px_-10px_rgba(14,165,233,0.3)] shrink-0"
         >
         {/* Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-4 py-1 bg-[#84cc16]/10 rounded-full border border-[#84cc16]/20 shadow-[0_0_15px_rgba(132,204,22,0.2)]">
-             <Rocket size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">IELTSMaker Premium</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1 bg-[#0ea5e9]/10 rounded-full border border-[#0ea5e9]/20 shadow-[0_0_15px_rgba(14,165,233,0.2)]">
+             <Rocket size={14} className="text-[#0284c7] dark:text-[#38bdf8]" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">IELTSMaker Premium</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tighter drop-shadow-md text-gray-900 dark:text-white">TIME HAS COME!</h1>
-          <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">Your formal examination is ready to begin.</p>
+          <h1 className="text-3xl font-black tracking-tighter drop-shadow-md text-slate-900 dark:text-white">TIME HAS COME!</h1>
+          <p className="text-gray-700 dark:text-slate-300 text-sm font-medium">Your formal examination is ready to begin.</p>
         </div>
 
         {/* Candidate Info Card */}
         <div className="glass-card p-6 space-y-4 border-white/20 dark:border-white/10 relative overflow-hidden bg-white/20 dark:bg-black/20">
-           <div className="flex justify-between items-start border-b border-black/10 dark:border-white/10 pb-4 relative z-10">
+           <div className="flex justify-between items-start border-b border-slate-300 dark:border-white/10 pb-4 relative z-10">
               <div>
-                 <p className="text-[10px] font-black uppercase text-gray-800 dark:text-gray-300 tracking-widest">Candidate</p>
+                 <p className="text-[10px] font-black uppercase text-slate-800 dark:text-slate-300 tracking-widest">Candidate</p>
                  <p className="text-xl font-bold">{registration.name}</p>
               </div>
               <div className="text-right">
-                 <p className="text-[10px] font-black uppercase text-gray-800 dark:text-gray-300 tracking-widest">Roll Number</p>
-                 <p className="text-xl font-mono font-bold text-[#65a30d] dark:text-[#a3e635] drop-shadow-[0_0_8px_rgba(132,204,22,0.3)]">{registration.rollNumber}</p>
+                 <p className="text-[10px] font-black uppercase text-slate-800 dark:text-slate-300 tracking-widest">Roll Number</p>
+                 <p className="text-xl font-mono font-bold text-[#0284c7] dark:text-[#38bdf8] drop-shadow-[0_0_8px_rgba(14,165,233,0.3)]">{registration.rollNumber}</p>
               </div>
            </div>
            
            <div className="grid grid-cols-2 gap-4 relative z-10">
               <div className="space-y-1">
-                 <p className="text-[8px] font-black uppercase text-gray-800 dark:text-gray-300 tracking-tighter">Exam Date</p>
+                 <p className="text-[8px] font-black uppercase text-slate-800 dark:text-slate-300 tracking-tighter">Exam Date</p>
                  <p className="text-sm font-bold opacity-90">{new Date(registration.testDate).toLocaleDateString()}</p>
               </div>
               <div className="space-y-1 text-right">
-                 <p className="text-[8px] font-black uppercase text-gray-800 dark:text-gray-300 tracking-tighter">Status</p>
+                 <p className="text-[8px] font-black uppercase text-slate-800 dark:text-slate-300 tracking-tighter">Status</p>
                  <p className="text-sm font-bold text-green-400 flex items-center justify-end gap-1 drop-shadow-sm">
                     <CheckCircle2 size={12} /> Active
                  </p>
@@ -59,7 +59,7 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
 
         {/* Test Summary */}
         <div className="space-y-3">
-           <h3 className="text-xs font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
+           <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
               <ClipboardList size={14} /> Full Test Modules
            </h3>
            <div className="grid grid-cols-1 gap-2">
@@ -68,7 +68,7 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
               <ModuleRow icon={PenTool} label="Writing" time="60 minutes" color="text-orange-400" />
               <ModuleRow icon={Mic2} label="Speaking" time="14 minutes" color="text-lime-400" />
            </div>
-           <div className="p-3 bg-black/5 dark:bg-white/5 rounded-xl text-center border border-black/5 dark:border-white/5 shadow-inner">
+           <div className="p-3 bg-slate-200 dark:bg-white/5 rounded-xl text-center border border-slate-200 dark:border-white/5 shadow-inner">
               <p className="text-xs font-bold text-black dark:text-white">Total Duration: ~2h 44min</p>
            </div>
         </div>
@@ -90,7 +90,7 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
         <div className="space-y-3">
            <button 
              onClick={onStart}
-             className="w-full py-5 bg-gradient-to-r from-[#84cc16] to-[#65a30d] hover:brightness-110 text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] transition-all shadow-[0_15px_30px_-5px_rgba(132,204,22,0.6)] active:scale-95 border border-white/20"
+             className="w-full py-5 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] hover:brightness-110 text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] transition-all shadow-[0_15px_30px_-5px_rgba(14,165,233,0.6)] active:scale-95 border border-white/20"
            >
               <Rocket size={20} />
               Start IELTS Test
@@ -99,7 +99,7 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
            <button 
              onClick={onDelay}
              disabled={delaysUsed >= 2}
-             className="w-full py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all disabled:opacity-20 disabled:grayscale text-gray-800 dark:text-gray-200 backdrop-blur-md"
+             className="w-full py-4 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/10 border border-slate-300 dark:border-white/10 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all disabled:opacity-20 disabled:grayscale text-slate-800 dark:text-slate-200 backdrop-blur-md"
            >
               <Clock size={16} />
               Delay 10 Minutes ({2 - delaysUsed} left)
@@ -120,14 +120,14 @@ export default function TestStartPopup({ registration, onStart, onDelay, onCance
 
 function ModuleRow({ icon: Icon, label, time, color }: any) {
   return (
-    <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+    <div className="flex items-center justify-between p-3 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
        <div className="flex items-center gap-3">
-          <div className={`p-2 bg-black/5 dark:bg-white/5 rounded-lg ${color}`}>
+          <div className={`p-2 bg-slate-200 dark:bg-white/5 rounded-lg ${color}`}>
              <Icon size={16} />
           </div>
           <span className="text-sm font-bold">{label}</span>
        </div>
-       <span className="text-[10px] font-black uppercase text-gray-800 dark:text-gray-200">{time}</span>
+       <span className="text-[10px] font-black uppercase text-slate-800 dark:text-slate-200">{time}</span>
     </div>
   );
 }

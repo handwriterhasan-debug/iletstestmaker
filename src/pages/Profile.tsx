@@ -25,11 +25,13 @@ import {
   FilePlus,
   ExternalLink,
   Plus,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ieltsService } from '../services/ieltsService';
+import { jsPDF } from 'jspdf';
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -78,6 +80,97 @@ export default function Profile() {
     testsThisMonth: 0,
     bestBand: 0
   });
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(22);
+    doc.setTextColor(2, 132, 199); // Sky blue color
+    doc.text('IELTS Performance Summary', 20, 20);
+
+    // Profile Info
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Name: ${profile?.full_name || 'IELTS Candidate'}`, 20, 35);
+    doc.text(`Email: ${user?.email || 'N/A'}`, 20, 42);
+    
+    // Average Score
+    const totalScore = history.reduce((acc, h) => acc + (h.overall_band || 0), 0);
+    const avgScore = history.length > 0 ? (totalScore / history.length).toFixed(1) : 'N/A';
+    doc.text(`Average Overall Band: ${avgScore}`, 20, 49);
+    doc.text(`Total Tests Taken: ${history.length}`, 20, 56);
+    doc.text(`Practice Sessions Completed: ${practiceHistory.length}`, 20, 63);
+
+    let y = 80;
+    
+    // Tests Header
+    doc.setFontSize(16);
+    doc.setTextColor(2, 132, 199);
+    doc.text('Official Test History', 20, y);
+    y += 10;
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    history.slice(0, 40).forEach((res, index) => { 
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      const date = res.test_registrations?.test_date ? new Date(res.test_registrations.test_date).toLocaleDateString() : new Date(res.created_at).toLocaleDateString();
+      const roll = res.roll_number || res.test_registrations?.roll_number || 'Mock Test';
+      const band = (res.overall_band || 0).toFixed(1);
+      
+      const sL = (res.listening_score ?? res.listening_band ?? 0).toFixed(1);
+      const sR = (res.reading_score ?? res.reading_band ?? 0).toFixed(1);
+      const sW = (res.writing_score ?? res.writing_band ?? 0).toFixed(1);
+      const sS = (res.speaking_score ?? res.speaking_band ?? 0).toFixed(1);
+
+      doc.setFont(undefined, 'bold');
+      doc.text(`${index + 1}. Date: ${date} | Roll: ${roll} | Overall Band: ${band}`, 20, y);
+      y += 6;
+      doc.setFont(undefined, 'normal');
+      doc.text(`     L: ${sL}  R: ${sR}  W: ${sW}  S: ${sS}`, 20, y);
+      y += 8;
+    });
+
+    if (history.length === 0) {
+       doc.text('No completed tests in history.', 20, y);
+       y += 8;
+    }
+
+    y += 10;
+
+    // Practice Header
+    if (y > 250) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.setFontSize(16);
+    doc.setTextColor(2, 132, 199);
+    doc.text('Practice History', 20, y);
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    practiceHistory.slice(0, 40).forEach((res, index) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      const date = new Date(res.created_at).toLocaleDateString();
+      const section = res.section ? res.section.toUpperCase() : 'N/A';
+      const band = res.score ? res.score.toFixed(1) : 'N/A';
+      doc.text(`${index + 1}. Date: ${date} | Section: ${section} | Est. Band: ${band}`, 20, y);
+      y += 8;
+    });
+
+    if (practiceHistory.length === 0) {
+       doc.text('No practice history recorded.', 20, y);
+    }
+    
+    doc.save('IELTS_Performance_Summary.pdf');
+  };
 
   const [editForm, setEditForm] = useState({
     full_name: '',
@@ -269,7 +362,7 @@ export default function Profile() {
   };
 
   const getBandColor = (score: number) => {
-    if (score >= 8) return 'bg-[#84cc16]';
+    if (score >= 8) return 'bg-[#0ea5e9]';
     if (score >= 6) return 'bg-green-500';
     if (score >= 5) return 'bg-yellow-500';
     return 'bg-red-500';
@@ -279,34 +372,47 @@ export default function Profile() {
   // if (loading) return ...
 
   return (
-    <div className="min-h-screen p-6 pb-32">
+    <div className="min-h-screen p-6 pb-32 max-w-[1400px] mx-auto w-full">
       <header className="pt-8 mb-10 flex justify-between items-end gap-4">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/app')} className="p-3 glass-card rounded-full hover:bg-black/10 dark:bg-white/10 transition-colors">
+          <button onClick={() => navigate('/app')} className="p-3 glass-card rounded-full hover:bg-slate-300 dark:bg-white/10 transition-colors">
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-3xl font-black uppercase tracking-tight">Your Profile</h1>
-            <p className="text-gray-800 dark:text-gray-200 text-sm font-bold uppercase tracking-widest mt-1">Administer your learning</p>
+            <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight">Your Profile</h1>
+            <p className="text-slate-800 dark:text-slate-200 text-sm font-bold uppercase tracking-widest mt-1">Administer your learning</p>
           </div>
         </div>
-        <button 
-          onClick={() => setShowResetConfirm(true)}
-          className="p-3 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20 group relative"
-          title="Reset All Data"
-        >
-          <Trash2 size={20} />
-          <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[8px] font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Reset All Data</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={async () => {
+              await signOut();
+              navigate('/');
+            }}
+            className="p-3 bg-slate-200 dark:bg-white/5 text-slate-800 dark:text-slate-200 rounded-2xl hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/10 transition-all border border-slate-300 dark:border-white/10 group relative"
+            title="Log Out"
+          >
+            <LogOut size={20} />
+            <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-black text-[8px] font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Log Out</span>
+          </button>
+          <button 
+            onClick={() => setShowResetConfirm(true)}
+            className="p-3 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20 group relative"
+            title="Reset All Data"
+          >
+            <Trash2 size={20} />
+            <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[8px] font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">Reset All Data</span>
+          </button>
+        </div>
       </header>
 
       <main className="space-y-8">
         {/* Profile Card */}
-        <div className="glass-card p-10 relative overflow-hidden group">
+        <div className="glass-card p-6 sm:p-10 relative overflow-hidden group">
            <div className="absolute top-0 right-0 p-4">
               <button 
                 onClick={() => setEditing(!editing)}
-                className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] hover:underline"
+                className="text-[10px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8] hover:underline"
               >
                 {editing ? 'Cancel' : 'Edit Profile'}
               </button>
@@ -314,15 +420,15 @@ export default function Profile() {
            
            <div className="flex flex-col items-center space-y-6">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-[#84cc16] bg-black/5 dark:bg-white/5 flex items-center justify-center overflow-hidden shadow-2xl transition-transform group-hover:scale-105">
+                <div className="w-32 h-32 rounded-full border-4 border-[#0ea5e9] bg-slate-200 dark:bg-white/5 flex items-center justify-center overflow-hidden shadow-2xl transition-transform group-hover:scale-105">
                    {profile?.avatar_url ? (
                       <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                    ) : (
-                      <User size={64} className="text-[#65a30d] dark:text-[#a3e635]/30" />
+                      <User size={64} className="text-[#0284c7] dark:text-[#38bdf8]/30" />
                    )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-3 bg-[#84cc16] rounded-full shadow-lg border-4 border-[var(--bg-page)] cursor-pointer hover:scale-110 transition-transform">
-                   <Camera size={16} className="text-gray-900 dark:text-white" />
+                <label className="absolute bottom-0 right-0 p-3 bg-[#0ea5e9] rounded-full shadow-lg border-4 border-[var(--bg-page)] cursor-pointer hover:scale-110 transition-transform">
+                   <Camera size={16} className="text-slate-900 dark:text-white" />
                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={saving} />
                 </label>
               </div>
@@ -346,21 +452,21 @@ export default function Profile() {
               {editing ? (
                 <div className="w-full space-y-4">
                    <div className="space-y-2">
-                      <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Full Name</p>
+                      <p className="text-[10px] text-slate-800 dark:text-slate-200 font-bold uppercase tracking-widest">Full Name</p>
                       <input 
                         type="text" 
                         value={editForm.full_name}
                         onChange={(e) => setEditForm(v => ({ ...v, full_name: e.target.value }))}
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#84cc16]"
+                        className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#0ea5e9]"
                       />
                    </div>
                    <div className="space-y-2">
-                      <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Age</p>
+                      <p className="text-[10px] text-slate-800 dark:text-slate-200 font-bold uppercase tracking-widest">Age</p>
                       <input 
                         type="number" 
                         value={editForm.age}
                         onChange={(e) => setEditForm(v => ({ ...v, age: e.target.value }))}
-                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#84cc16]"
+                        className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-3 px-4 focus:outline-none focus:border-[#0ea5e9]"
                       />
                    </div>
                    <button 
@@ -373,9 +479,9 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="text-center space-y-1">
-                  <h2 className="text-2xl font-black tracking-tight">{profile?.full_name}</h2>
-                  <p className="text-gray-800 dark:text-gray-200 font-bold flex items-center justify-center gap-2"><Mail size={14} /> {profile?.email}</p>
-                  <p className="text-xs text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest mt-2">{profile?.age} Years Old • Candidate</p>
+                  <h2 className="text-xl sm:text-2xl font-black tracking-tight">{profile?.full_name}</h2>
+                  <p className="text-slate-800 dark:text-slate-200 font-bold flex items-center justify-center gap-2"><Mail size={14} /> {profile?.email}</p>
+                  <p className="text-xs text-[#0284c7] dark:text-[#38bdf8] font-black uppercase tracking-widest mt-2">{profile?.age} Years Old • Candidate</p>
                 </div>
               )}
            </div>
@@ -383,7 +489,7 @@ export default function Profile() {
 
         {/* My Test Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
              <Rocket size={16} /> My Scheduled Test
            </h3>
            {ieltsReg ? (
@@ -392,7 +498,7 @@ export default function Profile() {
                    <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase text-black dark:text-white tracking-widest">Registered IELTS Test</p>
                       <div className="flex items-center gap-2">
-                        <Fingerprint size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
+                        <Fingerprint size={14} className="text-[#0284c7] dark:text-[#38bdf8]" />
                         <p className="text-xl font-mono font-bold">{ieltsReg.rollNumber}</p>
                       </div>
                    </div>
@@ -401,23 +507,23 @@ export default function Profile() {
                    </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-y border-black/5 dark:border-white/5 py-4">
+                <div className="grid grid-cols-2 gap-4 border-y border-slate-200 dark:border-white/5 py-4">
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                          <Calendar size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Date</span>
                       </div>
                       <p className="text-xs font-bold">{new Date(ieltsReg.testDate).toLocaleDateString()}</p>
                    </div>
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                          <Clock size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Time</span>
                       </div>
                       <p className="text-xs font-bold">{new Date(ieltsReg.testDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                    </div>
                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                          <Flame size={12} />
                          <span className="text-[8px] font-black uppercase tracking-widest">Practices</span>
                       </div>
@@ -429,7 +535,7 @@ export default function Profile() {
                    <button 
                     onClick={copyRoll}
                     className={`flex-1 p-3 rounded-xl flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-widest transition-all ${
-                      showCopied ? 'bg-green-500 text-white' : 'bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:bg-white/10 text-gray-900 dark:text-white'
+                      showCopied ? 'bg-green-500 text-white' : 'bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300 dark:bg-white/10 text-slate-900 dark:text-white'
                     }`}
                    >
                      {showCopied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
@@ -444,11 +550,11 @@ export default function Profile() {
                 </div>
              </div>
            ) : (
-             <div className="glass-card p-10 text-center space-y-4">
-                <p className="text-xs text-gray-800 dark:text-gray-200 italic">No target test registered yet.</p>
+             <div className="glass-card p-6 sm:p-10 text-center space-y-4">
+                <p className="text-xs text-slate-800 dark:text-slate-200 italic">No target test registered yet.</p>
                 <button 
                   onClick={() => navigate('/app')}
-                  className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] hover:underline"
+                  className="text-[10px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8] hover:underline"
                 >
                   Register Now to set a target 🎯
                 </button>
@@ -458,13 +564,13 @@ export default function Profile() {
 
         {/* Stats Grid */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
              <TrendingUp size={16} /> Performance Insights
            </h3>
            <div className="grid grid-cols-2 gap-4">
               <StatCard label="Practice Streak" value={`${stats.streak} Days`} icon={<Flame className="text-orange-500" size={18} />} />
               <StatCard label="This Month" value={`${stats.testsThisMonth} / 3`} icon={<Calendar size={18} className="text-blue-500" />} />
-              <StatCard label="Best Band" value={stats.bestBand.toFixed(1)} icon={<Award size={18} className="text-[#65a30d] dark:text-[#a3e635]" />} />
+              <StatCard label="Best Band" value={stats.bestBand.toFixed(1)} icon={<Award size={18} className="text-[#0284c7] dark:text-[#38bdf8]" />} />
               <StatCard label="Avg Practice" value="7.5" icon={<TrendingUp size={18} className="text-green-500" />} />
            </div>
         </section>
@@ -472,7 +578,7 @@ export default function Profile() {
         {/* Professional Optimization Section */}
         <section className="space-y-4">
            <div className="flex items-center justify-between">
-             <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
+             <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
                <Award size={16} /> Profile Optimization
              </h3>
              {profile?.resume_url && (
@@ -480,24 +586,24 @@ export default function Profile() {
              )}
            </div>
            
-           <div className="glass-card p-6 border-[#84cc16]/20 bg-gradient-to-br from-[#84cc16]/5 to-transparent">
+           <div className="glass-card p-6 border-[#0ea5e9]/20 bg-gradient-to-br from-[#0ea5e9]/5 to-transparent">
               <div className="flex flex-col sm:flex-row gap-6 items-center">
-                 <div className="w-24 h-32 bg-black/5 dark:bg-white/5 rounded-xl border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center relative group overflow-hidden">
+                 <div className="w-24 h-32 bg-slate-200 dark:bg-white/5 rounded-xl border-2 border-dashed border-slate-300 dark:border-white/10 flex flex-col items-center justify-center relative group overflow-hidden">
                     {profile?.resume_url ? (
                       <img src={profile.resume_url} alt="Resume" className="w-full h-full object-cover" />
                     ) : (
                       <div className="text-center space-y-2">
-                        <FilePlus size={24} className="text-gray-500 dark:text-gray-400 mx-auto" />
-                        <span className="text-[8px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-tighter">No Resume</span>
+                        <FilePlus size={24} className="text-slate-500 dark:text-slate-400 mx-auto" />
+                        <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-tighter">No Resume</span>
                       </div>
                     )}
                  </div>
                  <div className="flex-1 space-y-3 text-center sm:text-left">
-                    <h4 className="font-bold text-gray-900 dark:text-white">Upload Resume (PNG)</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white">Upload Resume (PNG)</h4>
                     <p className="text-xs text-black dark:text-white italic">Adding your resume helps us tailor your study plan and optimize your candidate profile for premium opportunities.</p>
                     
                     <div className="flex flex-wrap gap-2 justify-center sm:justify-start pt-2">
-                       <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${resuming ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#84cc16] hover:bg-[#84cc16] shadow-lg shadow-[#84cc16]/20'}`}>
+                       <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${resuming ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#0ea5e9] hover:bg-[#0ea5e9] shadow-lg shadow-[#0ea5e9]/20'}`}>
                           {resuming ? 'Optimizing...' : (profile?.resume_url ? 'Update PNG Resume' : 'Add PNG Resume')}
                           <input type="file" className="hidden" accept="image/png,image/jpeg" onChange={handleResumeUpload} disabled={resuming} />
                        </label>
@@ -505,7 +611,7 @@ export default function Profile() {
                        {profile?.resume_url && (
                          <button 
                            onClick={() => window.open(profile.resume_url, '_blank')}
-                           className="inline-flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 border border-black/10 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                           className="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 border border-slate-300 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                          >
                            View Full PNG <ExternalLink size={12} />
                          </button>
@@ -518,56 +624,56 @@ export default function Profile() {
 
         {/* Practice History Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
+           <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
              <TrendingUp size={16} /> Practice History
            </h3>
            <div className="grid grid-cols-1 gap-3">
               {practiceHistory.length > 0 ? practiceHistory.map((res: any, idx: number) => (
                 <motion.div 
                   key={idx}
-                  className="glass-card p-5 border border-[#84cc16]/20 bg-gradient-to-r from-[#84cc16]/5 to-transparent flex flex-col gap-4"
+                  className="glass-card p-5 border border-[#0ea5e9]/20 bg-gradient-to-r from-[#0ea5e9]/5 to-transparent flex flex-col gap-4"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#84cc16] shadow-lg">
+                       <div className="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-[#0ea5e9] shadow-lg">
                           <span className="text-[8px] font-black text-white/80 leading-none">BAND</span>
                           <span className="text-lg font-black text-white leading-none">{res.score?.toFixed(1) || '0.0'}</span>
                        </div>
                        <div>
                           <div className="flex items-center gap-2">
-                             <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">
+                             <span className="text-[10px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">
                                {new Date(res.created_at).toLocaleDateString()}
                              </span>
                              <span className="w-1 h-1 rounded-full bg-gray-600" />
-                             <span className="text-[10px] font-bold text-black dark:text-white capitalize text-[#65a30d]">
+                             <span className="text-[10px] font-bold text-black dark:text-white capitalize text-[#0284c7]">
                                {res.duration_minutes} Min
                              </span>
                           </div>
-                          <p className="font-bold text-sm tracking-tight text-gray-900/90 dark:text-white/90 mt-0.5 capitalize">{res.section} Practice</p>
+                          <p className="font-bold text-sm tracking-tight text-slate-900/90 dark:text-white/90 mt-0.5 capitalize">{res.section} Practice</p>
                           {(res.scores?.listening !== undefined || res.scores?.reading !== undefined) && (
-                            <p className="text-[8px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mt-1">
+                            <p className="text-[8px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest mt-1">
                                L: {res.scores?.listening || 0}/40 • R: {res.scores?.reading || 0}/40
                             </p>
                           )}
                        </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635]">PRACTICE</span>
+                      <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-[#0ea5e9]/10 text-[#0284c7] dark:text-[#38bdf8]">PRACTICE</span>
                     </div>
                   </div>
                   
                   {res.ai_analysis && (
-                    <div className="mt-2 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-xs text-gray-800 dark:text-gray-200">
+                    <div className="mt-2 p-3 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 text-xs text-slate-800 dark:text-slate-200">
                       <div className="flex items-center gap-2 mb-2">
-                        <Sparkles size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
-                        <span className="font-black uppercase tracking-widest text-[9px] text-[#65a30d] dark:text-[#a3e635]">AI Feedback</span>
+                        <Sparkles size={14} className="text-[#0284c7] dark:text-[#38bdf8]" />
+                        <span className="font-black uppercase tracking-widest text-[9px] text-[#0284c7] dark:text-[#38bdf8]">AI Feedback</span>
                       </div>
                       <p className="font-medium leading-relaxed mb-3">{res.ai_analysis.feedback}</p>
                       
                       {res.ai_analysis.breakdown && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                           {Object.entries(res.ai_analysis.breakdown).map(([key, val]: any) => (
-                            <div key={key} className="bg-black/5 dark:bg-white/5 p-2 rounded-lg text-center">
+                            <div key={key} className="bg-slate-200 dark:bg-white/5 p-2 rounded-lg text-center">
                               <p className="text-[8px] uppercase font-black tracking-widest opacity-60 mb-1 truncate">{key}</p>
                               <p className="font-bold">{val}</p>
                             </div>
@@ -580,7 +686,7 @@ export default function Profile() {
                            <p className="text-[8px] uppercase font-black tracking-widest opacity-60 mb-1">Key Suggestions</p>
                            {res.ai_analysis.suggestions.slice(0, 2).map((suggestion: string, idx: number) => (
                              <p key={idx} className="flex gap-2 text-[10px]">
-                               <span className="text-[#65a30d]">•</span> {suggestion}
+                               <span className="text-[#0284c7]">•</span> {suggestion}
                              </p>
                            ))}
                         </div>
@@ -589,7 +695,7 @@ export default function Profile() {
                   )}
                 </motion.div>
               )) : (
-                <div className="glass-card p-10 text-center text-xs text-gray-800 dark:text-gray-200 italic">
+                <div className="glass-card p-10 text-center text-xs text-slate-800 dark:text-slate-200 italic">
                    No practice history recorded.
                 </div>
               )}
@@ -598,13 +704,22 @@ export default function Profile() {
 
         {/* History Section */}
         <section className="space-y-4">
-           <h3 className="text-sm font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2">
-             <History size={16} /> Official Test History
-           </h3>
+           <div className="flex items-center justify-between">
+             <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-2">
+               <History size={16} /> Official Test History
+             </h3>
+             <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0ea5e9]/10 text-[#0284c7] dark:text-[#38bdf8] border border-[#0ea5e9]/20 rounded-lg hover:bg-[#0ea5e9]/20 transition-all font-bold text-[10px] uppercase tracking-widest"
+             >
+                <Download size={14} />
+                Export PDF
+             </button>
+           </div>
            <div className="space-y-3">
-              {history.length > 0 ? history.map((res: any) => (
+              {history.length > 0 ? history.map((res: any, idx: number) => (
                 <motion.div 
-                  key={res.id}
+                  key={res.id || idx}
                   whileHover={{ x: 5 }}
                   className="glass-card p-4 flex items-center justify-between group"
                 >
@@ -614,15 +729,15 @@ export default function Profile() {
                      </div>
                      <div>
                         <p className="font-bold text-sm tracking-tight">{res.roll_number || res.test_registrations?.roll_number || 'Mock Test'}</p>
-                        <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest">
+                        <p className="text-[10px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest">
                            {res.test_registrations?.test_date ? new Date(res.test_registrations.test_date).toLocaleDateString() : new Date(res.created_at).toLocaleDateString()}
                         </p>
                      </div>
                   </div>
-                  <ChevronRight size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:text-white transition-colors" />
+                  <ChevronRight size={18} className="text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:text-white transition-colors" />
                 </motion.div>
               )) : (
-                <div className="glass-card p-10 text-center text-xs text-gray-800 dark:text-gray-200 italic">
+                <div className="glass-card p-10 text-center text-xs text-slate-800 dark:text-slate-200 italic">
                    No completed tests in history.
                 </div>
               )}
@@ -635,14 +750,14 @@ export default function Profile() {
         {showCancelConfirm && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCancelConfirm(false)} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000]" />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[320px] bg-[var(--bg-page)] border border-black/10 dark:border-white/10 rounded-[32px] p-8 z-[10001] text-center space-y-6">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[320px] bg-[var(--bg-page)] border border-slate-300 dark:border-white/10 rounded-[32px] p-8 z-[10001] text-center space-y-6">
                <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
                   <AlertTriangle size={32} />
                </div>
                <div className="space-y-2">
                   <h4 className="text-lg font-bold">Cancel Registration?</h4>
-                  <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed">
-                    This will permanently clear your target test date and roll number: <span className="text-[#65a30d] dark:text-[#a3e635] font-mono">{ieltsReg?.rollNumber}</span>. This action cannot be undone.
+                  <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed">
+                    This will permanently clear your target test date and roll number: <span className="text-[#0284c7] dark:text-[#38bdf8] font-mono">{ieltsReg?.rollNumber}</span>. This action cannot be undone.
                   </p>
                </div>
                <div className="space-y-2">
@@ -654,7 +769,7 @@ export default function Profile() {
                   </button>
                   <button 
                     onClick={() => setShowCancelConfirm(false)}
-                    className="w-full py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 rounded-2xl font-bold text-xs transition-all"
+                    className="w-full py-4 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 rounded-2xl font-bold text-xs transition-all"
                   >
                      Keep Registration
                   </button>
@@ -669,13 +784,13 @@ export default function Profile() {
         {showResetConfirm && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowResetConfirm(false)} className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10000]" />
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[320px] bg-[var(--bg-page)] border border-black/10 dark:border-white/10 rounded-[32px] p-8 z-[10001] text-center space-y-6">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[320px] bg-[var(--bg-page)] border border-slate-300 dark:border-white/10 rounded-[32px] p-8 z-[10001] text-center space-y-6">
                <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
                   <Trash2 size={32} />
                </div>
                <div className="space-y-2">
                   <h4 className="text-lg font-bold">Wipe All Data?</h4>
-                  <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed uppercase tracking-tighter font-medium">
+                  <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed uppercase tracking-tighter font-medium">
                     This will delete your profile, practice history, and all registrations. You will start completely fresh.
                   </p>
                </div>
@@ -688,7 +803,7 @@ export default function Profile() {
                   </button>
                   <button 
                     onClick={() => setShowResetConfirm(false)}
-                    className="w-full py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 rounded-2xl font-bold text-xs transition-all uppercase tracking-widest"
+                    className="w-full py-4 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 rounded-2xl font-bold text-xs transition-all uppercase tracking-widest"
                   >
                      Keep Everything
                   </button>
@@ -705,10 +820,10 @@ export default function Profile() {
 
 function StatCard({ label, value, icon }: any) {
   return (
-    <div className="glass-card p-5 flex flex-col items-center gap-2 text-center border-black/5 dark:border-white/5 bg-white/[0.02]">
-       <div className="p-3 bg-black/5 dark:bg-white/5 rounded-2xl mb-1">{icon}</div>
-       <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest leading-none">{label}</p>
-       <p className="text-xl font-black text-gray-900 dark:text-white">{value}</p>
+    <div className="glass-card p-5 flex flex-col items-center gap-2 text-center border-slate-200 dark:border-white/5 bg-white/[0.02]">
+       <div className="p-3 bg-slate-200 dark:bg-white/5 rounded-2xl mb-1">{icon}</div>
+       <p className="text-[10px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest leading-none">{label}</p>
+       <p className="text-xl font-black text-slate-900 dark:text-white">{value}</p>
     </div>
   )
 }

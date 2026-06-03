@@ -1,24 +1,40 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
+import { getSecureStorage } from '../lib/security';
+import { jsonrepair } from 'jsonrepair';
 
-let aiClient: typeof GoogleGenAI.prototype | null = null;
-function getAiClient() {
-  if (!aiClient) {
-    let key = '';
-    try { key = (import.meta as any).env.VITE_GEMINI_API_KEY || ''; } catch(e) {}
-    if (!key) {
-      try { key = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY || '' : ''; } catch(e) {}
+function safeParseJSON(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch (e1) {
+    console.warn("JSON.parse failed, attempting jsonrepair...", e1);
+    try {
+      return JSON.parse(jsonrepair(text));
+    } catch (e2) {
+      console.error("jsonrepair also failed:", e2);
+      throw e2;
     }
-    if (!key) {
-      console.error("GEMINI_API_KEY is missing!");
-    }
-    aiClient = new GoogleGenAI({ apiKey: key || 'missing_key' });
   }
-  return aiClient;
+}
+
+async function generateContentProxy(params: any): Promise<{ text: string }> {
+  try {
+    const res = await fetch('/api/generateContent', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(params)
+    });
+    if (!res.ok) {
+       const text = await res.text();
+       throw new Error(`API error: ${res.status} ${text}`);
+    }
+    return await res.json();
+  } catch (e: any) {
+    console.error("Proxy error:", e);
+    throw e;
+  }
 }
 
 export async function extractKnowledgeFromFile(file: File): Promise<string> {
-  const ai = getAiClient();
-  
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -31,7 +47,7 @@ export async function extractKnowledgeFromFile(file: File): Promise<string> {
 
   const mimeType = file.type;
   
-  const response = await ai.models.generateContent({
+  const response = await generateContentProxy({
     model: 'gemini-2.5-flash',
     contents: [
       {
@@ -75,7 +91,7 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const responseText = await Promise.race([
-          getAiClient().models.generateContent({
+          generateContentProxy({
             model: "gemini-2.5-flash",
             contents: `Prompt: ${prompt}\n\nEssay: ${essay}`,
             config: {
@@ -105,10 +121,10 @@ export async function scoreIELTSEssay(prompt: string, essay: string, taskType: 1
               }
             }
           }).then(res => res.text),
-          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 45000))
+          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 80000))
         ]);
 
-        return JSON.parse(responseText || '{}');
+        return safeParseJSON(responseText || '{}');
       } catch (e: any) {
         if (attempt === 2) throw e;
       }
@@ -168,7 +184,7 @@ export async function scoreIELTSSpeaking(userResponses: (string | { base64: stri
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const responseText = await Promise.race([
-          getAiClient().models.generateContent({
+          generateContentProxy({
             model: "gemini-2.5-flash",
             contents: parts,
             config: {
@@ -198,10 +214,10 @@ export async function scoreIELTSSpeaking(userResponses: (string | { base64: stri
               }
             }
           }).then(res => res.text),
-          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 45000))
+          new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 80000))
         ]);
 
-        return JSON.parse(responseText || '{}');
+        return safeParseJSON(responseText || '{}');
       } catch (e: any) {
         if (attempt === 2) throw e;
       }
@@ -228,13 +244,13 @@ export async function generateDynamicTestSet(
   } else {
     if (options.customFilfoId || options.customFilfoTitle) {
       try {
-        const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
+        const filfoData = getSecureStorage('filfo_practice', []);
         const match = filfoData.find((d: any) => 
           (options.customFilfoId && d.id === options.customFilfoId) ||
           (options.customFilfoTitle && d.title === options.customFilfoTitle)
         );
         if (match) {
-          finalRefs = [`Title: ${match.title}\nAdmin Assigned Difficulty: ${match.difficulty || 'Average'}\nContent: ${match.content}${match.imageUrl ? `\nImage URL: ${match.imageUrl}` : ''}`];
+          finalRefs = [`Title: ${match.title}\nAdmin Assigned Difficulty: ${match.difficulty || 'Average'}\nContent: ${match.content}${match.imageUrl ? `\nImage URL: [FILFO_IMAGE:${match.id}]` : ''}`];
         }
       } catch (e) {
         // Ignore JSON parse errors
@@ -278,15 +294,20 @@ export async function generateDynamicTestSet(
   Part 2 cue card: Describe a place you have visited that made a strong impression on you. The student should say where the place is and when they visited, what they did and saw there, why it made a strong impression, and whether they would like to return. One minute preparation time, then speak for one to two minutes.
   Part 3 discussion topics are Tourism and Travel with questions about why people enjoy visiting new places, how tourism has changed in your country, advantages and disadvantages of international tourism for local communities, whether mass tourism causes more harm than good, how travel might change due to climate change, and whether virtual tourism will ever replace real travel.
 
-  You will also be provided with "Reference Knowledge" entries. Each entry may contain an "Admin Assigned Difficulty". 
-  You MUST base the test around this knowledge AND try to match the test questions' difficulty to BOTH the TARGET STUDENT DIFFICULTY LEVEL and the Admin Assigned Difficulty of the knowledge.
+  You will also be provided with "Reference Knowledge" entries from the FILFO vault. Each entry may contain an "Admin Assigned Difficulty". 
+
+  CRITICAL KNOWLEDGE SOURCE RULE:
+  - If 1 Reference Knowledge entry is provided, you MUST use it for EVERYTHING (Listening, Reading, Writing, Speaking). Base all sections on this single topic.
+  - If multiple Reference Knowledge entries are provided, pick different ones randomly for Listening, Reading, Writing, and Speaking so each section comes from a different knowledge source.
+  - ONLY IF ZERO Reference Knowledge entries are provided, generate the entire test from the built-in IELTS knowledge provided above.
+  DO NOT mix the built-in IELTS knowledge with Reference Knowledge if Reference Knowledge is available.
+
+  You MUST try to match the test questions' difficulty to BOTH the TARGET STUDENT DIFFICULTY LEVEL and the Admin Assigned Difficulty of the knowledge.
   If the Admin Assigned Difficulty is different from the TARGET STUDENT DIFFICULTY LEVEL, blend them reasonably or lean towards the Student Difficulty Level.
 
-  Mix and match randomly so that sometimes Listening comes from the furniture conversation, sometimes from Judy's research, sometimes from the learner persistence lecture, and sometimes from the custom Reference Knowledge. Reading questions can come from Marie Curie or Older Workers randomly. Always use the correct answers provided above when checking student responses for objective sections. Never reveal the correct answers to the student during the test. Only reveal them in the results screen after submission.
+  Always apply the TARGET STUDENT DIFFICULTY LEVEL strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
 
-  You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
-
-  Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
+  Regarding difficulty level, ALL questions MUST be generated to be EXTREMELY TRICKY and HARD with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible, nuanced, and use deceptive paraphrasing to trick the student. Questions should require deep inference, critical thinking, and advanced academic C1/C2 vocabulary to challenge even Expert candidates. Do not provide easy hints. Make it feel like the hardest possible version of the IELTS test.
 
   CRITICAL STABILITY AND PERFORMANCE RULES — These rules must be followed at all times without exception to prevent errors, crashes, and slow loading.
   You must never return incomplete JSON under any circumstances. Every single response you generate must be a complete, valid, fully closed JSON object. Never leave a JSON array open. Never leave a bracket unclosed. Never stop generating mid-response. If your response is getting long, simplify the content of each question but always complete the full JSON structure before stopping. An incomplete JSON response is a critical failure.
@@ -303,37 +324,42 @@ export async function generateDynamicTestSet(
   
   You must apply the difficulty level strictly to every single question, every passage, every audio script, and every MCQ option you create throughout the test. Do not ignore it. Do not default to easy questions.
 
-  Regarding difficulty level, ALL questions MUST be generated to be extremely tricky and hard with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible and nuanced. Questions should require deep inference and academic vocabulary to challenge even Expert candidates. Do not provide easy hints.
+  Regarding difficulty level, ALL questions MUST be generated to be EXTREMELY TRICKY and HARD with no obvious hints. This applies to all sections (Listening, Reading, Writing, Speaking). Distractors in MCQs should be highly plausible, nuanced, and use deceptive paraphrasing to trick the student. Questions should require deep inference, critical thinking, and advanced academic C1/C2 vocabulary to challenge even Expert candidates. Do not provide easy hints. Make it feel like the hardest possible version of the IELTS test.
 
   STRICT QUESTION COUNT AND FORMAT RULES:
-  The Listening section must have exactly 10 Multiple Choice Questions.
-  The Reading section must have exactly 10 questions which can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but total must equal 10.
+  The Listening section must have exactly 20 Multiple Choice Questions.
+  The Reading section must have exactly 20 questions which can be a mix of Multiple Choice, True False Not Given, and Sentence Completion but total must equal 20.
+  The Reading passages MUST be large to require careful reading.
   Every Multiple Choice Question without exception must have exactly 4 options labeled A, B, C, and D.
-  The Writing section must have exactly 2 tasks (Task 1 and Task 2). For Task 1, if there is an Image URL in the reference content (e.g. a celebrity or an incident like a war), you must use type="image", provide the imageUrl, and ask the candidate to describe the context or the picture. Otherwise, use type="table" and provide a proper short table of data related to the topic. For Task 2, ask an opinion-based question related to the topic.
+  The Writing section must have exactly 3 tasks (Task 1, Task 2, and Task 3).
+  For Task 1: Ask the candidate to write about a celebrity, their profession, and what they do in life. If there is an Image URL (e.g. [FILFO_IMAGE:xyz]) ANYWHERE in the provided reference content, YOU MUST ABSOLUTELY include an "imageUrl" field with that exact string, and set "type" to "image". Otherwise set "type" to "image" and prompt them to describe their favorite celebrity.
+  For Task 2: Provide a data table or spreadsheet and ask the student to define/describe it. Set "type" to "table", and provide a detailed "data" object (e.g. array of objects with rows/columns) for the student to describe.
+  For Task 3: Provide an essay prompt asking the student to write about current affairs or a given topic.
   The Speaking section must have exactly 3 parts: Part 1 (3 warm-up questions), Part 2 (1 cue card), Part 3 (3 discussion questions).
   
   CRITICAL WORD COUNT RULES:
-  Keep Reading passages between 400 and 700 words maximum.
-  Keep Listening audio scripts between 200 and 400 words maximum.
-  Keep Writing prompts under 80 words each.
+  Keep Reading passages between 700 and 900 words to ensure it fits in the response limit.
+  Keep Listening audio scripts between 400 and 600 words maximum.
+  Keep Writing Task 3 prompts under 80 words each.
   Keep Speaking cue cards under 60 words each.
   This restriction is critical to prevent timeouts and ensure stability.
+  To avoid exceeding the maximum token limit, keep option texts concise and do NOT include unnecessary whitespace in the JSON.
 
   Return a COMPLETE SINGLE JSON object representing the entire test matching this exact structure:
   {
     "listening": {
       "title": "String",
-      "script": "String (the spoken transcript, 200-400 words)",
+      "script": "String (the spoken transcript, 400-800 words)",
       "questions": [
-        // MUST BE EXACTLY 10 MCQs
+        // MUST BE EXACTLY 20 MCQs
         { "id": "l1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" }
       ]
     },
     "reading": {
       "title": "String",
-      "passage": "String (the reading passage, 400-700 words)",
+      "passage": "String (the reading passage, 800-1200 words)",
       "questions": [
-        // MUST BE EXACTLY 10 QUESTIONS TOTAL
+        // MUST BE EXACTLY 20 QUESTIONS TOTAL
         { "id": "r1", "type": "mcq", "question": "String", "options": [{"id":"A", "text":"Op 1"}, {"id":"B", "text":"Op 2"}, {"id":"C", "text":"Op 3"}, {"id":"D", "text":"Op 4"}], "correctAnswer": "A" },
         { "id": "r2", "type": "tfng", "question": "String", "options": [{"id": "True", "text": "True"}, {"id": "False", "text": "False"}, {"id": "Not Given", "text": "Not Given"}], "correctAnswer": "True" },
         { "id": "r3", "type": "text", "label": "String", "correctAnswer": "Word" }
@@ -342,14 +368,21 @@ export async function generateDynamicTestSet(
     "writing": {
       "task1": {
         "title": "String",
-        "description": "String (Detailed prompt, max 80 words)",
-        "imageUrl": "Optional string (Include if you have an Image URL in your reference)",
-        "data": { "Category1": 10, "Category2": 20 },
-        "type": "table or image",
+        "description": "String (Detailed prompt asking to describe a celebrity, their profession, and life)",
+        "imageUrl": "Optional String (If [FILFO_IMAGE:xyz] was present in reference, YOU MUST put that exact string here. Leave empty if none.)",
+        "type": "image",
         "minWords": 150
       },
       "task2": {
-        "prompt": "String (Essay prompt asking for opinions, max 80 words)",
+        "title": "String",
+        "description": "String (Detailed prompt asking to define/explain the provided data or spreadsheet)",
+        "type": "table",
+        "data": "Object (Provide data for table/chart spreadsheet)",
+        "minWords": 150
+      },
+      "task3": {
+        "title": "String",
+        "prompt": "String (Essay prompt asking to write about current affairs/events)",
         "minWords": 250
       }
     },
@@ -373,21 +406,40 @@ export async function generateDynamicTestSet(
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const responseText = await Promise.race([
-        getAiClient().models.generateContent({
+        generateContentProxy({
           model: "gemini-2.5-flash",
           contents: inputContent,
           config: {
             systemInstruction: systemPrompt,
             responseMimeType: "application/json",
-            temperature: 0.7
+            temperature: 0.7,
+            maxOutputTokens: 16384
           }
         }).then(res => res.text),
-        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 90000)) // 90 seconds timeout for full test
+        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 120000)) // 120 seconds timeout for full test
       ]);
 
       if (responseText) {
         try {
-          const parsed = JSON.parse(responseText);
+          const parsed = safeParseJSON(responseText);
+          
+          if (parsed?.writing?.task1?.imageUrl && typeof parsed.writing.task1.imageUrl === 'string' && parsed.writing.task1.imageUrl.includes('[FILFO_IMAGE:')) {
+             const matchImage = parsed.writing.task1.imageUrl.match(/\[FILFO_IMAGE:(.+?)\]/);
+             const id = matchImage ? matchImage[1].trim() : '';
+             let filfoData: any[] = getSecureStorage('filfo_practice', []);
+             let matchItem = filfoData.find((d: any) => d.id === id);
+             if (!matchItem) {
+               filfoData = getSecureStorage('filfo_ielts', []);
+               matchItem = filfoData.find((d: any) => d.id === id);
+             }
+             if (matchItem && matchItem.imageUrl) {
+               parsed.writing.task1.imageUrl = matchItem.imageUrl;
+             } else {
+               // Fallback if not found
+               delete parsed.writing.task1.imageUrl;
+             }
+          }
+
           if (Object.keys(parsed).length > 0) {
             return {
               difficulty,

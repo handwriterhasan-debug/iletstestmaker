@@ -20,19 +20,19 @@ export default function Resources() {
   }, []);
 
   return (
-    <div className="min-h-screen p-6 pb-32">
+    <div className="min-h-screen p-6 pb-32 max-w-[1400px] mx-auto w-full">
       <header className="pt-8 mb-10 flex items-center gap-6">
         <button 
           onClick={() => navigate('/app')} 
-          className="p-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl hover:bg-black/10 dark:bg-white/10 transition-all group"
+          className="p-3 bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl hover:bg-slate-300 dark:bg-white/10 transition-all group"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         </button>
         <div className="space-y-1">
           <h1 className="text-3xl font-black uppercase tracking-tighter">Study Intel</h1>
           <div className="flex items-center gap-2">
-            <Search size={12} className="text-[#65a30d] dark:text-[#a3e635]" />
-            <p className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-[0.2em]">Global Resource Database</p>
+            <Search size={12} className="text-[#0284c7] dark:text-[#38bdf8]" />
+            <p className="text-[10px] text-slate-800 dark:text-slate-200 font-bold uppercase tracking-[0.2em]">Global Resource Database</p>
           </div>
         </div>
       </header>
@@ -49,12 +49,12 @@ export default function Resources() {
              </div>
              <div>
                <h3 className="font-black uppercase tracking-tight">IELTS Search Engine</h3>
-               <p className="text-xs text-gray-800 dark:text-gray-200 font-medium">Search for past papers, vocabulary sheets, and verified preparation materials.</p>
+               <p className="text-xs text-slate-800 dark:text-slate-200 font-medium">Search for past papers, vocabulary sheets, and verified preparation materials.</p>
              </div>
           </div>
           
           {/* The CSE container */}
-          <div className="bg-black/5 dark:bg-white/5 rounded-2xl p-4 border border-black/5 dark:border-white/5 overflow-hidden">
+          <div className="bg-slate-200 dark:bg-white/5 rounded-2xl p-4 border border-slate-200 dark:border-white/5 overflow-hidden">
             <div className="gcse-search"></div>
           </div>
         </motion.div>
@@ -78,10 +78,10 @@ export default function Resources() {
 
 function ResourceCard({ title, desc, tag }: { title: string; desc: string; tag: string }) {
   return (
-    <div className="glass-card p-6 border-black/5 dark:border-white/5 hover:border-[#84cc16]/30 transition-all group">
-      <div className="text-[8px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635] mb-2">{tag}</div>
-      <h4 className="font-black text-lg mb-1 group-hover:text-[#65a30d] dark:text-[#a3e635] transition-colors">{title}</h4>
-      <p className="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">{desc}</p>
+    <div className="glass-card p-6 border-slate-200 dark:border-white/5 hover:border-[#0ea5e9]/30 transition-all group">
+      <div className="text-[8px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8] mb-2">{tag}</div>
+      <h4 className="font-black text-lg mb-1 group-hover:text-[#0284c7] dark:text-[#38bdf8] transition-colors">{title}</h4>
+      <p className="text-slate-800 dark:text-slate-200 text-sm leading-relaxed">{desc}</p>
     </div>
   );
 }

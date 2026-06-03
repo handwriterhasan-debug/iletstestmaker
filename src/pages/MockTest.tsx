@@ -11,6 +11,7 @@ import SpeakingSection from '../components/test/SpeakingSection';
 import ScoringCriteriaModal from '../components/ScoringCriteriaModal';
 import { scoreIELTSEssay, scoreIELTSSpeaking, generateDynamicTestSet } from '../services/aiScoringService';
 import { ieltsService } from '../services/ieltsService';
+import { getSecureStorage } from '../lib/security';
 import { realTestLibrary } from '../data/realTestLibrary';
 
 type TestSection = 'setup' | 'listening' | 'reading' | 'writing' | 'speaking' | 'submitting';
@@ -70,13 +71,44 @@ export default function MockTest() {
     setLoading(true);
     setLoadingError(null);
     try {
-      const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
+      const specificTopicRaw = localStorage.getItem('selected_practice_topic');
+      let customRefs: string[] = [];
+      if (specificTopicRaw) {
+        try {
+          const d = JSON.parse(specificTopicRaw);
+          customRefs = [`Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: [FILFO_IMAGE:${d.id}]` : ''}`];
+          localStorage.removeItem('selected_practice_topic');
+        } catch(e) {}
+      }
+
+      const filfoData = getSecureStorage('filfo_practice', []);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: [FILFO_IMAGE:${d.id}]` : ''}`);
       
       let chosen;
-      if (refs.length > 0) {
-        // Randomly pick a slice of references or just send them all if small
-        const randomRefs = refs.sort(() => 0.5 - Math.random()).slice(0, 3);
+      if (customRefs.length > 0) {
+        const pool = refs.filter((r: string) => !customRefs.includes(r));
+        const selectedRefs = [...customRefs, ...pool.sort(() => 0.5 - Math.random()).slice(0, 2)];
+        const dynamicTest = await generateDynamicTestSet(selectedRefs, difficulty, (msg, perc) => {
+          setLoadingMessage(msg);
+          setLoadingPercentage(perc);
+        });
+        if (dynamicTest) chosen = dynamicTest;
+      } else if (refs.length > 0) {
+        // Try to include at least one reference with an image if available
+        const refsWithImages = refs.filter((r: string) => r.includes('[FILFO_IMAGE:'));
+        const refsWithoutImages = refs.filter((r: string) => !r.includes('[FILFO_IMAGE:'));
+        let selectedRefs: string[] = [];
+        
+        if (refsWithImages.length > 0) {
+           const randImgRef = refsWithImages[Math.floor(Math.random() * refsWithImages.length)];
+           selectedRefs.push(randImgRef);
+           const pool = [...refsWithImages.filter((r: string) => r !== randImgRef), ...refsWithoutImages];
+           selectedRefs = [...selectedRefs, ...pool.sort(() => 0.5 - Math.random()).slice(0, 2)];
+        } else {
+           selectedRefs = refs.sort((a: string, b: string) => 0.5 - Math.random()).slice(0, 3);
+        }
+        
+        const randomRefs = selectedRefs.sort(() => 0.5 - Math.random());
         const dynamicTest = await generateDynamicTestSet(randomRefs, difficulty, (msg, perc) => {
           setLoadingMessage(msg);
           setLoadingPercentage(perc);
@@ -199,33 +231,33 @@ export default function MockTest() {
   if (currentSection === 'setup') {
     return (
       <div className="min-h-[100dvh] flex py-12 px-6 sm:px-10 relative overflow-x-hidden">
-        <div className="absolute top-1/4 -left-1/4 w-[50%] h-[50%] rounded-full bg-[#84cc16] blur-[150px] opacity-10 pointer-events-none" />
+        <div className="absolute top-1/4 -left-1/4 w-[50%] h-[50%] rounded-full bg-[#0ea5e9] blur-[150px] opacity-10 pointer-events-none" />
         <div className="absolute bottom-1/4 -right-1/4 w-[50%] h-[50%] rounded-full bg-blue-500 blur-[150px] opacity-5 pointer-events-none" />
         
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="m-auto glass-card-theme p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#84cc16]/30 relative z-10 shadow-[0_20px_50px_-10px_rgba(132,204,22,0.15)] shrink-0"
+          className="m-auto glass-card-theme p-8 sm:p-12 max-w-2xl w-full space-y-10 border-[#0ea5e9]/30 relative z-10 shadow-[0_20px_50px_-10px_rgba(14,165,233,0.15)] shrink-0"
         >
           <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Shield size={160} className="text-[#65a30d] dark:text-[#a3e635] rotate-12" />
+             <Shield size={160} className="text-[#0284c7] dark:text-[#38bdf8] rotate-12" />
           </div>
 
           <div className="space-y-4 relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#84cc16]/20 to-[#a3e635]/10 flex items-center justify-center text-[#65a30d] dark:text-[#a3e635] border border-[#84cc16]/30 shadow-inner">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0ea5e9]/20 to-[#38bdf8]/10 flex items-center justify-center text-[#0284c7] dark:text-[#38bdf8] border border-[#0ea5e9]/30 shadow-inner">
                 <Play size={24} fill="currentColor" />
               </div>
-              <h2 className="text-3xl font-black uppercase tracking-tight drop-shadow-sm text-gray-900 dark:text-white">Diagnostic Protocol</h2>
+              <h2 className="text-3xl font-black uppercase tracking-tight drop-shadow-sm text-slate-900 dark:text-white">Diagnostic Protocol</h2>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 text-sm font-medium leading-relaxed max-w-md">
+            <p className="text-slate-600 dark:text-slate-300 text-sm font-medium leading-relaxed max-w-md">
               You are about to initiate a full IELTS simulation. Ensure your environment is controlled and your hardware is verified.
             </p>
           </div>
 
           <div className="space-y-6 relative z-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635]">Select Difficulty Level</label>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284c7] dark:text-[#38bdf8]">Select Difficulty Level</label>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {[
                   { id: 'Easy', label: 'Easy', sub: 'Band 4-5' },
@@ -238,8 +270,8 @@ export default function MockTest() {
                     onClick={() => setDifficulty(level.id as 'Easy' | 'Average' | 'Hard' | 'Expert')}
                     className={`py-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-1 ${
                       difficulty === level.id 
-                        ? 'bg-[#84cc16]/20 border-[#84cc16] text-gray-900 dark:text-white shadow-[0_0_20px_rgba(132,204,22,0.2)] scale-105' 
-                        : 'bg-black/5 dark:bg-white/5 border-transparent text-gray-600 dark:text-gray-400 hover:border-[#84cc16]/50 hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
+                        ? 'bg-[#0ea5e9]/20 border-[#0ea5e9] text-slate-900 dark:text-white shadow-[0_0_20px_rgba(14,165,233,0.2)] scale-105' 
+                        : 'bg-slate-200 dark:bg-white/5 border-transparent text-slate-600 dark:text-slate-400 hover:border-[#0ea5e9]/50 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                     }`}
                   >
                     <span className="text-sm font-black uppercase tracking-widest">{level.label}</span>
@@ -261,10 +293,10 @@ export default function MockTest() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-4 relative z-10">
-             <button onClick={() => navigate('/app')} className="flex-1 px-8 py-5 rounded-2xl border border-black/10 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-widest hover:bg-black/5 dark:bg-white/5 transition-all text-sm">
+             <button onClick={() => navigate('/app')} className="flex-1 px-8 py-5 rounded-2xl border border-slate-300 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-widest hover:bg-slate-200 dark:bg-white/5 transition-all text-sm">
                 Cancel
              </button>
-             <button onClick={startTest} disabled={loading} className="flex-1 px-8 py-5 rounded-2xl bg-[#84cc16] text-white font-black uppercase tracking-widest hover:bg-[#65a30d] transition-all shadow-[0_10px_30px_rgba(132,204,22,0.3)] text-sm flex justify-center items-center gap-2">
+             <button onClick={startTest} disabled={loading} className="flex-1 px-8 py-5 rounded-2xl bg-[#0ea5e9] text-white font-black uppercase tracking-widest hover:bg-[#0284c7] transition-all shadow-[0_10px_30px_rgba(14,165,233,0.3)] text-sm flex justify-center items-center gap-2">
                 {loading ? <Loader2 className="animate-spin" size={20} /> : "Initiate Test"}
              </button>
           </div>
@@ -275,14 +307,14 @@ export default function MockTest() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4">
-        <div className="text-center space-y-6 max-w-sm w-full bg-black/5 dark:bg-white/5 p-8 rounded-2xl border border-black/10 dark:border-white/10 backdrop-blur-md">
+      <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4 max-w-[1400px] mx-auto w-full">
+        <div className="text-center space-y-6 max-w-sm w-full bg-slate-200 dark:bg-white/5 p-8 rounded-2xl border border-slate-300 dark:border-white/10 backdrop-blur-md">
           {loadingError ? (
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto mb-4">
                 <span className="font-bold text-xl">!</span>
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Oops!</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Oops!</h2>
               <p className="text-sm text-red-400 font-medium">{loadingError}</p>
               <button 
                 onClick={startTest}
@@ -292,27 +324,27 @@ export default function MockTest() {
               </button>
               <button 
                 onClick={() => { setLoading(false); setLoadingError(null); }}
-                className="w-full py-3 bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:text-white font-bold transition-colors"
+                className="w-full py-3 bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white font-bold transition-colors"
               >
                 Cancel and Go Back
               </button>
             </div>
           ) : (
             <>
-              <Loader2 size={32} className="animate-spin text-[#65a30d] dark:text-[#a3e635] mx-auto" />
-              <p className="text-xs font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{loadingMessage}</p>
+              <Loader2 size={32} className="animate-spin text-[#0284c7] dark:text-[#38bdf8] mx-auto" />
+              <p className="text-xs font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">{loadingMessage}</p>
               
-              <div className="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-300 dark:bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#84cc16] to-[#a3e635] transition-all duration-500 ease-out"
+                  className="h-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] transition-all duration-500 ease-out"
                   style={{ width: `${loadingPercentage}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 font-mono text-right">{loadingPercentage}%</p>
+              <p className="text-xs text-slate-500 font-mono text-right">{loadingPercentage}%</p>
 
               <button 
                 onClick={() => { setLoading(false); }}
-                className="mt-4 text-xs font-bold text-gray-500 hover:text-gray-900 dark:text-white transition-colors"
+                className="mt-4 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-white transition-colors"
               >
                 Cancel Generation
               </button>
@@ -325,7 +357,7 @@ export default function MockTest() {
 
   if (currentSection === 'submitting') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-10 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-10 text-center max-w-[1400px] mx-auto w-full">
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -333,9 +365,9 @@ export default function MockTest() {
         >
           {loading ? (
              <div className="relative">
-               <Loader2 size={80} className="text-[#65a30d] dark:text-[#a3e635] animate-spin" />
+               <Loader2 size={80} className="text-[#0284c7] dark:text-[#38bdf8] animate-spin" />
                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-[#84cc16]/20 rounded-full animate-pulse" />
+                  <div className="w-12 h-12 bg-[#0ea5e9]/20 rounded-full animate-pulse" />
                </div>
              </div>
           ) : (
@@ -346,9 +378,9 @@ export default function MockTest() {
              <h2 className="text-2xl font-black uppercase tracking-tight">{submitStatus}</h2>
              
              {!loading && completedRollNumber && (
-               <div className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-4 rounded-xl space-y-1 my-4">
-                 <p className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest">Your Roll Number</p>
-                 <p className="text-xl font-mono font-bold text-[#65a30d] dark:text-[#a3e635] select-all">{completedRollNumber}</p>
+               <div className="bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 p-4 rounded-xl space-y-1 my-4">
+                 <p className="text-[10px] text-slate-800 dark:text-slate-200 uppercase font-black tracking-widest">Your Roll Number</p>
+                 <p className="text-xl font-mono font-bold text-[#0284c7] dark:text-[#38bdf8] select-all">{completedRollNumber}</p>
                  <p className="text-[10px] text-black dark:text-white italic">Copy this carefully, you will need it to view your results!</p>
                </div>
              )}
@@ -363,7 +395,7 @@ export default function MockTest() {
 
              <p className="text-black dark:text-white text-sm leading-relaxed">
                "Success is not final, failure is not fatal: it is the courage to continue that counts."
-               <br/><span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">— Winston Churchill</span>
+               <br/><span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">— Winston Churchill</span>
              </p>
           </div>
           
@@ -378,9 +410,9 @@ export default function MockTest() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col max-w-[1400px] mx-auto w-full">
       {/* Test Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-page)]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 px-8 h-20 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-8 h-20 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button 
             onClick={() => {
@@ -388,19 +420,19 @@ export default function MockTest() {
                 navigate('/app');
               }
             }} 
-            className="p-2 hover:bg-black/5 dark:bg-white/5 rounded-lg transition-colors text-gray-800 dark:text-gray-200 mr-2"
+            className="p-2 hover:bg-slate-200 dark:bg-white/5 rounded-lg transition-colors text-slate-800 dark:text-slate-200 mr-2"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-lg font-black uppercase tracking-tighter text-gray-900 dark:text-white">
-            IELTS<span className="text-[#65a30d] dark:text-[#a3e635]">MAKER</span> <span className="font-light text-gray-800 dark:text-gray-200 text-xs ml-2 tracking-widest">MOCK 2026-A</span>
+          <h1 className="text-lg font-black uppercase tracking-tighter text-slate-900 dark:text-white">
+            IELTS<span className="text-[#0284c7] dark:text-[#38bdf8]">MAKER</span> <span className="font-light text-slate-800 dark:text-slate-200 text-xs ml-2 tracking-widest">MOCK 2026-A</span>
           </h1>
           <div className="hidden md:flex gap-2">
             {SECTION_ORDER.map((s, idx) => (
               <div 
                 key={s} 
                 className={`w-3 h-3 rounded-full border transition-all ${
-                  SECTION_ORDER.indexOf(currentSection) >= idx ? 'bg-[#84cc16] border-[#84cc16]' : 'border-black/10 dark:border-white/10'
+                  SECTION_ORDER.indexOf(currentSection) >= idx ? 'bg-[#0ea5e9] border-[#0ea5e9]' : 'border-slate-300 dark:border-white/10'
                 }`} 
               />
             ))}
@@ -408,16 +440,16 @@ export default function MockTest() {
         </div>
 
         <div className="flex items-center gap-8">
-           <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-6 py-2.5 rounded-full border border-black/5 dark:border-white/5">
-              <Clock size={16} className={`${timeRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-[#65a30d] dark:text-[#a3e635]'}`} />
-              <span className={`font-mono font-bold tabular-nums text-lg ${timeRemaining < 300 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
+           <div className="flex items-center gap-3 bg-slate-200 dark:bg-white/5 px-6 py-2.5 rounded-full border border-slate-200 dark:border-white/5">
+              <Clock size={16} className={`${timeRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-[#0284c7] dark:text-[#38bdf8]'}`} />
+              <span className={`font-mono font-bold tabular-nums text-lg ${timeRemaining < 300 ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
                 {formatTime(timeRemaining)}
               </span>
            </div>
            
            <button 
              onClick={handleSectionComplete}
-             className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black dark:text-white hover:text-gray-900 dark:text-white transition-colors"
+             className="hidden sm:flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black dark:text-white hover:text-slate-900 dark:text-white transition-colors"
            >
               Next Section <ChevronRight size={14} />
            </button>
@@ -427,8 +459,8 @@ export default function MockTest() {
       {/* Section Indicator */}
       <div className="pt-28 pb-4 px-8">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[#65a30d] dark:text-[#a3e635]">{currentSection}</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#84cc16]/50 to-transparent" />
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-[#0284c7] dark:text-[#38bdf8]">{currentSection}</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#0ea5e9]/50 to-transparent" />
         </div>
       </div>
 
@@ -461,8 +493,8 @@ export default function MockTest() {
       <ScoringCriteriaModal isOpen={isCriteriaModalOpen} onClose={() => setIsCriteriaModalOpen(false)} />
 
       {/* Safety Notice */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-[var(--bg-page)]/90 border-t border-black/5 dark:border-white/5 p-4 flex justify-center backdrop-blur-md">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">
+      <footer className="fixed bottom-0 left-0 right-0 bg-[var(--bg-page)]/90 border-t border-slate-200 dark:border-white/5 p-4 flex justify-center backdrop-blur-md">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">
            <AlertTriangle size={12} className="text-orange-400" />
            Mock Test in progress: Do not refresh or close this tab
         </div>
@@ -474,39 +506,39 @@ export default function MockTest() {
 function AIAnalysisCard({ title, data, onInfoClick }: { title: string; data: any; onInfoClick?: () => void }) {
   if (!data || !data.breakdown) return null;
   return (
-    <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 space-y-4">
+    <div className="p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-sm capitalize text-gray-900 dark:text-white">{title}</span>
+          <span className="font-bold text-sm capitalize text-slate-900 dark:text-white">{title}</span>
           {onInfoClick && (
             <button
               onClick={onInfoClick}
-              className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+              className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors rounded-full hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/5"
               title="View Scoring Criteria"
             >
               <Info size={14} />
             </button>
           )}
         </div>
-        <span className="text-[10px] font-black bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] px-2 py-0.5 rounded">Band {data.band}</span>
+        <span className="text-[10px] font-black bg-[#0ea5e9]/10 text-[#0284c7] dark:text-[#38bdf8] px-2 py-0.5 rounded">Band {data.band}</span>
       </div>
       
       <div className="grid grid-cols-2 gap-2">
         {Object.entries(data.breakdown).map(([key, val]: any) => (
-          <div key={key} className="bg-black/5 dark:bg-white/5 p-2 rounded-lg text-center">
-            <p className="text-[8px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest">{key.replace(/([A-Z])/g, ' $1')}</p>
-            <p className="text-sm font-bold text-gray-900 dark:text-white">{val}</p>
+          <div key={key} className="bg-slate-200 dark:bg-white/5 p-2 rounded-lg text-center">
+            <p className="text-[8px] text-slate-800 dark:text-slate-200 uppercase font-black tracking-widest">{key.replace(/([A-Z])/g, ' $1')}</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-white">{val}</p>
           </div>
         ))}
       </div>
       
       {data.suggestions && data.suggestions.length > 0 && (
-        <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/5">
-           <p className="text-[8px] text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest">Key Suggestions</p>
+        <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/5">
+           <p className="text-[8px] text-[#0284c7] dark:text-[#38bdf8] font-black uppercase tracking-widest">Key Suggestions</p>
            <ul className="space-y-1">
               {data.suggestions.slice(0, 3).map((s: string, i: number) => (
-                <li key={i} className="text-[10px] text-gray-800 dark:text-gray-200 flex gap-2">
-                  <span className="text-[#65a30d] dark:text-[#a3e635]">•</span> {s}
+                <li key={i} className="text-[10px] text-slate-800 dark:text-slate-200 flex gap-2">
+                  <span className="text-[#0284c7] dark:text-[#38bdf8]">•</span> {s}
                 </li>
               ))}
            </ul>

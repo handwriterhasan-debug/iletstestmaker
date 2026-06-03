@@ -10,6 +10,35 @@ const mockAuth = {
   },
   signInWithPassword: async () => ({ data: {}, error: null }),
   signUp: async () => ({ data: { user: { id: 'mock' } }, error: null }),
+  updateUser: async (attributes: any) => {
+    let mockUserStr = localStorage.getItem('ielts_mock_user');
+    let mockSessionStr = localStorage.getItem('ielts_mock_session');
+    
+    // Fallback to guest user if not found locally
+    let mockUser = mockUserStr ? JSON.parse(mockUserStr) : {
+      id: 'guest_user',
+      email: 'guest@example.com',
+      user_metadata: { full_name: 'IELTS Candidate' }
+    };
+    
+    let mockSession = mockSessionStr ? JSON.parse(mockSessionStr) : {
+      access_token: 'mock_token',
+      user: mockUser
+    };
+
+    if (attributes.data) {
+      mockUser.user_metadata = { ...mockUser.user_metadata, ...attributes.data };
+    }
+    
+    mockSession.user = mockUser;
+
+    localStorage.setItem('ielts_mock_user', JSON.stringify(mockUser));
+    localStorage.setItem('ielts_mock_session', JSON.stringify(mockSession));
+    
+    window.dispatchEvent(new Event('ielts_auth_updated'));
+    
+    return { data: { user: mockUser }, error: null };
+  },
   signOut: async () => {
     localStorage.removeItem('ielts_mock_session');
     localStorage.removeItem('ielts_mock_user');

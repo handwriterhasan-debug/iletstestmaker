@@ -19,6 +19,7 @@ import {
 import { realTestLibrary, RealTestSet } from '../data/realTestLibrary';
 import { ieltsService } from '../services/ieltsService';
 import { generateDynamicTestSet } from '../services/aiScoringService';
+import { getSecureStorage } from '../lib/security';
 
 type Section = 'listening' | 'reading' | 'writing' | 'speaking';
 
@@ -101,12 +102,13 @@ export default function RealTestSession() {
       }
       setRegistration(reg);
 
-      const filfoData = JSON.parse(localStorage.getItem('filfo_ielts') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
+      const filfoData = getSecureStorage('filfo_ielts', []);
+      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: [FILFO_IMAGE:${d.id}]` : ''}`);
       
       let chosen;
       if (refs.length > 0) {
-        const randomRefs = refs.sort(() => 0.5 - Math.random()).slice(0, 3);
+        // Pass all refs, let aiScoringService pick what it needs for each section
+        const randomRefs = refs.sort(() => 0.5 - Math.random());
         const diff = reg.difficulty || 'Medium';
         const dynamicTest = await generateDynamicTestSet(randomRefs, diff, (msg, perc) => {
           setLoadingMessage(msg);
@@ -293,11 +295,13 @@ export default function RealTestSession() {
       
       const essay1 = answers.writing?.task1 || "";
       const essay2 = answers.writing?.task2 || "";
+      const essay3 = answers.writing?.task3 || "";
       
       const w1 = await scoreIELTSEssay(testSet.writing?.task1?.title || "Task 1", essay1, 1);
-      const w2 = await scoreIELTSEssay(testSet.writing?.task2?.prompt || "Task 2 prompt", essay2, 2);
+      const w2 = await scoreIELTSEssay(testSet.writing?.task2?.prompt || testSet.writing?.task2?.description || "Task 2 prompt", essay2, 2);
+      const w3 = testSet.writing?.task3 ? await scoreIELTSEssay(testSet.writing?.task3?.prompt || "Task 3 prompt", essay3, 2) : { band: w2.band };
       
-      wScore = parseFloat(((w1.band + w2.band) / 2).toFixed(1));
+      wScore = parseFloat(((w1.band + w2.band + w3.band) / 3).toFixed(1));
 
       // Speaking
       const speakingData = answers.speaking || {};
@@ -339,6 +343,7 @@ export default function RealTestSession() {
       readingRaw: Object.values(answers.reading).filter(Boolean).length,
       wordsT1: getWordCount(answers.writing.task1),
       wordsT2: getWordCount(answers.writing.task2),
+      wordsT3: getWordCount(answers.writing.task3),
       speakingParts: Object.values(answers.speaking).filter(Boolean).length
     };
 
@@ -369,14 +374,14 @@ export default function RealTestSession() {
   };
 
   if (loading || !testSet || loadingError) return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4">
-      <div className="text-center space-y-6 max-w-sm w-full bg-black/5 dark:bg-white/5 p-8 rounded-2xl border border-black/10 dark:border-white/10 backdrop-blur-md">
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4 max-w-[1400px] mx-auto w-full">
+      <div className="text-center space-y-6 max-w-sm w-full bg-slate-200 dark:bg-white/5 p-8 rounded-2xl border border-slate-300 dark:border-white/10 backdrop-blur-md">
         {loadingError ? (
           <div className="space-y-4">
             <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto mb-4">
               <span className="font-bold text-xl">!</span>
             </div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Oops!</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Oops!</h2>
             <p className="text-sm text-red-400 font-medium">{loadingError}</p>
             <button 
               onClick={loadRegistration}
@@ -386,27 +391,27 @@ export default function RealTestSession() {
             </button>
             <button 
               onClick={() => navigate('/app')}
-              className="w-full py-3 bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:text-white font-bold transition-colors"
+              className="w-full py-3 bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white font-bold transition-colors"
             >
               Cancel and Go Back
             </button>
           </div>
         ) : (
           <>
-            <Loader2 size={32} className="animate-spin text-[#65a30d] dark:text-[#a3e635] mx-auto" />
-            <p className="text-xs font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{loadingMessage}</p>
+            <Loader2 size={32} className="animate-spin text-[#0284c7] dark:text-[#38bdf8] mx-auto" />
+            <p className="text-xs font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">{loadingMessage}</p>
             
-            <div className="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-slate-300 dark:bg-white/10 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#84cc16] to-[#a3e635] transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] transition-all duration-500 ease-out"
                 style={{ width: `${loadingPercentage}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 font-mono text-right">{loadingPercentage}%</p>
+            <p className="text-xs text-slate-500 font-mono text-right">{loadingPercentage}%</p>
 
             <button 
               onClick={() => navigate('/app')}
-              className="mt-4 text-xs font-bold text-gray-500 hover:text-gray-900 dark:text-white transition-colors"
+              className="mt-4 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-white transition-colors"
             >
               Cancel Generation
             </button>
@@ -418,16 +423,16 @@ export default function RealTestSession() {
 
   if (isSubmitting) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-10 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-10 text-center max-w-[1400px] mx-auto w-full">
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="glass-card-theme p-12 max-w-md w-full flex flex-col items-center space-y-8"
         >
           <div className="relative">
-            <Loader2 size={80} className="text-[#65a30d] dark:text-[#a3e635] animate-spin" />
+            <Loader2 size={80} className="text-[#0284c7] dark:text-[#38bdf8] animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-12 h-12 bg-[#84cc16]/20 rounded-full animate-pulse" />
+               <div className="w-12 h-12 bg-[#0ea5e9]/20 rounded-full animate-pulse" />
             </div>
           </div>
           <div className="space-y-4">
@@ -442,25 +447,25 @@ export default function RealTestSession() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans max-w-[1400px] mx-auto w-full">
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[var(--bg-page)]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 z-50 flex items-center justify-between px-6">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 z-50 flex items-center justify-between px-6">
         <button 
           onClick={() => setShowConfirmQuit(true)}
-          className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white transition-colors text-xs font-black uppercase tracking-widest pl-2"
+          className="text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:text-white transition-colors text-xs font-black uppercase tracking-widest pl-2"
         >
            Quit
         </button>
         
         <div className="flex flex-col items-center">
-          <span className="text-[8px] font-black tracking-[0.4em] text-[#65a30d] dark:text-[#a3e635] uppercase mb-1">IELTSMaker</span>
+          <span className="text-[8px] font-black tracking-[0.4em] text-[#0284c7] dark:text-[#38bdf8] uppercase mb-1">IELTSMaker</span>
           <div className="flex gap-2">
             {['listening', 'reading', 'writing', 'speaking'].map((s, i) => (
               <div 
                 key={s} 
                 className={`w-2 h-2 rounded-full ${
-                  sectionStatus[s as Section] === 'completed' ? 'bg-[#84cc16]' : 
-                  activeSection === s ? 'bg-white animate-pulse' : 'bg-black/10 dark:bg-white/10'
+                  sectionStatus[s as Section] === 'completed' ? 'bg-[#0ea5e9]' : 
+                  activeSection === s ? 'bg-white animate-pulse' : 'bg-slate-300 dark:bg-white/10'
                 }`} 
               />
             ))}
@@ -468,12 +473,12 @@ export default function RealTestSession() {
         </div>
 
         <div className="flex items-center gap-4">
-           <div className={`px-3 py-1 rounded-full font-mono text-sm font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse bg-red-500/10' : 'text-[#65a30d] dark:text-[#a3e635] bg-[#84cc16]/10'}`}>
+           <div className={`px-3 py-1 rounded-full font-mono text-sm font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse bg-red-500/10' : 'text-[#0284c7] dark:text-[#38bdf8] bg-[#0ea5e9]/10'}`}>
              {formatTime(timeLeft)}
            </div>
            <button 
              onClick={() => setShowConfirmSkip(true)}
-             className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white transition-colors text-xs font-black uppercase tracking-widest flex items-center gap-1"
+             className="text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:text-white transition-colors text-xs font-black uppercase tracking-widest flex items-center gap-1"
            >
               Skip <FastForward size={14} />
            </button>
@@ -524,7 +529,7 @@ export default function RealTestSession() {
               <button 
                 disabled={activeSection === 'listening'}
                 onClick={() => goToSection('prev')}
-                className="flex-1 py-5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 disabled:opacity-30 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest transition-all text-xs text-gray-700 dark:text-gray-300"
+                className="flex-1 py-5 bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 disabled:opacity-30 rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-widest transition-all text-xs text-gray-700 dark:text-slate-300"
               >
                 Previous Section
               </button>
@@ -532,7 +537,7 @@ export default function RealTestSession() {
               {activeSection !== 'speaking' ? (
                 <button 
                   onClick={() => goToSection('next')}
-                  className="flex-1 py-5 bg-[#84cc16] rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] shadow-[0_10px_30px_rgba(132,204,22,0.3)] transition-all text-white text-xs"
+                  className="flex-1 py-5 bg-[#0ea5e9] rounded-2xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.1em] shadow-[0_10px_30px_rgba(14,165,233,0.3)] transition-all text-white text-xs"
                 >
                   Next Section <ChevronRight size={18} />
                 </button>
@@ -601,19 +606,19 @@ function BreakScreen({ activeSection, timer, onStart }: any) {
       </div>
       <div>
         <h2 className="text-2xl font-black uppercase tracking-tight mb-2">{activeSection} Complete!</h2>
-        <div className="flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 text-sm">
+        <div className="flex items-center justify-center gap-2 text-slate-800 dark:text-slate-200 text-sm">
            {icon[activeSection as keyof typeof icon]}
-           <span>Next: <span className="text-gray-900 dark:text-white font-bold">{next[activeSection as keyof typeof next]}</span></span>
+           <span>Next: <span className="text-slate-900 dark:text-white font-bold">{next[activeSection as keyof typeof next]}</span></span>
         </div>
       </div>
       
       <div className="relative w-24 h-24 flex items-center justify-center">
         <svg className="absolute inset-0 w-full h-full -rotate-90">
-          <circle cx="48" cy="48" r="45" fill="transparent" stroke="rgba(132,204,22,0.1)" strokeWidth="4" />
+          <circle cx="48" cy="48" r="45" fill="transparent" stroke="rgba(14,165,233,0.1)" strokeWidth="4" />
           <motion.circle 
             cx="48" cy="48" r="45" 
             fill="transparent" 
-            stroke="#84cc16" 
+            stroke="#0ea5e9" 
             strokeWidth="4" 
             initial={{ strokeDasharray: 283, strokeDashoffset: 0 }}
             animate={{ strokeDashoffset: 283 }}
@@ -621,12 +626,12 @@ function BreakScreen({ activeSection, timer, onStart }: any) {
             strokeLinecap="round" 
           />
         </svg>
-        <span className="text-3xl font-black text-[#65a30d] dark:text-[#a3e635]">{timer}</span>
+        <span className="text-3xl font-black text-[#0284c7] dark:text-[#38bdf8]">{timer}</span>
       </div>
 
       <button 
         onClick={onStart}
-        className="px-8 py-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl font-bold hover:bg-black/10 dark:bg-white/10 transition-all"
+        className="px-8 py-4 bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl font-bold hover:bg-slate-300 dark:bg-white/10 transition-all"
       >
         Start {next[activeSection as keyof typeof next]} Now
       </button>
@@ -642,7 +647,7 @@ function SectionModal({ title, desc, confirmLabel, onConfirm, onCancel }: any) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-48px)] max-w-[340px] bg-[#F9FAFB] dark:bg-[#1A1A23] border border-black/10 dark:border-white/10 p-8 rounded-[32px] z-[10001] text-center space-y-6"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-48px)] max-w-[340px] bg-[#F9FAFB] dark:bg-[#1A1A23] border border-slate-300 dark:border-white/10 p-8 rounded-[32px] z-[10001] text-center space-y-6"
       >
         <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full mx-auto flex items-center justify-center">
           <AlertCircle size={32} />
@@ -653,7 +658,7 @@ function SectionModal({ title, desc, confirmLabel, onConfirm, onCancel }: any) {
         </div>
         <div className="grid grid-cols-1 gap-3 pt-4">
           <button onClick={onConfirm} className="w-full py-4 bg-red-500 hover:bg-red-600 font-bold rounded-2xl tracking-widest">{confirmLabel}</button>
-          <button onClick={onCancel} className="w-full py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 font-bold rounded-2xl">Continue Test</button>
+          <button onClick={onCancel} className="w-full py-4 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 font-bold rounded-2xl">Continue Test</button>
         </div>
       </motion.div>
     </>
@@ -693,7 +698,7 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
     <div className="space-y-8">
       <div className="text-center space-y-4">
         <div>
-          <p className="text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Section 1</p>
+          <p className="text-[#0284c7] dark:text-[#38bdf8] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Section 1</p>
           <h2 className="text-2xl font-black">{testSet.listening.title}</h2>
         </div>
 
@@ -703,14 +708,14 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
             onClick={playAudio}
             className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all ${
               playCount >= 3 || isPlaying
-                ? 'bg-black/5 dark:bg-white/5 text-gray-800 dark:text-gray-200 border border-black/5 dark:border-white/5'
+                ? 'bg-slate-200 dark:bg-white/5 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/5'
                 : 'bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.3)] hover:scale-105 active:scale-95'
             }`}
           >
             <Play size={20} fill="currentColor" />
             {isPlaying ? 'Audio Playing...' : playCount >= 3 ? 'Play limit reached' : `Play Audio (${3 - playCount} left)`}
           </button>
-          <p className="text-gray-800 dark:text-gray-200 text-[10px] font-bold uppercase tracking-widest">
+          <p className="text-slate-800 dark:text-slate-200 text-[10px] font-bold uppercase tracking-widest">
             {playCount >= 3 ? 'Play limit reached' : 'Click to start.'}
           </p>
         </div>
@@ -719,7 +724,7 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
       <div className="space-y-8 pt-4">
         {testSet.listening?.questions?.map((q: any, i: number) => (
           <div key={q.id} className="space-y-4">
-            <p className="text-sm font-bold flex gap-4"><span className="text-[#65a30d] dark:text-[#a3e635]">Q{i+1}</span> {q.question || q.label}</p>
+            <p className="text-sm font-bold flex gap-4"><span className="text-[#0284c7] dark:text-[#38bdf8]">Q{i+1}</span> {q.question || q.label}</p>
             {q.type === 'mcq' ? (
               <div className="grid grid-cols-1 gap-2">
                 {q.options?.map((opt: any, optIndex: number) => {
@@ -732,11 +737,11 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
                       onClick={() => handleSelect(q.id, optId)}
                       className={`text-left p-4 rounded-xl border text-sm transition-all ${
                         answers[q.id] === optId 
-                          ? 'bg-[#84cc16]/20 border-[#84cc16] text-gray-900 dark:text-white' 
-                          : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-[#84cc16]/30'
+                          ? 'bg-[#0ea5e9]/20 border-[#0ea5e9] text-slate-900 dark:text-white' 
+                          : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-black dark:text-white hover:border-[#0ea5e9]/30'
                       }`}
                     >
-                      <span className="font-bold text-[#65a30d] dark:text-[#a3e635] mr-3">{letter}</span>
+                      <span className="font-bold text-[#0284c7] dark:text-[#38bdf8] mr-3">{letter}</span>
                       {optText}
                     </button>
                   );
@@ -748,7 +753,7 @@ export function RealListening({ testSet, answers, setAnswers }: any) {
                 value={answers[q.id] || ''} 
                 onChange={(e) => setAnswers((prev: any) => ({...prev, [q.id]: e.target.value}))}
                 placeholder="Enter answer..."
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-[#84cc16] text-gray-900 dark:text-white"
+                className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-[#0ea5e9] text-slate-900 dark:text-white"
               />
             )}
           </div>
@@ -765,15 +770,15 @@ export function RealReading({ testSet, answers, setAnswers }: any) {
 
   return (
     <div className="space-y-8">
-       <div className="glass-card p-6 bg-black/5 dark:bg-white/5 leading-relaxed text-sm text-gray-800 dark:text-gray-200 space-y-4 border-2 border-[#84cc16]/20">
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white">{testSet.reading?.title}</h2>
+       <div className="glass-card p-6 bg-slate-200 dark:bg-white/5 leading-relaxed text-sm text-slate-800 dark:text-slate-200 space-y-4 border-2 border-[#0ea5e9]/20">
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white">{testSet.reading?.title}</h2>
           {testSet.reading?.passage?.split('\n\n').map((p: string, i: number) => <p key={i}>{p}</p>) || null}
        </div>
 
        <div className="space-y-12 pt-8">
           {testSet.reading?.questions?.map((q: any, i: number) => (
             <div key={q.id} className="space-y-4">
-              <p className="text-sm font-bold flex gap-4"><span className="text-[#65a30d] dark:text-[#a3e635]">Q{i+1}</span> {q.question || q.label}</p>
+              <p className="text-sm font-bold flex gap-4"><span className="text-[#0284c7] dark:text-[#38bdf8]">Q{i+1}</span> {q.question || q.label}</p>
               {q.type === 'mcq' ? (
                 <div className="grid grid-cols-1 gap-2">
                   {q.options?.map((opt: any, optIndex: number) => {
@@ -786,11 +791,11 @@ export function RealReading({ testSet, answers, setAnswers }: any) {
                         onClick={() => handleSelect(q.id, optId)}
                         className={`text-left p-4 rounded-xl border text-sm transition-all ${
                           answers[q.id] === optId 
-                            ? 'bg-[#84cc16]/20 border-[#84cc16] text-gray-900 dark:text-white' 
-                            : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-[#84cc16]/30'
+                            ? 'bg-[#0ea5e9]/20 border-[#0ea5e9] text-slate-900 dark:text-white' 
+                            : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-black dark:text-white hover:border-[#0ea5e9]/30'
                         }`}
                       >
-                        <span className="font-bold text-[#65a30d] dark:text-[#a3e635] mr-3">{letter}</span>
+                        <span className="font-bold text-[#0284c7] dark:text-[#38bdf8] mr-3">{letter}</span>
                         {optText}
                       </button>
                     );
@@ -804,8 +809,8 @@ export function RealReading({ testSet, answers, setAnswers }: any) {
                         onClick={() => handleSelect(q.id, val)}
                         className={`py-3 rounded-lg border text-[10px] font-black transition-all ${
                           answers[q.id] === val 
-                            ? 'bg-[#84cc16] border-[#84cc16] text-white' 
-                            : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-[#84cc16]/30'
+                            ? 'bg-[#0ea5e9] border-[#0ea5e9] text-white' 
+                            : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-black dark:text-white hover:border-[#0ea5e9]/30'
                         }`}
                       >
                          {val}
@@ -818,7 +823,7 @@ export function RealReading({ testSet, answers, setAnswers }: any) {
                   value={answers[q.id] || ''} 
                   onChange={(e) => handleSelect(q.id, e.target.value)}
                   placeholder="Your answer..."
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-[#84cc16] text-gray-900 dark:text-white"
+                  className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-[#0ea5e9] text-slate-900 dark:text-white"
                 />
               )}
             </div>
@@ -834,42 +839,46 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
   return (
     <div className="space-y-12">
       <div className="space-y-6">
-        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635]">TASK 1 (20 Minutes)</label>
-        <div className="glass-card p-6 bg-black/5 dark:bg-white/5 space-y-4">
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284c7] dark:text-[#38bdf8]">TASK 1 (20 Minutes)</label>
+        <div className="glass-card p-6 bg-slate-200 dark:bg-white/5 space-y-4">
            <h3 className="font-bold">{testSet.writing?.task1?.title}</h3>
            {testSet.writing?.task1?.imageUrl ? (
-             <div className="relative rounded-xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10">
-               <img src={testSet.writing.task1.imageUrl} alt="Task 1 Reference" className="w-full object-contain max-h-[300px] bg-black/5 dark:bg-white/5" referrerPolicy="no-referrer" />
+             <div className="relative rounded-xl overflow-hidden shadow-lg border border-slate-300 dark:border-white/10">
+               <img src={testSet.writing.task1.imageUrl} alt="Task 1 Reference" className="w-full object-contain max-h-[300px] bg-slate-200 dark:bg-white/5" referrerPolicy="no-referrer" />
              </div>
-           ) : testSet.writing?.task1?.type === 'table' ? (
-             <div className="overflow-x-auto">
-               <table className="w-full text-[10px]">
-                 <thead>
-                    <tr className="border-b border-black/10 dark:border-white/10">
-                      {Array.isArray(testSet.writing?.task1?.data) 
-                        ? Object.keys(testSet.writing.task1.data[0] || {}).map(k => <th key={`th-arr-${k}`} className="p-2 text-left text-gray-800 dark:text-gray-200">{k}</th>)
-                        : Object.keys(testSet.writing?.task1?.data || {}).map(k => <th key={`th-obj-${k}`} className="p-2 text-left text-gray-800 dark:text-gray-200">{k}</th>)}
-                    </tr>
-                 </thead>
-                 <tbody>
-                    {Array.isArray(testSet.writing?.task1?.data) 
-                      ? testSet.writing?.task1?.data?.map((row: any, i: number) => (
-                          <tr key={`tr-arr-${i}`} className="border-b border-black/5 dark:border-white/5">
-                            {Object.values(row || {}).map((v: any, j) => <td key={`td-arr-${i}-${j}`} className="p-2 font-bold">{Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>)}
-                          </tr>
-                        ))
-                      : (
-                          <tr key="tr-obj" className="border-b border-black/5 dark:border-white/5">
-                            {Object.values(testSet.writing?.task1?.data || {}).map((v: any, j) => <td key={`td-obj-${j}`} className="p-2 font-bold">{Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>)}
-                          </tr>
-                        )}
-                 </tbody>
-               </table>
+           ) : testSet.writing?.task1?.data ? (
+             <div className="overflow-x-auto bg-slate-200 dark:bg-white/5 rounded-xl p-4">
+               {Array.isArray(testSet.writing.task1.data) ? (
+                 <table className="w-full text-xs">
+                   <thead>
+                     <tr className="border-b border-slate-300 dark:border-white/10">
+                       {Object.keys(testSet.writing.task1.data[0] || {}).map(k => <th key={k} className="p-2 text-left text-slate-800 dark:text-slate-200">{k}</th>)}
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {testSet.writing.task1.data.map((row: any, i: number) => (
+                       <tr key={i} className="border-b border-slate-200 dark:border-white/5">
+                         {Object.values(row || {}).map((v: any, j) => <td key={j} className="p-2 font-bold">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>)}
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               ) : typeof testSet.writing.task1.data === 'object' ? (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   {Object.entries(testSet.writing.task1.data).map(([k, v]) => (
+                     <div key={k} className="bg-slate-200 dark:bg-white/5 p-3 rounded-xl border border-slate-200 dark:border-white/5">
+                       <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">{k}</p>
+                       <p className="text-sm font-bold text-black dark:text-white leading-snug">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</p>
+                     </div>
+                   ))}
+                 </div>
+               ) : (
+                 <p className="text-sm font-medium">{String(testSet.writing.task1.data)}</p>
+               )}
              </div>
            ) : (
-             <div className="p-8 bg-black/20 rounded-xl border border-dashed border-black/10 dark:border-white/10 text-center text-[10px] text-gray-800 dark:text-gray-200">
-                [ {testSet.writing?.task1?.type?.toUpperCase()} DATA REPRESENTED HERE ]
-                <p className="mt-2 text-[8px] italic">{JSON.stringify(testSet.writing?.task1?.data)}</p>
+             <div className="p-8 bg-black/20 rounded-xl border border-dashed border-slate-300 dark:border-white/10 text-center text-[10px] text-slate-800 dark:text-slate-200">
+                [ NO REFERENCE IMAGE OR DATA PROVIDED ]
              </div>
            )}
            <p className="text-xs text-black dark:text-white">Summarise the main features and make comparisons. Write at least 150 words.</p>
@@ -878,33 +887,60 @@ export function RealWriting({ testSet, answers, setAnswers }: any) {
           <textarea 
             value={answers.task1 || ''}
             onChange={(e) => setAnswers((prev: any) => ({ ...prev, task1: e.target.value }))}
-            className="w-full min-h-[300px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-[#84cc16] resize-none"
+            className="w-full min-h-[300px] bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-[#0ea5e9] resize-none"
             placeholder="Start writing task 1..."
           />
-          <div className="absolute bottom-4 right-4 text-[10px] font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest">
+          <div className="absolute bottom-4 right-4 text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">
             {getWordCount(answers.task1)} / 150 words
           </div>
         </div>
       </div>
 
       <div className="space-y-6">
-        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#65a30d] dark:text-[#a3e635]">TASK 2 (40 Minutes)</label>
-        <div className="glass-card p-6 bg-black/5 dark:bg-white/5 space-y-4">
-           <h3 className="font-bold leading-relaxed">{testSet.writing?.task2?.prompt}</h3>
-           <p className="text-[8px] font-black text-orange-400 uppercase tracking-widest">⚠️ AI SCANNER ACTIVE: Avoid memorized templates.</p>
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284c7] dark:text-[#38bdf8]">TASK 2 (40 Minutes)</label>
+        <div className="glass-card p-6 bg-slate-200 dark:bg-white/5 space-y-4">
+           <>
+             <h3 className="font-bold leading-relaxed">{testSet.writing?.task2?.title || testSet.writing?.task2?.prompt}</h3>
+             <p className="font-medium text-sm leading-relaxed">{testSet.writing?.task2?.prompt}</p>
+             <p className="text-[8px] font-black text-orange-400 uppercase tracking-widest">⚠️ AI SCANNER ACTIVE: Avoid memorized templates.</p>
+           </>
         </div>
         <div className="relative">
           <textarea 
             value={answers.task2 || ''}
             onChange={(e) => setAnswers((prev: any) => ({ ...prev, task2: e.target.value }))}
-            className="w-full min-h-[400px] bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-[#84cc16] resize-none"
+            className="w-full min-h-[300px] bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-[#0ea5e9] resize-none"
             placeholder="Start writing task 2..."
           />
-          <div className="absolute bottom-4 right-4 text-[10px] font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest">
-            {getWordCount(answers.task2)} / 250 words
+          <div className="absolute bottom-4 right-4 text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">
+            {getWordCount(answers.task2)} / 150 words
           </div>
         </div>
       </div>
+
+      {testSet.writing?.task3 && (
+        <div className="space-y-6">
+          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0284c7] dark:text-[#38bdf8]">TASK 3 (40 Minutes)</label>
+          <div className="glass-card p-6 bg-slate-200 dark:bg-white/5 space-y-4">
+             <>
+               <h3 className="font-bold leading-relaxed">{testSet.writing.task3.title || testSet.writing.task3.prompt}</h3>
+               <p className="font-medium text-sm leading-relaxed">{testSet.writing.task3.prompt}</p>
+               <p className="text-[8px] font-black text-orange-400 uppercase tracking-widest">⚠️ AI SCANNER ACTIVE: Avoid memorized templates.</p>
+             </>
+          </div>
+          <div className="relative">
+            <textarea 
+              value={answers.task3 || ''}
+              onChange={(e) => setAnswers((prev: any) => ({ ...prev, task3: e.target.value }))}
+              className="w-full min-h-[400px] bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl p-6 text-sm focus:outline-none focus:border-[#0ea5e9] resize-none"
+              placeholder="Start writing task 3..."
+            />
+            <div className="absolute bottom-4 right-4 text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">
+              {getWordCount(answers.task3)} / 250 words
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -980,19 +1016,19 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
   return (
     <div className="space-y-12">
       <div className="text-center">
-        <p className="text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Part {part} of 3</p>
+        <p className="text-[#0284c7] dark:text-[#38bdf8] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Part {part} of 3</p>
         <div className="flex justify-center gap-2 mb-8">
-           {[1,2,3].map(p => <div key={p} className={`w-12 h-1 rounded-full ${part >= p ? 'bg-[#84cc16]' : 'bg-black/10 dark:bg-white/10'}`} />)}
+           {[1,2,3].map(p => <div key={p} className={`w-12 h-1 rounded-full ${part >= p ? 'bg-[#0ea5e9]' : 'bg-slate-300 dark:bg-white/10'}`} />)}
         </div>
       </div>
 
       <AnimatePresence mode="wait">
         {part === 1 && (
           <motion.div key="p1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Section 1: Introduction & Interview</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Section 1: Introduction & Interview</h3>
             <div className="space-y-4">
               {testSet.speaking?.part1?.map((q: string, i: number) => (
-                <div key={i} className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-sm font-medium">
+                <div key={i} className="p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 text-sm font-medium">
                   {q}
                 </div>
               ))}
@@ -1002,28 +1038,28 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
 
         {part === 2 && (
           <motion.div key="p2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Section 2: Individual Long Turn</h3>
-            <div className="glass-card p-8 bg-white dark:bg-[#1A1A2E] border-2 border-[#84cc16]/20 space-y-4">
-               <p className="text-[10px] font-black uppercase text-[#65a30d] dark:text-[#a3e635] tracking-widest">Cue Card</p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Section 2: Individual Long Turn</h3>
+            <div className="glass-card p-6 md:p-8 bg-white dark:bg-[#1A1A2E] border-2 border-[#0ea5e9]/20 space-y-4">
+               <p className="text-[10px] font-black uppercase text-[#0284c7] dark:text-[#38bdf8] tracking-widest">Cue Card</p>
                <h4 className="text-xl font-black">{testSet.speaking?.part2?.cue}</h4>
                <ul className="space-y-2">
                  {testSet.speaking?.part2?.points?.map((p: string, i: number) => (
-                   <li key={i} className="flex gap-3 text-xs text-gray-800 dark:text-gray-200">
-                     <span className="text-[#65a30d] dark:text-[#a3e635] font-bold">•</span> {p}
+                   <li key={i} className="flex gap-3 text-xs text-slate-800 dark:text-slate-200">
+                     <span className="text-[#0284c7] dark:text-[#38bdf8] font-bold">•</span> {p}
                    </li>
                  ))}
                </ul>
             </div>
-            <p className="text-[10px] text-gray-800 dark:text-gray-200 italic text-center">1 minute preparation. Speak for 1-2 minutes.</p>
+            <p className="text-[10px] text-slate-800 dark:text-slate-200 italic text-center">1 minute preparation. Speak for 1-2 minutes.</p>
           </motion.div>
         )}
 
         {part === 3 && (
           <motion.div key="p3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Section 3: Discussion</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Section 3: Discussion</h3>
             <div className="space-y-4">
               {testSet.speaking?.part3?.map((q: string, i: number) => (
-                <div key={i} className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 text-sm font-medium">
+                <div key={i} className="p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 text-sm font-medium">
                   {q}
                 </div>
               ))}
@@ -1038,10 +1074,10 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
           disabled={isProcessingAI}
           className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${
             isProcessingAI ? 'bg-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.3)]' :
-            isRecording ? 'bg-red-500 animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.5)]' : 'bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:bg-white/10'
+            isRecording ? 'bg-red-500 animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.5)]' : 'bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300 dark:bg-white/10'
           }`}
         >
-          {isProcessingAI ? <Loader2 size={32} className="text-blue-500 animate-spin" /> : isRecording ? <div className="w-8 h-8 bg-white rounded-md" /> : <Mic2 size={32} className="text-[#65a30d] dark:text-[#a3e635]" />}
+          {isProcessingAI ? <Loader2 size={32} className="text-blue-500 animate-spin" /> : isRecording ? <div className="w-8 h-8 bg-white rounded-md" /> : <Mic2 size={32} className="text-[#0284c7] dark:text-[#38bdf8]" />}
         </button>
         {isRecording && (
           <p className="text-xs font-black font-mono text-red-500 uppercase tracking-widest">Recording: {Math.floor(recordingTime/60)}:{(recordingTime%60).toString().padStart(2, '0')}</p>
@@ -1054,14 +1090,14 @@ export function RealSpeaking({ testSet, answers, setAnswers }: any) {
            <button 
              disabled={part === 1 || isRecording || isToggling}
              onClick={handlePrevPart}
-             className="flex-1 py-4 bg-black/5 dark:bg-white/5 rounded-2xl font-bold disabled:opacity-20 transition-all border border-black/5 dark:border-white/5"
+             className="flex-1 py-4 bg-slate-200 dark:bg-white/5 rounded-2xl font-bold disabled:opacity-20 transition-all border border-slate-200 dark:border-white/5"
            >
              Previous
            </button>
            <button 
              disabled={part === 3 || isRecording || isToggling}
              onClick={handleNextPart}
-             className="flex-1 py-4 bg-[#84cc16]/20 border border-[#84cc16]/30 text-[#65a30d] dark:text-[#a3e635] rounded-2xl font-bold disabled:opacity-20 transition-all"
+             className="flex-1 py-4 bg-[#0ea5e9]/20 border border-[#0ea5e9]/30 text-[#0284c7] dark:text-[#38bdf8] rounded-2xl font-bold disabled:opacity-20 transition-all"
            >
              Next Part
            </button>

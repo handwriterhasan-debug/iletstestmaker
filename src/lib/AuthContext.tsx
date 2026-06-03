@@ -70,6 +70,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     
     initAuth();
+
+    const handleAuthChange = () => {
+      supabase.auth.getSession().then(({ data: { session: storedSession } }) => {
+        if (storedSession) {
+          setSession(storedSession);
+          setUser(storedSession.user);
+        }
+      });
+    };
+    
+    window.addEventListener('ielts_auth_updated', handleAuthChange);
+    return () => window.removeEventListener('ielts_auth_updated', handleAuthChange);
   }, []);
 
   const signOut = async () => {

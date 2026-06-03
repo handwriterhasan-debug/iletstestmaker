@@ -132,25 +132,25 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
     <div className="space-y-12">
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-lime-600 rounded-[40px] blur opacity-20 filter transition duration-1000 group-hover:opacity-40" />
-        <div className="relative glass-card p-12 flex flex-col items-center text-center space-y-8 bg-black/40 backdrop-blur-3xl border-black/5 dark:border-white/5 rounded-[36px]">
-          <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shadow-[0_0_40px_rgba(37,99,235,0.15)]">
-            <Headphones size={48} strokeWidth={1.5} />
+        <div className="relative glass-card p-6 md:p-12 flex flex-col items-center text-center space-y-8 bg-black/40 backdrop-blur-md border-slate-200 dark:border-white/5 rounded-[36px]">
+          <div className="w-20 md:w-24 h-20 md:h-24 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shadow-[0_0_40px_rgba(37,99,235,0.15)]">
+            <Headphones size={40} className="md:w-12 md:h-12" strokeWidth={1.5} />
           </div>
           
           <div className="space-y-3">
-            <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
+            <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">
               {isPractice ? 'Story Lab' : 'Aural Interface'}
             </h2>
             <div className="flex items-center justify-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-[0.3em]">
+              <p className="text-[10px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-[0.3em]">
                 {isPractice ? 'Narrative Comprehension' : 'Module 01: Social Context'}
               </p>
             </div>
             <p className="text-black dark:text-white text-sm max-w-sm mx-auto leading-relaxed pt-2">
               {isPractice 
                 ? 'Listen to the story carefully and answer the questions. You can play the audio up to 3 times.'
-                : <>The recording will play <span className="text-[#65a30d] dark:text-[#a3e635] font-black underline underline-offset-4 decoration-2">UP TO 3 TIMES</span>. Ensure your environmental conditions are optimal before initiation.</>
+                : <>The recording will play <span className="text-[#0284c7] dark:text-[#38bdf8] font-black underline underline-offset-4 decoration-2">UP TO 3 TIMES</span>. Ensure your environmental conditions are optimal before initiation.</>
               }
             </p>
           </div>
@@ -161,7 +161,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
               disabled={playCount >= 3 || loading}
               className={`w-full py-6 rounded-2xl flex items-center justify-center gap-4 font-black uppercase tracking-[0.2em] transition-all border ${
                 (playCount >= 3)
-                  ? 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-800 dark:text-gray-200' 
+                  ? 'bg-slate-200 dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200' 
                   : 'bg-blue-600 border-blue-400 text-white hover:bg-blue-500 hover:scale-[1.02] active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.3)]'
               }`}
             >
@@ -206,14 +206,14 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {questions.map((q) => (
             <div key={q.id} className="glass-card p-6 space-y-4">
-              <label className="text-sm font-bold text-gray-800 dark:text-gray-200">{q.label}</label>
+              <label className="text-sm font-bold text-slate-800 dark:text-slate-200">{q.label}</label>
               {q.type === 'text' ? (
                 <div className="space-y-2">
                   <input 
                     type="text" 
                     value={answers[q.id] || ''}
                     placeholder={q.placeholder}
-                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-blue-500 transition-colors"
                     onChange={(e) => updateAnswer(q.id, e.target.value)}
                   />
                   {isPractice && answers[q.id] && (
@@ -229,7 +229,7 @@ export default function ListeningSection({ onComplete, timeRemaining, isPractice
                       key={`opt-${optIndex}`}
                       onClick={() => updateAnswer(q.id, opt)}
                       className={`py-3 px-4 rounded-lg border text-left text-xs font-bold transition-all ${
-                        answers[q.id] === opt ? 'bg-blue-500 border-blue-500 text-white' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-blue-500/30'
+                        answers[q.id] === opt ? 'bg-blue-500 border-blue-500 text-white' : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-black dark:text-white hover:border-blue-500/30'
                       }`}
                     >
                       {opt}

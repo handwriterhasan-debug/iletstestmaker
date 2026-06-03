@@ -31,7 +31,7 @@ export default function ThemeToggle({ className }: { className?: string }) {
   return (
     <button 
       onClick={toggle}
-      className={`p-3 bg-black/5 dark:bg-white/5 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-full text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all shadow-lg active:scale-95 flex items-center justify-center ${className || 'fixed top-4 right-4 z-50'}`}
+      className={`p-3 bg-slate-200/50 dark:bg-white/5 backdrop-blur-md border border-slate-300 dark:border-white/10 rounded-full text-black dark:text-white hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/10 transition-all shadow-lg active:scale-95 flex items-center justify-center ${className || 'fixed top-4 right-4 z-50'}`}
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}

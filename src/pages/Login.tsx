@@ -24,15 +24,15 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative">
+    <div className="min-h-screen flex items-center justify-center p-6 relative max-w-[1400px] mx-auto w-full">
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:40px_40px]" />
       
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md glass-card p-8 z-10"
+        className="w-full max-w-md glass-card p-6 md:p-8 z-10"
       >
-        <h2 className="text-3xl font-bold mb-2">Welcome Back</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Welcome Back</h2>
         <p className="text-black dark:text-white mb-8">Sign in to continue your progress.</p>
 
         {error && (
@@ -44,30 +44,30 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1">Email Address</label>
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-200 ml-1">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800 dark:text-slate-200" size={20} />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
+                className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#0ea5e9] transition-colors"
                 placeholder="name@example.com"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-800 dark:text-gray-200 ml-1">Password</label>
+            <label className="text-sm font-medium text-slate-800 dark:text-slate-200 ml-1">Password</label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800 dark:text-slate-200" size={20} />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#84cc16] transition-colors"
+                className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#0ea5e9] transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -91,7 +91,7 @@ export default function Login() {
 
         <p className="mt-8 text-center text-black dark:text-white">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-[#65a30d] dark:text-[#a3e635] font-semibold hover:underline">
+          <Link to="/signup" className="text-[#0284c7] dark:text-[#38bdf8] font-semibold hover:underline">
             Create one
           </Link>
         </p>

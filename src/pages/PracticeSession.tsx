@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Headphones, BookOpen, PenTool, Mic2, Clock, ArrowLeft, CheckCircle2, Play, ChevronRight, Sparkles, Loader2, Target, Bookmark, Info } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import ListeningSection from '../components/test/ListeningSection';
 import ReadingSection from '../components/test/ReadingSection';
 import WritingSection from '../components/test/WritingSection';
@@ -13,6 +14,7 @@ import { useAuth } from '../lib/AuthContext';
 import { practiceLibrary } from '../data/practiceLibrary';
 
 import { ieltsService } from '../services/ieltsService';
+import { getSecureStorage } from '../lib/security';
 
 export default function PracticeSession() {
   const { user } = useAuth();
@@ -50,12 +52,23 @@ export default function PracticeSession() {
     setLoadingContent(true);
     setLoadingError(null);
     try {
-      const filfoData = JSON.parse(localStorage.getItem('filfo_practice') || '[]');
-      const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: ${d.imageUrl}` : ''}`);
+      const specificTopicRaw = localStorage.getItem('selected_practice_topic');
+      let customRefs: string[] = [];
 
-      if (refs.length > 0) {
-        const randomRefs = refs.sort(() => 0.5 - Math.random()).slice(0, 3);
-        const dynamicTest = await generateDynamicTestSet(randomRefs, difficulty, (msg, perc) => {
+      if (specificTopicRaw) {
+        const d = JSON.parse(specificTopicRaw);
+        customRefs = [`Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: [FILFO_IMAGE:${d.id}]` : ''}`];
+        localStorage.removeItem('selected_practice_topic'); // consume the intent
+      } else {
+        const filfoData = getSecureStorage('filfo_practice', []);
+        const refs = filfoData.map((d: any) => `Title: ${d.title}\nAdmin Assigned Difficulty: ${d.difficulty || 'Average'}\nContent: ${d.content}${d.imageUrl ? `\nImage URL: [FILFO_IMAGE:${d.id}]` : ''}`);
+        if (refs.length > 0) {
+          customRefs = refs.sort(() => 0.5 - Math.random()).slice(0, 3);
+        }
+      }
+
+      if (customRefs.length > 0) {
+        const dynamicTest = await generateDynamicTestSet(customRefs, difficulty, (msg, perc) => {
           setLoadingMessage(msg);
           setLoadingPercentage(perc);
         });
@@ -272,14 +285,14 @@ export default function PracticeSession() {
 
   if (loadingContent) {
     return (
-      <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4">
-        <div className="text-center space-y-6 max-w-sm w-full bg-black/5 dark:bg-white/5 p-8 rounded-2xl border border-black/10 dark:border-white/10 backdrop-blur-md">
+      <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans flex items-center justify-center p-4 max-w-[1400px] mx-auto w-full">
+        <div className="text-center space-y-6 max-w-sm w-full bg-slate-200 dark:bg-white/5 p-8 rounded-2xl border border-slate-300 dark:border-white/10 backdrop-blur-md">
           {loadingError ? (
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto mb-4">
                 <span className="font-bold text-xl">!</span>
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Oops!</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Oops!</h2>
               <p className="text-sm text-red-400 font-medium">{loadingError}</p>
               <button 
                 onClick={loadContent}
@@ -289,27 +302,27 @@ export default function PracticeSession() {
               </button>
               <button 
                 onClick={() => window.history.back()}
-                className="w-full py-3 bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:text-white font-bold transition-colors"
+                className="w-full py-3 bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white font-bold transition-colors"
               >
                 Cancel and Go Back
               </button>
             </div>
           ) : (
             <>
-              <Loader2 size={32} className="animate-spin text-[#65a30d] dark:text-[#a3e635] mx-auto" />
-              <p className="text-xs font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">{loadingMessage}</p>
+              <Loader2 size={32} className="animate-spin text-[#0284c7] dark:text-[#38bdf8] mx-auto" />
+              <p className="text-xs font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">{loadingMessage}</p>
               
-              <div className="w-full h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-300 dark:bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#84cc16] to-[#a3e635] transition-all duration-500 ease-out"
+                  className="h-full bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8] transition-all duration-500 ease-out"
                   style={{ width: `${loadingPercentage}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 font-mono text-right">{loadingPercentage}%</p>
+              <p className="text-xs text-slate-500 font-mono text-right">{loadingPercentage}%</p>
 
               <button 
                 onClick={() => window.history.back()}
-                className="mt-4 text-xs font-bold text-gray-500 hover:text-gray-900 dark:text-white transition-colors"
+                className="mt-4 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-white transition-colors"
               >
                 Cancel Generation
               </button>
@@ -321,15 +334,15 @@ export default function PracticeSession() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col max-w-[1400px] mx-auto w-full">
       {stage !== 'config' && (
-        <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-page)]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 px-8 h-20 flex items-center justify-between">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-page)]/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 px-8 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/practice')} className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:text-white transition-colors">
+              <button onClick={() => navigate('/practice')} className="text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:text-white transition-colors">
                 <ArrowLeft size={20} />
               </button>
               <h1 className="text-lg font-black uppercase tracking-tighter">
-                Practice <span className="text-[#65a30d] dark:text-[#a3e635]">{section}</span>
+                Practice <span className="text-[#0284c7] dark:text-[#38bdf8]">{section}</span>
               </h1>
             </div>
 
@@ -337,13 +350,13 @@ export default function PracticeSession() {
               <button 
                 onClick={() => setIsPaused(!isPaused)}
                 className={`text-[10px] uppercase font-black tracking-widest px-4 py-1.5 rounded-full border transition-all ${
-                    isPaused ? 'bg-orange-500 text-white border-orange-500' : 'bg-black/5 dark:bg-white/5 text-black dark:text-white border-black/10 dark:border-white/10'
+                    isPaused ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-200 dark:bg-white/5 text-black dark:text-white border-slate-300 dark:border-white/10'
                 }`}
               >
                 {isPaused ? 'Resuming...' : 'Pause'}
               </button>
-              <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-6 py-2.5 rounded-full border border-black/5 dark:border-white/5">
-                <Clock size={16} className="text-[#65a30d] dark:text-[#a3e635]" />
+              <div className="flex items-center gap-3 bg-slate-200 dark:bg-white/5 px-6 py-2.5 rounded-full border border-slate-200 dark:border-white/5">
+                <Clock size={16} className="text-[#0284c7] dark:text-[#38bdf8]" />
                 <span className="font-mono font-bold tabular-nums text-lg">
                   {formatTime(timeLeft)}
                 </span>
@@ -359,24 +372,24 @@ export default function PracticeSession() {
             <motion.div key="config" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="max-w-xl mx-auto space-y-10 pt-10">
                <div>
                   <div className="flex items-center gap-4 mb-6">
-                    <button onClick={() => navigate('/practice')} className="p-3 glass-card rounded-full hover:bg-black/10 dark:bg-white/10 transition-colors">
+                    <button onClick={() => navigate('/practice')} className="p-3 glass-card rounded-full hover:bg-slate-300 dark:bg-white/10 transition-colors">
                       <ArrowLeft size={18} />
                     </button>
-                    <span className="text-[10px] text-gray-800 dark:text-gray-200 font-bold uppercase tracking-[0.2em]">Session Setup</span>
+                    <span className="text-[10px] text-slate-800 dark:text-slate-200 font-bold uppercase tracking-[0.2em]">Session Setup</span>
                   </div>
                   <h2 className="text-3xl font-black uppercase tracking-tight mb-2">Practice {section}</h2>
                   <p className="text-black dark:text-white">Set your goals and start sharpening your skills.</p>
                </div>
 
                <div className="glass-card p-10 space-y-8">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">Select Session Duration</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">Select Session Duration</h3>
                   <div className="grid grid-cols-2 gap-4">
                      {[15, 30, 45, 60].map(m => (
                        <button
                          key={m}
                          onClick={() => setTimeSetting(m)}
                          className={`p-6 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 ${
-                           timeSetting === m ? 'bg-[#84cc16]/10 border-[#84cc16]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-800 dark:text-gray-200'
+                           timeSetting === m ? 'bg-[#0ea5e9]/10 border-[#0ea5e9]' : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-800 dark:text-slate-200'
                          }`}
                        >
                          <span className="text-3xl font-black">{m}</span>
@@ -386,17 +399,17 @@ export default function PracticeSession() {
                   </div>
                   
                   <div className="space-y-4">
-                    <p className="text-xs text-gray-800 dark:text-gray-200 font-bold uppercase tracking-widest">Custom Duration (mins)</p>
+                    <p className="text-xs text-slate-800 dark:text-slate-200 font-bold uppercase tracking-widest">Custom Duration (mins)</p>
                     <input 
                       type="number" 
                       value={timeSetting}
                       onChange={(e) => setTimeSetting(parseInt(e.target.value) || 0)}
-                      className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#84cc16]"
+                      className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl py-4 px-6 focus:outline-none focus:border-[#0ea5e9]"
                     />
                   </div>
 
-                  <div className="space-y-4 pt-4 border-t border-black/5 dark:border-white/5">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">Select Difficulty Level</h3>
+                  <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-white/5">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">Select Difficulty Level</h3>
                     <div className="grid grid-cols-2 gap-3">
                       {[
                         { id: 'Easy', label: 'Easy', sub: 'Band 4-5' },
@@ -409,8 +422,8 @@ export default function PracticeSession() {
                           onClick={() => setDifficulty(level.id as 'Easy' | 'Average' | 'Hard' | 'Expert')}
                           className={`py-4 rounded-xl border flex flex-col items-center gap-1 transition-all ${
                             difficulty === level.id 
-                              ? 'bg-[#84cc16] border-[#84cc16] shadow-lg shadow-[#84cc16]/20' 
-                              : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-black dark:text-white hover:border-black/10 dark:border-white/10'
+                              ? 'bg-[#0ea5e9] border-[#0ea5e9] shadow-lg shadow-[#0ea5e9]/20' 
+                              : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 text-black dark:text-white hover:border-slate-300 dark:border-white/10'
                           }`}
                         >
                           <span className="text-sm font-black uppercase tracking-widest">{level.label}</span>
@@ -445,33 +458,33 @@ export default function PracticeSession() {
             <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center space-y-8 pt-20">
                <div className="glass-card-theme p-12 flex flex-col items-center space-y-6">
                  <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.4)]">
-                   <CheckCircle2 className="text-gray-900 dark:text-white" size={40} />
+                   <CheckCircle2 className="text-slate-900 dark:text-white" size={40} />
                  </div>
                  <div>
                    <h2 className="text-3xl font-black uppercase tracking-tight">Great Work!</h2>
                    <p className="text-black dark:text-white text-sm mt-2">Practice makes perfect. Your session has been recorded.</p>
                  </div>
                  
-                 <div className="w-full grid grid-cols-2 gap-4 py-6 border-t border-black/10 dark:border-white/10">
+                 <div className="w-full grid grid-cols-2 gap-4 py-6 border-t border-slate-300 dark:border-white/10">
                     <div className="text-left">
-                       <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mb-1">Time Spent</p>
+                       <p className="text-[10px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest mb-1">Time Spent</p>
                        <p className="text-xl font-bold">{timeSetting} mins</p>
                     </div>
                     <div className="text-left">
-                       <p className="text-[10px] text-gray-800 dark:text-gray-200 font-black uppercase tracking-widest mb-1">Section</p>
+                       <p className="text-[10px] text-slate-800 dark:text-slate-200 font-black uppercase tracking-widest mb-1">Section</p>
                        <p className="text-xl font-bold uppercase">{section}</p>
                     </div>
                  </div>
 
-                 <div className="w-full bg-black/5 dark:bg-white/5 p-6 rounded-2xl border border-black/10 dark:border-white/10 text-left space-y-2">
+                 <div className="w-full bg-slate-200 dark:bg-white/5 p-6 rounded-2xl border border-slate-300 dark:border-white/10 text-left space-y-2">
                     <div className="flex items-center gap-2 mb-2">
-                       <Sparkles size={14} className="text-[#65a30d] dark:text-[#a3e635]" />
-                       <span className="text-[10px] font-black uppercase tracking-widest text-[#65a30d] dark:text-[#a3e635]">AI Examiner Notes</span>
+                       <Sparkles size={14} className="text-[#0284c7] dark:text-[#38bdf8]" />
+                       <span className="text-[10px] font-black uppercase tracking-widest text-[#0284c7] dark:text-[#38bdf8]">AI Examiner Notes</span>
                     </div>
                     {loadingFeedback ? (
                        <div className="flex items-center gap-3 py-2">
-                          <Loader2 size={16} className="animate-spin text-gray-800 dark:text-gray-200" />
-                          <span className="text-xs text-gray-800 dark:text-gray-200 animate-pulse font-bold uppercase">Analyzing...</span>
+                          <Loader2 size={16} className="animate-spin text-slate-800 dark:text-slate-200" />
+                          <span className="text-xs text-slate-800 dark:text-slate-200 animate-pulse font-bold uppercase">Analyzing...</span>
                        </div>
                     ) : (
                        <p className="text-xs text-black dark:text-white leading-relaxed italic">"{feedback}"</p>
@@ -507,17 +520,17 @@ export default function PracticeSession() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg glass-card p-10 space-y-8 bg-[var(--bg-page)] border-[#84cc16]/30"
+              className="relative w-full max-w-lg glass-card p-10 space-y-8 bg-[var(--bg-page)] border-[#0ea5e9]/30"
             >
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-20 h-20 bg-[#84cc16]/20 rounded-full flex items-center justify-center border-4 border-[#84cc16]/30">
-                   <Sparkles size={40} className="text-[#65a30d] dark:text-[#a3e635]" />
+                <div className="w-20 h-20 bg-[#0ea5e9]/20 rounded-full flex items-center justify-center border-4 border-[#0ea5e9]/30">
+                   <Sparkles size={40} className="text-[#0284c7] dark:text-[#38bdf8]" />
                 </div>
-                <h2 className="text-3xl font-black uppercase tracking-tighter">🎉 Practice <span className="text-[#65a30d] dark:text-[#a3e635]">Complete!</span></h2>
+                <h2 className="text-3xl font-black uppercase tracking-tighter">🎉 Practice <span className="text-[#0284c7] dark:text-[#38bdf8]">Complete!</span></h2>
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                 <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                 <div className="flex items-center justify-between p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
                     <div className="flex items-center gap-3">
                        <Headphones size={18} className="text-blue-400" />
                        <span className="font-bold text-sm">Listening</span>
@@ -528,7 +541,7 @@ export default function PracticeSession() {
                     </div>
                  </div>
 
-                 <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                 <div className="flex items-center justify-between p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
                     <div className="flex items-center gap-3">
                        <BookOpen size={18} className="text-green-400" />
                        <span className="font-bold text-sm">Reading</span>
@@ -540,40 +553,52 @@ export default function PracticeSession() {
                  </div>
 
                  {['writing', 'speaking'].includes(section || '') && aiAnalysis && (
-                   <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 space-y-4">
+                   <div className="p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {section === 'writing' ? <PenTool size={18} className="text-orange-400" /> : <Mic2 size={18} className="text-lime-400" />}
                           <span className="font-bold text-sm capitalize">{section} Analysis</span>
                           <button
                             onClick={() => setIsCriteriaModalOpen(true)}
-                            className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                            className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors rounded-full hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/5"
                             title="View Scoring Criteria"
                           >
                             <Info size={14} />
                           </button>
                         </div>
-                        <span className="text-[10px] font-black bg-[#84cc16]/10 text-[#65a30d] dark:text-[#a3e635] px-2 py-0.5 rounded">Band {aiAnalysis.band}</span>
+                        <span className="text-[10px] font-black bg-[#0ea5e9]/10 text-[#0284c7] dark:text-[#38bdf8] px-2 py-0.5 rounded">Band {aiAnalysis.band}</span>
                       </div>
                       
                       {aiAnalysis.breakdown && (
-                        <div className="grid grid-cols-2 gap-2">
-                          {Object.entries(aiAnalysis.breakdown).map(([key, val]: any) => (
-                            <div key={key} className="bg-black/5 dark:bg-white/5 p-2 rounded-lg text-center">
-                              <p className="text-[8px] text-gray-800 dark:text-gray-200 uppercase font-black tracking-widest">{key.replace(/([A-Z])/g, ' $1')}</p>
-                              <p className="text-sm font-bold">{val}</p>
-                            </div>
-                          ))}
+                        <div className="space-y-4">
+                          <div className="w-full h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={Object.entries(aiAnalysis.breakdown).map(([k, v]) => ({ subject: k.replace(/([A-Z])/g, ' $1').trim(), score: typeof v === 'number' ? v : parseFloat(v as string) || 0, fullMark: 9 }))}>
+                                <PolarGrid stroke="#0ea5e920" />
+                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 9, fontWeight: 'bold' }} />
+                                <PolarRadiusAxis angle={30} domain={[0, 9]} tick={false} axisLine={false} />
+                                <Radar name="Score" dataKey="score" stroke="#0ea5e9" strokeWidth={2} fill="#0ea5e9" fillOpacity={0.6} isAnimationActive={true} animationDuration={1000} animationEasing="ease-out" />
+                              </RadarChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {Object.entries(aiAnalysis.breakdown).map(([key, val]: any) => (
+                              <div key={key} className="bg-slate-200 dark:bg-white/5 p-2 rounded-lg text-center">
+                                <p className="text-[8px] text-slate-800 dark:text-slate-200 uppercase font-black tracking-widest">{key.replace(/([A-Z])/g, ' $1')}</p>
+                                <p className="text-sm font-bold">{val}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                       
                       {aiAnalysis.suggestions && aiAnalysis.suggestions.length > 0 && (
-                        <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/5">
-                           <p className="text-[8px] text-[#65a30d] dark:text-[#a3e635] font-black uppercase tracking-widest">Key Suggestions</p>
+                        <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/5">
+                           <p className="text-[8px] text-[#0284c7] dark:text-[#38bdf8] font-black uppercase tracking-widest">Key Suggestions</p>
                            <ul className="space-y-1">
                               {aiAnalysis.suggestions.slice(0, 2).map((s: string, i: number) => (
                                 <li key={i} className="text-[10px] text-black dark:text-white flex gap-2">
-                                  <span className="text-[#65a30d] dark:text-[#a3e635]">•</span> {s}
+                                  <span className="text-[#0284c7] dark:text-[#38bdf8]">•</span> {s}
                                 </li>
                               ))}
                            </ul>
@@ -584,7 +609,7 @@ export default function PracticeSession() {
 
                  {!['writing', 'speaking'].includes(section || '') && (
                    <>
-                     <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                     <div className="flex items-center justify-between p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                            <PenTool size={18} className="text-orange-400" />
                            <span className="font-bold text-sm">Writing</span>
@@ -592,7 +617,7 @@ export default function PracticeSession() {
                         <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Submitted ✅</span>
                      </div>
 
-                     <div className="flex items-center justify-between p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                     <div className="flex items-center justify-between p-4 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
                            <Mic2 size={18} className="text-lime-400" />
                            <span className="font-bold text-sm">Speaking</span>
@@ -603,33 +628,33 @@ export default function PracticeSession() {
                  )}
               </div>
 
-              <div className="py-6 border-y border-black/10 dark:border-white/10 text-center">
-                 <p className="text-[10px] font-black text-gray-800 dark:text-gray-200 uppercase tracking-[0.3em] mb-2">Est. Overall Band</p>
+              <div className="py-6 border-y border-slate-300 dark:border-white/10 text-center">
+                 <p className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-[0.3em] mb-2">Est. Overall Band</p>
                  <div className="text-6xl font-black tracking-tighter">
                     {((parseFloat(calculateBand('listening', scores.listening)) + parseFloat(calculateBand('reading', scores.reading))) / 2).toFixed(1)}
                  </div>
               </div>
 
-              <div className="bg-[#84cc16] p-6 rounded-2xl flex items-center justify-between shadow-[0_0_30px_rgba(132,204,22,0.3)]">
+              <div className="bg-[#0ea5e9] p-6 rounded-2xl flex items-center justify-between shadow-[0_0_30px_rgba(14,165,233,0.3)]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-black/20 dark:bg-white/20 rounded-lg"><Sparkles size={20} className="text-gray-900 dark:text-white" /></div>
+                  <div className="p-2 bg-black/20 dark:bg-white/20 rounded-lg"><Sparkles size={20} className="text-slate-900 dark:text-white" /></div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-800/80 dark:text-white/80">Estimated Overall</span>
-                    <span className="text-2xl font-black text-gray-900 dark:text-white">Band {((parseFloat(calculateBand('listening', scores.listening)) + parseFloat(calculateBand('reading', scores.reading))) / 2).toFixed(1)}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-800/80 dark:text-white/80">Estimated Overall</span>
+                    <span className="text-2xl font-black text-slate-900 dark:text-white">Band {((parseFloat(calculateBand('listening', scores.listening)) + parseFloat(calculateBand('reading', scores.reading))) / 2).toFixed(1)}</span>
                   </div>
                 </div>
                 <div className="h-12 w-px bg-black/20 dark:bg-white/20" />
-                <button onClick={saveToProfile} className="text-gray-900 dark:text-white flex flex-col items-center gap-1 group">
-                   <div className="p-2 bg-black/10 dark:bg-white/10 rounded-lg group-hover:bg-black/20 dark:bg-white/20 transition-colors"><Bookmark size={20} /></div>
+                <button onClick={saveToProfile} className="text-slate-900 dark:text-white flex flex-col items-center gap-1 group">
+                   <div className="p-2 bg-slate-300 dark:bg-white/10 rounded-lg group-hover:bg-black/20 dark:bg-white/20 transition-colors"><Bookmark size={20} /></div>
                    <span className="text-[8px] font-black uppercase tracking-tighter">Save to Profile</span>
                 </button>
               </div>
 
               <div className="flex gap-4 pt-4">
-                 <button onClick={() => navigate('/practice')} className="flex-1 py-4 rounded-xl font-bold bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 transition-colors border border-black/5 dark:border-white/5">
+                 <button onClick={() => navigate('/practice')} className="flex-1 py-4 rounded-xl font-bold bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 transition-colors border border-slate-200 dark:border-white/5">
                    Done
                  </button>
-                 <button onClick={() => window.location.reload()} className="flex-1 py-4 rounded-xl font-bold bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10 transition-colors border border-black/5 dark:border-white/5">
+                 <button onClick={() => window.location.reload()} className="flex-1 py-4 rounded-xl font-bold bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10 transition-colors border border-slate-200 dark:border-white/5">
                    Try Again
                  </button>
               </div>

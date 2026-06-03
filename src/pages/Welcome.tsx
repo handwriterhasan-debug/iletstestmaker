@@ -79,40 +79,40 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-6 items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex flex-col p-6 items-center justify-center relative overflow-hidden max-w-[1400px] mx-auto w-full">
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#84cc16]/10 blur-[120px] -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0ea5e9]/10 blur-[120px] -z-10" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 p-8 rounded-[40px] backdrop-blur-xl"
+        className="w-full max-w-md bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 p-6 sm:p-8 rounded-[40px] backdrop-blur-md"
       >
         <div className="text-center mb-10">
-          <div className="inline-flex p-3 bg-[#84cc16]/20 rounded-2xl mb-4">
-            <Sparkles className="text-[#65a30d] dark:text-[#a3e635]" size={24} />
+          <div className="inline-flex p-3 bg-[#0ea5e9]/20 rounded-2xl mb-4">
+            <Sparkles className="text-[#0284c7] dark:text-[#38bdf8]" size={24} />
           </div>
-          <h1 className="text-3xl font-black tracking-tight">SET UP YOUR PORTAL</h1>
-          <p className="text-gray-800 dark:text-gray-200 font-medium mt-2">Welcome to your IELTS journey</p>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight">SET UP YOUR PORTAL</h1>
+          <p className="text-slate-800 dark:text-slate-200 font-medium mt-2">Welcome to your IELTS journey</p>
         </div>
 
         <div className="space-y-8">
           {/* Avatar Upload */}
           <div className="flex flex-col items-center">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-full border-2 border-dashed border-[#84cc16]/40 flex items-center justify-center overflow-hidden bg-black/5 dark:bg-white/5 transition-all group-hover:border-[#84cc16]">
+              <div className="w-32 h-32 rounded-full border-2 border-dashed border-[#0ea5e9]/40 flex items-center justify-center overflow-hidden bg-slate-200 dark:bg-white/5 transition-all group-hover:border-[#0ea5e9]">
                 {preview ? (
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <Camera className="text-gray-800 dark:text-gray-200" size={32} />
+                  <Camera className="text-slate-800 dark:text-slate-200" size={32} />
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 p-2 bg-[#84cc16] rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-[#84cc16]/20">
+              <label className="absolute bottom-0 right-0 p-2 bg-[#0ea5e9] rounded-full cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-[#0ea5e9]/20">
                 <Camera size={16} />
                 <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
               </label>
             </div>
-            <p className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest mt-4">Upload Profile Picture</p>
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mt-4">Upload Profile Picture</p>
           </div>
 
           {/* Name Input */}
@@ -126,7 +126,7 @@ export default function Welcome() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
+                  className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#0ea5e9] outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -140,7 +140,7 @@ export default function Welcome() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
+                  className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#0ea5e9] outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function Welcome() {
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   placeholder="e.g. 25"
-                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#84cc16] outline-none transition-all font-medium"
+                  className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-[#0ea5e9] outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function Welcome() {
           <button 
             onClick={handleStart}
             disabled={!name.trim() || !email.trim() || loading}
-            className="w-full btn-primary flex items-center justify-center gap-3 py-5 rounded-2xl text-lg font-black tracking-tight disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(132,204,22,0.3)]"
+            className="w-full btn-primary flex items-center justify-center gap-3 py-5 rounded-2xl text-lg font-black tracking-tight disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)]"
           >
             {loading ? 'Setting up...' : 'Enter Dashboard'}
             <ArrowRight size={20} />
@@ -171,7 +171,7 @@ export default function Welcome() {
         </div>
       </motion.div>
 
-      <p className="mt-8 text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-[0.2em]">IELTSMAKER PRO VERSION</p>
+      <p className="mt-8 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">IELTSMAKER PRO VERSION</p>
     </div>
   );
 }

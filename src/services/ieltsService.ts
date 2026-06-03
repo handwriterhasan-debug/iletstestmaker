@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getSecureStorage, setSecureStorage } from '../lib/security';
 
 // Complete Mock ieltsService - No Supabase Dependency for logic, only for mock storage consistency
 const STORAGE_KEYS = {
@@ -9,12 +10,11 @@ const STORAGE_KEYS = {
 };
 
 const getStorageItem = (key: string, defaultValue: any = null) => {
-  const item = localStorage.getItem(key);
-  return item ? JSON.parse(item) : defaultValue;
+  return getSecureStorage(key, defaultValue);
 };
 
 const setStorageItem = (key: string, value: any) => {
-  localStorage.setItem(key, JSON.stringify(value));
+  setSecureStorage(key, value);
 };
 
 export const ieltsService = {
@@ -45,7 +45,9 @@ export const ieltsService = {
       created_at: new Date().toISOString(),
       delays_used: 0,
       test_set_index: setIndex,
-      difficulty: regData.difficulty || 'Medium'
+      difficulty: regData.difficulty || 'Medium',
+      name: regData.name, // Keep for UI popup
+      email: regData.email
     };
 
     if (user) {
@@ -92,15 +94,29 @@ export const ieltsService = {
       if (data) {
         setStorageItem(STORAGE_KEYS.REGISTRATION, data);
         return data;
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.REGISTRATION);
+        return null;
       }
     }
-    return getStorageItem(STORAGE_KEYS.REGISTRATION);
+    const stored = getStorageItem(STORAGE_KEYS.REGISTRATION);
+    if (stored && ['upcoming', 'in-progress'].includes(stored.status)) {
+      // Auto-expire guest registrations that are older than 24 hours
+      const testDate = new Date(stored.testDate || stored.test_date || stored.created_at).getTime();
+      if (Date.now() - testDate > 24 * 60 * 60 * 1000) {
+         localStorage.removeItem(STORAGE_KEYS.REGISTRATION);
+         return null;
+      }
+      return stored;
+    }
+    localStorage.removeItem(STORAGE_KEYS.REGISTRATION);
+    return null;
   },
 
   async updateRegistrationStatus(regId: string, status: any) {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (user && !regId.startsWith('mock_')) {
+    if (user && regId && !regId.startsWith('mock_')) {
       const { data, error } = await supabase
         .from('test_registrations')
         .update({ status })
@@ -126,7 +142,7 @@ export const ieltsService = {
   async cancelRegistration(regId: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (user && !regId.startsWith('mock_')) {
+    if (user && regId && !regId.startsWith('mock_')) {
       try {
         await supabase.from('test_registrations').delete().eq('id', regId);
       } catch (err) {
@@ -145,7 +161,7 @@ export const ieltsService = {
     const { data: { user } } = await supabase.auth.getUser();
     const updatedCount = delaysUsed + 1;
 
-    if (user && !regId.startsWith('mock_')) {
+    if (user && regId && !regId.startsWith('mock_')) {
       const { data, error } = await supabase
         .from('test_registrations')
         .update({ 
@@ -195,7 +211,7 @@ export const ieltsService = {
     setStorageItem(STORAGE_KEYS.ANSWERS, allAnswers);
 
     // Supabase persistence if logged in
-    if (user && !regId.startsWith('mock_')) {
+    if (user && regId && !regId.startsWith('mock_')) {
       try {
         await supabase.from('practice_sessions').upsert({
           user_id: user.id,
@@ -218,7 +234,7 @@ export const ieltsService = {
     
     // Set 30 min ready time for non-mock real tests
     const readyAt = new Date();
-    if (!regId.startsWith('mock_')) {
+    if (regId && !regId.startsWith('mock_')) {
       readyAt.setMinutes(readyAt.getMinutes() + 30);
     }
     
@@ -234,7 +250,7 @@ export const ieltsService = {
       created_at: new Date().toISOString()
     };
     
-    if (reg && !regId.startsWith('mock_')) {
+    if (reg && regId && !regId.startsWith('mock_')) {
       reg.status = 'submitted';
       reg.result_ready_at = readyAt.toISOString();
       setStorageItem(STORAGE_KEYS.REGISTRATION, reg);
@@ -242,10 +258,24 @@ export const ieltsService = {
     
     if (user) {
       try {
+        if (regId && !regId.startsWith('mock_')) {
+          const readyAt = new Date();
+          readyAt.setMinutes(readyAt.getMinutes() + 30);
+          
+          const { error: updErr } = await supabase.from('test_registrations').update({ 
+             status: 'submitted', 
+             result_ready_at: readyAt.toISOString() 
+          }).eq('id', regId);
+          
+          if (updErr) {
+             console.error("Failed to update test registration to submitted:", updErr);
+          }
+        }
+
         const { data: saved, error } = await supabase.from('test_results').insert([
           {
             user_id: user.id,
-            registration_id: regId.startsWith('mock_') ? null : regId,
+            registration_id: (!regId || regId.startsWith('mock_')) ? null : regId,
             roll_number: result.roll_number,
             listening_score: scores.listening,
             reading_score: scores.reading,
@@ -258,15 +288,6 @@ export const ieltsService = {
         if (!error && saved) {
           results.push(saved);
           setStorageItem(STORAGE_KEYS.RESULTS, results);
-          
-          if (!regId.startsWith('mock_')) {
-            const readyAt = new Date();
-            readyAt.setMinutes(readyAt.getMinutes() + 30);
-            await supabase.from('test_registrations').update({ 
-               status: 'submitted', 
-               result_ready_at: readyAt.toISOString() 
-            }).eq('id', regId);
-          }
         } else {
           throw error || new Error("Failed to save result to Supabase");
         }

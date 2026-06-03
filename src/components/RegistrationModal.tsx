@@ -130,14 +130,14 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-            className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white dark:bg-[#12121A] border-t border-black/10 dark:border-white/10 rounded-t-[32px] p-8 z-[11001] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
+            className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white dark:bg-[#12121A] border-t border-slate-300 dark:border-white/10 rounded-t-[32px] p-8 z-[11001] shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
           >
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold tracking-tight">IELTS Registration</h2>
               <button 
                 onClick={onClose}
-                className="p-2 hover:bg-black/5 dark:bg-white/5 rounded-full transition-colors"
+                className="p-2 hover:bg-slate-200 dark:bg-white/5 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
@@ -146,9 +146,9 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
             {/* Steps */}
             <div className="flex items-center justify-between mb-8 px-4">
               <StepIndicator step={1} current={step} label="Info" />
-              <div className="flex-1 h-[2px] bg-black/5 dark:bg-white/5 mx-2" />
+              <div className="flex-1 h-[2px] bg-slate-200 dark:bg-white/5 mx-2" />
               <StepIndicator step={2} current={step} label="Date" />
-              <div className="flex-1 h-[2px] bg-black/5 dark:bg-white/5 mx-2" />
+              <div className="flex-1 h-[2px] bg-slate-200 dark:bg-white/5 mx-2" />
               <StepIndicator step={3} current={step} label="Confirm" />
             </div>
 
@@ -226,19 +226,19 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                     <div 
                       onClick={() => setSelectedDateOption('custom')}
                       className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                        selectedDateOption === 'custom' ? 'bg-[#84cc16]/10 border-[#84cc16]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
+                        selectedDateOption === 'custom' ? 'bg-[#0ea5e9]/10 border-[#0ea5e9]' : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 hover:bg-slate-300 dark:bg-white/10'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <Calendar size={18} className={selectedDateOption === 'custom' ? 'text-[#65a30d] dark:text-[#a3e635]' : 'text-black dark:text-white'} />
+                          <Calendar size={18} className={selectedDateOption === 'custom' ? 'text-[#0284c7] dark:text-[#38bdf8]' : 'text-black dark:text-white'} />
                           <span className="font-bold">Pick Custom Date & Time</span>
                         </div>
                       </div>
                       {selectedDateOption === 'custom' && (
                         <input 
                           type="datetime-local" 
-                          className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-[#84cc16]"
+                          className="w-full bg-slate-200 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-[#0ea5e9]"
                           value={customDate}
                           onChange={(e) => setCustomDate(e.target.value)}
                         />
@@ -259,7 +259,7 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                   </div>
 
                   {selectedDateOption && (
-                    <div className="text-center p-3 text-[10px] uppercase font-black tracking-widest text-[#65a30d] dark:text-[#a3e635] animate-pulse">
+                    <div className="text-center p-3 text-[10px] uppercase font-black tracking-widest text-[#0284c7] dark:text-[#38bdf8] animate-pulse">
                       Selected: {getTargetDate().toLocaleString('default', { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
                     </div>
                   )}
@@ -287,20 +287,20 @@ export default function RegistrationModal({ isOpen, onClose, onComplete }: Regis
                       <h3 className="text-xl font-bold">You're Registered!</h3>
                     </div>
                     
-                    <div className="space-y-3 py-4 border-y border-black/10 dark:border-white/10">
+                    <div className="space-y-3 py-4 border-y border-slate-300 dark:border-white/10">
                       <SummaryRow label="Candidate" value={formData.name} icon={User} />
                       <SummaryRow label="Email" value={formData.email} icon={Mail} />
-                      <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                      <div className="flex items-center justify-between p-3 bg-slate-200 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">
                         <div className="flex items-center gap-3">
-                          <Fingerprint size={16} className="text-[#65a30d] dark:text-[#a3e635]" />
+                          <Fingerprint size={16} className="text-[#0284c7] dark:text-[#38bdf8]" />
                           <div className="flex flex-col">
-                            <span className="text-[8px] text-gray-800 dark:text-gray-200 uppercase font-black">Roll Number</span>
+                            <span className="text-[8px] text-slate-800 dark:text-slate-200 uppercase font-black">Roll Number</span>
                             <span className="text-sm font-mono font-bold">{rollNumber}</span>
                           </div>
                         </div>
                         <button 
                           onClick={copyRoll}
-                          className={`p-2 rounded-lg transition-all ${showCopied ? 'bg-green-500/20 text-green-400' : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:bg-white/10'}`}
+                          className={`p-2 rounded-lg transition-all ${showCopied ? 'bg-green-500/20 text-green-400' : 'bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:bg-white/10'}`}
                         >
                           {showCopied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                         </button>
@@ -350,11 +350,11 @@ function StepIndicator({ step, current, label }: { step: number; current: number
   return (
     <div className="flex flex-col items-center gap-2">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-        isCurrent ? 'bg-[#84cc16] ring-4 ring-[#84cc16]/20' : active ? 'bg-[#84cc16]/40' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400'
+        isCurrent ? 'bg-[#0ea5e9] ring-4 ring-[#0ea5e9]/20' : active ? 'bg-[#0ea5e9]/40' : 'bg-slate-200 dark:bg-white/5 text-slate-500 dark:text-slate-400'
       }`}>
         {active && !isCurrent ? <CheckCircle2 size={16} /> : step}
       </div>
-      <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{label}</span>
+      <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>{label}</span>
     </div>
   );
 }
@@ -362,14 +362,14 @@ function StepIndicator({ step, current, label }: { step: number; current: number
 function InputField({ icon: Icon, label, error, onChange, ...props }: any) {
   return (
     <div className="space-y-2">
-      <label className="text-[10px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-200 pl-1">{label}</label>
+      <label className="text-[10px] font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 pl-1">{label}</label>
       <div className="relative">
-        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-200" size={18} />
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-800 dark:text-slate-200" size={18} />
         <input 
           {...props}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full bg-black/5 dark:bg-white/5 border rounded-2xl py-4 pl-12 pr-4 focus:outline-none transition-all ${
-            error ? 'border-red-500/50 bg-red-500/5' : 'border-black/5 dark:border-white/5 focus:border-[#84cc16]'
+          className={`w-full bg-slate-200 dark:bg-white/5 border rounded-2xl py-4 pl-12 pr-4 focus:outline-none transition-all ${
+            error ? 'border-red-500/50 bg-red-500/5' : 'border-slate-200 dark:border-white/5 focus:border-[#0ea5e9]'
           }`}
         />
       </div>
@@ -383,11 +383,11 @@ function DateToggle({ id, label, sub, active, onClick }: any) {
     <button 
       onClick={() => onClick(id)}
       className={`p-4 rounded-2xl border text-left transition-all ${
-        active ? 'bg-[#84cc16]/10 border-[#84cc16] shadow-[0_10px_20px_rgba(132,204,22,0.1)]' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 hover:bg-black/10 dark:bg-white/10'
+        active ? 'bg-[#0ea5e9]/10 border-[#0ea5e9] shadow-[0_10px_20px_rgba(14,165,233,0.1)]' : 'bg-slate-200 dark:bg-white/5 border-slate-200 dark:border-white/5 hover:bg-slate-300 dark:bg-white/10'
       }`}
     >
-      <p className={`font-bold text-sm ${active ? 'text-[#65a30d] dark:text-[#a3e635]' : 'text-gray-900 dark:text-white'}`}>{label}</p>
-      <p className="text-[10px] text-gray-800 dark:text-gray-200">{sub}</p>
+      <p className={`font-bold text-sm ${active ? 'text-[#0284c7] dark:text-[#38bdf8]' : 'text-slate-900 dark:text-white'}`}>{label}</p>
+      <p className="text-[10px] text-slate-800 dark:text-slate-200">{sub}</p>
     </button>
   );
 }
@@ -396,8 +396,8 @@ function SummaryRow({ label, value, icon: Icon }: any) {
   return (
     <div className="flex items-center justify-between p-1">
       <div className="flex items-center gap-3">
-        <Icon size={16} className="text-gray-800 dark:text-gray-200" />
-        <span className="text-[10px] text-gray-800 dark:text-gray-200 uppercase font-black">{label}</span>
+        <Icon size={16} className="text-slate-800 dark:text-slate-200" />
+        <span className="text-[10px] text-slate-800 dark:text-slate-200 uppercase font-black">{label}</span>
       </div>
       <span className="text-xs font-bold">{value}</span>
     </div>

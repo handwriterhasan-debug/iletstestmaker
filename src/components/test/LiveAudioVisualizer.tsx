@@ -10,15 +10,20 @@ export default function LiveAudioVisualizer({ stream, isRecording }: LiveAudioVi
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     if (isRecording && stream) {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          audioContextRef.current = new AudioCtx();
+        }
       }
       
       const ctx = audioContextRef.current;
+      if (!ctx) return;
+
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
@@ -78,7 +83,7 @@ export default function LiveAudioVisualizer({ stream, isRecording }: LiveAudioVi
         return (
           <div
             key={i}
-            className="w-1.5 bg-[#84cc16] rounded-full transition-all duration-75"
+            className="w-1.5 bg-[#0ea5e9] rounded-full transition-all duration-75"
             style={{ height: `${height}px`, opacity: Math.max(0.3, vol + 0.3) }}
           />
         );
